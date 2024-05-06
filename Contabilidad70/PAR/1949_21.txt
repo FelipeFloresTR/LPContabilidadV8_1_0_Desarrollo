@@ -1,0 +1,195 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF"><font face=Arial size=2>
+
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        <td>$Tipo</td>
+        <td>: $Nombre</td>
+    </tr>
+    <tr>
+        <td>RUT No</td>
+        <td>: $RutEmp</td>
+    </tr>
+    <tr>
+        <td>Dirección</td>
+        <td>: $Direccion</td>
+    </tr>
+    <tr>
+        <td>Giro o Actividad</td>
+        <td>: $Giro</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+
+<p align="left">$Texto1</p>
+
+<p></p>
+
+<div align="center"><center>
+<table border="1" cellpadding="0" cellspacing="0">
+  <col width="64" span="37" />
+  <tr height="20">
+    <td rowspan="6" height="491" width="64">FECHA DEL <br />
+      RETIRO, <br />
+      REMESA Y/O <br />
+      DIVIDENDOS <br />
+      DISTRIBUIDOS<br />    
+    </td>
+    <td rowspan="6" width="64">DIVIDENDO N&deg;</td>
+    <td rowspan="6" width="64">RAZÓN SOCIAL SOCIEDAD ANÓNIMA, EN COMANDITA POR ACCIONES O SOCIEDAD POR ACCIÓN</td>
+    <td rowspan="6" width="64">N° RUT</td>
+    <td rowspan="6" width="64">N°CERTIFICADO DE LA SOCIEDAD ANÓNIMA, EN COMANDITA POR ACCIONES O SOCIEDAD POR ACCIÓN</td>
+    <td rowspan="6" width="64">MONTO HIST&Oacute;RICO</td>
+    <td rowspan="6" width="64">FACTOR ACTUALIZACI&Oacute;N</td>
+    <td colspan="13"><div align="center">MONTO SDE DIVIDENDOS REAJUSTADOS (&#36) </div></td>
+    <td colspan="15"><div align="center">CR&Eacute;DITOS PARA IMPUESTO GLOBAL COMPLEMENTARIO O ADICIONAL</div></td>
+    <td rowspan="6" width="64">TASA EFECTIVA DEL    CR&Eacute;DITO DEL FUT (TEF)</td>
+    <td rowspan="6" width="64">TASA EFECTIVA DEL    CR&Eacute;DITO DEL FUNT (TEX)</td>
+    <td rowspan="6" width="64">DEVOLUCION DE CAPITAL    ART.17 N&deg; 7 LIR.</td>
+  </tr>
+  <tr height="20">
+    <td rowspan="5" height="471" width="576">MONTO ACTUALIZADO</td>
+    <td colspan="4" rowspan="4" width="256">MONTO AFECTO A IMPUESTO&nbsp; GLOBAL COMPLEMENTARIO Y/O&nbsp; IMPUESTO ADICIONAL</td>
+    <td colspan="8" width="512"><div align="center">RENTAS EXENTAS E INGRESOS NO CONSTITUTIVOS DE    RENTA (REX)</div></td>
+    <td colspan="9" width="896">ACUMULADOS A CONTAR DEL&nbsp; 01.01.2017</td>
+    <td colspan="5" width="320">ACUMULADOS HASTA EL 31.12.2016</td>
+    <td rowspan="5" width="64">CR&Eacute;DITO POR IMPUESTO    TASA ADICIONAL, EX ART. 21 LIR.</td>
+  </tr>
+  <tr height="134">
+    <td colspan="5" height="134">RENTAS    CON TRIBUTACI&Oacute;N CUMPLIDA</td>
+    <td colspan="2" width="128">RENTAS EXENTAS&nbsp;&nbsp;&nbsp;</td>
+    <td rowspan="4" width="64">INGRESOS    NO CONSTITUTIVOS DE RENTA</td>
+    <td colspan="6" width="896">ASOCIADOS A RENTAS AFECTAS</td>
+    <td colspan="2" width="128">ASOCIADOS A RENTAS EXENTAS <br />
+      (art&iacute;culo 11, Ley 18.401)</td>
+    <td rowspan="4" width="64">CR&Eacute;DITO    POR IPE</td>
+    <td colspan="2" width="320">ASOCIADOS A RENTAS AFECTAS</td>
+    <td colspan="2" width="128">ASOCIADOS A RENTAS EXENTAS <br />
+      (art&iacute;culo 11, Ley 18.401)</td>
+    <td rowspan="4" width="64">CR&Eacute;DITO    POR IPE</td>
+  </tr>
+  <tr height="97">
+    <td rowspan="3" height="317" width="512">RENTAS PROVENIENTES DEL REGISTRO RAP Y DIFERENCIA    INICIAL DE SOCIEDAD ACOGIDA AL EX ART. 14 TER A) LIR</td>
+    <td rowspan="3" width="64">OTRAS    RENTAS PERCIBIDAS SIN PRIORIDAD EN SU ORDEN DE IMPUTACI&Oacute;N</td>
+    <td rowspan="3" width="64">EXCESO    DISTRIBUCIONES DESPROPORCIONADAS <br />
+      (N&deg;9 ART.14 A)</td>
+    <td rowspan="3" width="64">UTILIDADES    AFECTADAS CON IMPUESTO SUSTITUTIVO AL FUT (ISFUT) LEY N&deg;20.780</td>
+    <td rowspan="3" width="64">RENTAS    GENERADAS HASTA EL 31.12.1983 Y/O UTILIDADES AFECTADAS CON IMPUESTO    SUSTITUTIVO AL FUT (ISFUT) LEY N&deg;21.210</td>
+    <td rowspan="3" width="128">RENTAS EXENTAS DE    IMPUESTO GLOBAL COMPLEMENTARIO (IGC) (ART&Iacute;CULO 11, LEY 18.401), AFECTAS A    IMPUESTO ADICIONAL</td>
+    <td rowspan="3" width="64">RENTAS EXENTAS DE    IMPUESTO GLOBAL COMPLEMENTARIO (IGC) Y/O IMPUESTO ADICIONAL (IA)</td>
+    <td colspan="2" width="896">NO SUJETOS A RESTITUCI&Oacute;N GENERADOS    HASTA EL 31.12.2019&nbsp;</td>
+    <td colspan="2" width="128">NO SUJETOS A RESTITUCI&Oacute;N GENERADOS A CONTAR DEL    01.01.2020&nbsp;</td>
+    <td colspan="2" width="128">SUJETOS A RESTITUCI&Oacute;N</td>
+    <td colspan="2" width="128">SUJETOS A RESTITUCI&Oacute;N</td>
+    <td rowspan="3" width="320">SIN    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="3" width="64">CON    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="3" width="128">SIN    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="3" width="64">CON    DERECHO A DEVOLUCI&Oacute;N</td>
+  </tr>
+  <tr height="20">
+    <td rowspan="2" height="220" width="896">SIN DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="64">CON    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="128">SIN    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="64">CON    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="128">SIN    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="64">CON    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="128">SIN    DERECHO A DEVOLUCI&Oacute;N</td>
+    <td rowspan="2" width="64">CON    DERECHO A DEVOLUCI&Oacute;N</td>
+  </tr>
+  <tr height="200">
+    <td height="200" width="256">CON CR&Eacute;DITO POR IDPC GENERADOS A CONTAR DEL    01.01.2017</td>
+    <td width="64">CON    CR&Eacute;DITO POR IDPC&nbsp; ACUMULADOS&nbsp; HASTA EL 31.12.2016</td>
+    <td width="64">CON    DERECHO A CR&Eacute;DITO POR PAGO DE IDPC VOLUNTARIO</td>
+    <td width="64">SIN    DERECHO A CR&Eacute;DITO</td>
+  </tr>
+	  <colgroup>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>  
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>   
+		  <col align=right>   
+		  <col align=right>   
+		  <col align=right>   
+		  <col align=right>   
+		  <col align=right>   
+		  <col align=right>   
+		  <col align=right>
+		  <col align=right>
+		  <col align=right>
+   		  <col align=right>
+	          <col align=right>
+    		  <col align=right>
+                  <col align=right>
+	          <col align=right>
+                  <col align=right>
+                  <col align=right>
+                  <col align=right>
+                  <col align=right>
+                  <col align=right>
+                  <col align=right> 
+		  <col align=right>  
+      </colgroup>
+	    $nMeses 
+
+  </table>
+
+<p></p>
+
+</center></div>
+
+<p align="left">$Texto2</p>
+<p align="left">Se extiende el presente certificado en cumplimiento de lo dispuesto en la Resolución Ex. N°99 de 2020 del Servicio de Impuestos Internos y sus modificaciones posteriores.</p>
+<p align="left">Declaro bajo juramento que los datos contenidos en el presente documento son la expresión fiel de la verdad, por lo que asumo la responsabilidad correspondiente.</p>
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+               
+                
+      </tr>
+    
+      
+         <tr>
+             <td align="center"><img src="$FirmaRep"</img></td>
+         </tr>
+         
+      <tr>
+     	     <td align="center">$Texto3</td>
+      </tr>
+
+        
+             
+           
+</table>
+</font>
+</body>
+</html>

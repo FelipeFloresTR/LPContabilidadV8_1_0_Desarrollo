@@ -1,0 +1,107 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF"><font face=Arial size=2>
+
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        <td>$Tipo</td>
+        <td>: $Nombre</td>
+    </tr>
+    <tr>
+        <td>RUT No</td>
+        <td>: $RutEmp</td>
+    </tr>
+    <tr>
+        <td>Dirección</td>
+        <td>: $Direccion</td>
+    </tr>
+    <tr>
+        <td>Giro o Actividad</td>
+        <td>: $Giro</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+
+<p align="left">$Texto1</p>
+<div align="center"><center>
+
+
+    <table border="1" cellspacing="0" bordercolor="#000000" style="FONT-Size=80%">
+      <tr> 
+        <td rowspan="2" align="center">Períodos<br>
+        </td>
+        <td rowspan="2" align="center">Honorario<br>
+        </td>
+        <td rowspan="2" align="center">Retención<br>
+          de<br>
+          Impuesto <br>
+        </td>
+        <td rowspan="2" align="center">Factor <br>
+          de <br>
+          Actualización <br>
+        </td>
+        <td colspan="2" align="center"><font size="2">MONTOS ACTUALIZ<font face="Arial">ADOS</font></font></td>
+      </tr>
+      <tr> 
+        <td align="center">Honorario <br>
+          Bruto <br>
+        </td>
+        <td align="center">Retenciones de<br>
+          Impuesto <br>
+        </td>
+      </tr>
+      <tr>
+        <td align="center">(1) </td>
+        <td align="center">(2) </td>
+        <td align="center">(3) </td>
+        <td align="center">(4) </td>
+        <td align="center">(2) * (4) = (5)</td>
+        <td align="center">(3) * (4) = (6) </td>
+      </tr>
+      <colgroup>
+      <col align=left>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      </colgroup>
+      $nMeses 
+    </table>
+
+
+</center></div>
+
+<p align="left">$Texto2</p>
+
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+      </tr>
+            <tr>
+                <td align="center">RUT
+                No $RutCliente</td>
+            </tr>
+            <tr>
+                <td align="center">$Texto3</td>
+            </tr>
+</table>
+</font>
+</body>
+</html>

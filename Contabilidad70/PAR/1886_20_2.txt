@@ -1,0 +1,171 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF"><font face=Arial size=2>
+
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        <td>$Tipo</td>
+        <td>: $Nombre</td>
+    </tr>
+    <tr>
+        <td>RUT No</td>
+        <td>: $RutEmp</td>
+    </tr>
+    <tr>
+        <td>Dirección</td>
+        <td>: $Direccion</td>
+    </tr>
+    <tr>
+        <td>Giro o Actividad</td>
+        <td>: $Giro</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+
+<p align="left">$Texto1</p>
+
+<p></p>
+<p align="left"><strong>$Texto8</strong></p>
+<p></p>
+
+<div align="center"><center>
+
+    <table border="1" cellspacing="0" bordercolor="#000000" style="FONT-Size=80%">
+      <tr> 
+        <td width="42" rowspan="5" align="center">Mes<br>
+          del<br>
+          Retiro<br> <br> <br> </td>
+        <td width="68" rowspan="5" align="center">Concepto<br>
+          del<br>
+          Retiro<br> <br> <br> </td>
+        <td width="62" rowspan="5" align="center">Monto<br>
+          Histórico<br>
+          Retiro<br> <br> <br> </td>
+        <td width="35" rowspan="5" align="center">Fact.<br>
+          de<br>
+          Act.<br> <br> <br> </td>
+        <td width="56" rowspan="5" align="center">Monto<br>
+          Reajust.<br>
+          Retiro<br> <br> <br> </td>
+        <td width="62" rowspan="5" align="center">Monto<br>
+          Retiro<br>
+          Afecto<br>
+          Impto. Gl.<br>
+          Comp. o Adic.<br> </td>
+        <td width="51" rowspan="5" align="center">Monto<br>
+          Retiro<br>
+          Exento<br>
+          Impto. Gl.<br>
+          Comp.<br> </td>
+        <td width="47" rowspan="5" align="center">Monto<br>
+          Retiro<br>
+          no const.<br>
+          de Renta<br> <br> </td>
+        <td width="66" rowspan="5" align="center">Exceso de<br>
+          Retiros<br>
+          para el año<br>
+          siguiente<br> <br> </td>
+        <td width="59" rowspan="5" align="center">Increm. por<br>
+          Impto. de<br>
+          1a. Categ.<br> <br> <br> </td>
+        <td colspan="8" align="center">CREDITOS PARA I<font face="Arial">MPTO 
+          COMPL. O ADICIONAL</td>        
+      </tr>   
+      
+      <tr> 
+		<td colspan="5" align="center">Impuesto 1&ordf; Categor&iacute;a</td>
+		<td width="67" rowspan="4" align="center"> Créd. <br> Impuesto <br>
+		  Externo</td>
+		<td width="87" rowspan="4" align="center">Impto.Tasa <br>Adic. Ex-Art.<br>21</td>
+	  </tr>
+      
+      <tr> 
+		<td colspan="3" align="center">AFECTOS A G.COMPLEMENTARIO O ADICIONAL </td>
+		<td colspan="2" rowspan="2" align="center">Exentos de<br>Global<br>Complementario<br>		  <br></td>
+	  </tr>
+	  <tr> 
+		<td colspan="2" align="center">Retiros<br>
+Efectivos </td>
+		<td width="82" align="center">Renta<br>Presunta<br></td>
+	  </tr>
+      <tr>
+        <td width="83" align="center">con Derecho a Devol.</td>
+        <td width="82" align="center">sin Derecho a Devol.</td>
+        <td align="center">con derecho a <font size="2" face="Arial">D</font>evol . </td>
+        <td width="64" align="center">con Derecho a Devol. </td>
+        <td width="83" align="center">sin Derecho a Devol. </td>
+      </tr>
+      <tr> 
+        <td align="center">(1) </td>
+        <td align="center">(2) </td>
+        <td align="center">(3) </td>
+        <td align="center">(4) </td>
+        <td align="center">(5) </td>
+        <td align="center">(6) </td>
+        <td align="center">(7) </td>
+        <td align="center">(8) </td>
+        <td align="center">(9)</td>
+        <td align="center">(10) </td>
+        <td align="center">(11)</td>
+        <td align="center">(12) </td>
+        <td align="center">(13) </td>
+        <td align="center">(14) </td>
+		<td align="center">(15) </td>
+        <td align="center">(16) </td>
+        <td align="center">(17) </td>
+      </tr>
+      <colgroup>
+      <col align=left>
+      <col align=left>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      </colgroup>
+      $nMeses 
+    </table>
+
+
+</center></div>
+
+<p align="left">$Texto2</p>
+
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+      </tr>
+            <tr>
+                <td align="center">RUT
+                No $RutCliente</td>
+            </tr>
+            <tr>
+                <td align="center">$Texto3</td>
+            </tr>
+</table>
+</font>
+</body>
+</html>

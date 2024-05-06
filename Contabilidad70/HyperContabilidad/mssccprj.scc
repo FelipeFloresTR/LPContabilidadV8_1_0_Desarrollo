@@ -1,0 +1,14 @@
+[SCC]
+SCC=This is a source code control file
+[HyperCont.vbp]
+SCC_Project_Name ="$/Contabilidad/HyperContabilidad", OHAAAAAA
+SCC_Aux_Path =\\Pam\SourceSafe\Contab,
+[LPHyperCont.vbp]
+SCC_Project_Name=$/HyperRenta/LPContabilidad2022/Software/Contabilidad70/HyperContabilidad
+SCC_Aux_Path=https://tr-tax.visualstudio.com/|USE2DEVP6424|0c7fdb51-ce08-6467-a3ee-dbc9a38453ae
+[LPHyperContMsSql.vbp]
+SCC_Project_Name=$/HyperRenta/LPContabilidad2022/Software/Contabilidad70/HyperContabilidad
+SCC_Aux_Path=https://tr-tax.visualstudio.com/|USE2DEVP6424|0c7fdb51-ce08-6467-a3ee-dbc9a38453ae
+[LPHyperContMsSql1.vbp]
+SCC_Project_Name=this project is not under source code control
+SCC_Aux_Path=<This is an empty string for the mssccprj.scc file>

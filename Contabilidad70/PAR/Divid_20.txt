@@ -1,0 +1,263 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<font face=Arial size=2>
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        
+    <td width="425">$Tipo</td>
+        
+    <td width="500">: $Nombre</td>
+    </tr>
+    <tr>
+        
+    <td width="425">RUT No</td>
+        
+    <td width="500">: $RutEmp</td>
+    </tr>
+    <tr>
+        
+    <td width="425">Dirección</td>
+        
+    <td width="500">: $Direccion</td>
+    </tr>
+    <tr>
+        
+    <td width="425">Giro o Actividad</td>
+        
+    <td width="500">: $Giro</td>
+    </tr>
+	
+    <tr>
+        
+    <td width="425">Tipo de Sociedad Anónima (Indicar si es Abierta o Cerrada)</td>
+        
+    <td width="500">: $tSoc</td>
+	
+    </tr>
+	
+	<tr>
+		<TD width="425">
+	   		<font face=Arial size=2>
+	
+      		<table style="FONT-Size=80%">
+        		<tr>
+					<td width="425">Transacción de acciones en Bolsa de Valores</td>
+				</tr>
+				
+				<tr>
+					<td width="425">(Marque con "x" lo que corresponda)</td>
+				</tr>
+			</table>
+			
+			</font>
+		</TD>
+		
+		<TD width="425">
+			<font face=Arial size=2>
+
+      		<table border = 1 style="FONT-Size=80%">
+            	<TR>
+          			<TD width="30" BGCOLOR="#F3F3F3">SI</TD>
+		    		<TD width="30" ALIGN=CENTER BGCOLOR="#F3F3F3">&nbsp;$SxI</TD>
+				</TR>
+
+				<TR>
+				
+					<TD width="30" BGCOLOR="#F3F3F3">NO</TD>		
+					<TD width="30" ALIGN=CENTER BGCOLOR="#F3F3F3">&nbsp;$NxO</TD>
+				</TR>
+			</table>
+			
+			</font>
+		</TD>
+		
+	</tr>
+	
+</table>
+</font>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+
+<p align="left">$Texto1</p>
+
+
+<div align="center"><center>
+  <table border="1" align="center" cellspacing="0" bordercolor="#000000" style="FONT-Size=80%">
+      <tr> 
+        <td width="37" rowspan="4" align="center"> <p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p><font face="Arial, Helvetica, sans-serif">Fecha<br>
+            de<br>
+            Pago<br>
+            <br>
+            </font><br>
+          </p></td>
+        <td width="37" rowspan="4" align="center"><p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p><font face="Arial, Helvetica, sans-serif">Didid.<br>
+            Nro.<br>
+            <br>
+            </font><br>
+            <br>
+          </p></td>
+        <td width="60" rowspan="4" align="center"><p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p><font face="Arial, Helvetica, sans-serif">Monto<br>
+            Histórico<br>
+            <br>
+            </font><br>
+            <br>
+          </p></td>
+        <td width="60" rowspan="4" align="center"><p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p><font face="Arial, Helvetica, sans-serif">Fact.<br>
+            de<br>
+            Act.<br>
+            <br>
+            </font><br>
+          </p></td>
+        <td colspan="6" rowspan="2" align="center"><font size="2">MONTOS DIVIDENDOS 
+          REAJUSTADOS</font></td>
+        <td width="60" rowspan="4" align="center"><p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p><font face="Arial, Helvetica, sans-serif">Increm. por<br>
+            Impto. de<br>
+            1a. Categ.<br>
+            </font><br>
+          </p></td>
+        <td height="41" colspan="6" align="center"><font size="2"> CREDITO 
+          PARA IMPUESTO GLOBAL COMPLEMENTARIO O ADICIONAL</font></td>
+      </tr>
+      <tr> 
+        <td height="19" colspan="4" align="center" ><font size="2">IMPTO. PRIMERA 
+          CATEGORIA</font></td>
+        <td width="80" rowspan="3" align="center"> <font face="Arial, Helvetica, sans-serif">Credito <br> Impuesto Externo</font>
+          <br>    <br>
+          </p></td>
+		  <td align="center" rowspan="3"><font face="Arial, Helvetica, sans-serif">Impto. Tasa<br>
+Adic. Ex.<br>
+Art. 21</font></td>
+      </tr>
+      <tr> 
+        <td width="70" rowspan="2" align="center"><font face="Arial, Helvetica, sans-serif">Monto<br>
+          Act.<br>
+          <br>
+          <br>
+          <br>
+          </font></td>
+        <td width="70" rowspan="2" align="center"><font face="Arial, Helvetica, sans-serif"> 
+          Monto <br>
+          Afecto.<br>
+          Impto. Gl.<br>
+          Comp. o Adic.<br>
+          </font></td>
+        <td width="70" rowspan="2" align="center"><font face="Arial, Helvetica, sans-serif">Monto<br>
+          Exento<br>
+          Impto. Gl.<br>
+          Comp.<br>
+          </font></td>
+        <td colspan="3" align="center" valign="middle"><font face="Arial, Helvetica, sans-serif">Monto no Constitutuvo de Renta </font></td>
+        <td colspan="2" align="center" valign="middle"><font face="Arial, Helvetica, sans-serif">Afecto Gl. Comp o Adicional<br> 
+        </font></td>
+        <td colspan="2" align="center" valign="top"><font face="Arial, Helvetica, sans-serif">Exento Gl. Complementario.</font></td>
+      </tr>
+      <tr>
+        <td width="70" align="center"><font face="Arial, Helvetica, sans-serif">No Acogido</font></td>
+        <td width="70" align="center"><font face="Arial, Helvetica, sans-serif">Acogido</font></td>
+        <td width="70" align="center"><font face="Arial, Helvetica, sans-serif">Dev. Capital art. 17 N&deg;7 </font></td>
+        <td align="center">con derecho <br> a Devolución</td>
+		<td align="center">sin derecho <br> a Devolución</td>
+		<td align="center"><p>con derecho <br> a Devolución </p></td>
+        <td align="center">sin derecho <br> a Devolución </td>
+      </tr>
+      <tr> 
+        <td align="center">(1)</td>
+        <td align="center">(2)</td>
+        <td align="center">(3)</td>
+        <td align="center">(4)</td>
+        <td align="center">(5)</td>
+        <td align="center">(6)</td>
+        <td align="center">(7)</td>
+        <td align="center">(8)</td>
+        <td align="center">(9)</td>
+        <td align="center"><div align="center">(10)</div></td>
+        <td align="center"><div align="center">(11)</div></td>
+        <td align="center"><div align="center">(12)</div></td>
+		<td align="center"><div align="center">(13)</div></td>
+		<td align="center"><div align="center">(14)</div></td>
+		<td align="center"><div align="center">(15)</div></td>
+        <td align="center"><div align="center">(16)</div></td>
+        <td align="center"><div align="center">(17)</div></td>
+      </tr>
+      <colgroup>
+      <col align=left>
+      <col align=left>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      </colgroup>
+      $nMeses 
+    </table>
+</center></div>
+
+<p></p>
+<p align="left">$Texto3</p>
+<p></p>
+<p align="left">$Texto4</p>
+<br>
+<br>
+
+<p></p>
+<p align="left"><strong>$Texto7</strong></p>
+<br>
+<p align="left"><strong>$Texto8</strong></p>
+<br>
+<p align="left"><strong>$Texto9</strong></p>
+<br>
+<br>
+
+
+
+
+<p align="left">$Texto2</p>
+
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+      </tr>
+            <tr>
+                <td align="center">RUT
+                No $RutCliente</td>
+            </tr>
+            <tr>
+                <td align="center">$Texto3</td>
+            </tr>
+</table>
+
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF"><font face=Arial size=2>
+
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        <td>$Tipo</td>
+        <td>: $Nombre</td>
+    </tr>
+    <tr>
+        <td>RUT No</td>
+        <td>: $RutEmp</td>
+    </tr>
+    <tr>
+        <td>Dirección</td>
+        <td>: $Direccion</td>
+    </tr>
+    <tr>
+        <td>Giro o Actividad</td>
+        <td>: $Giro</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+
+<p align="left">$Texto1</p>
+<div align="center"><center>
+
+
+    <table border="1" cellspacing="0" bordercolor="#000000" style="FONT-Size=80%">
+      <tr> 
+        <td rowspan="2" align="center">Períodos<br>
+          2010<br> <br> <br> <br> </td>
+        <td rowspan="2" align="center">Sueldo, Jub.<br>
+          o Pensión<br>
+          Bruta<br> <br> <br> </td>
+        <td rowspan="2" align="center">Cotización<br>
+          Previsional<br>
+          de cargo<br>
+          del Trabaj.<br>
+          o pensionado<br> </td>
+        <td rowspan="2" align="center">Renta Imp.<br>
+          Afecta al<br>
+          Impto. Unico<br>
+          2a. Cat.<br> <br> </td>
+        <td rowspan="2" align="center">Impuesto<br>
+          Unico<br>
+          Retenido<br> <br> <br> </td>
+        <td rowspan="2" align="center">Mayor Ret.<br>
+          de Impto.<br>
+          solicitada<br>
+          Art.88 L.I.R.<br> <br> </td>
+        <td rowspan="2" align="center">Renta Total<br>
+          Exenta y/o no<br>
+          Gravada<br><br><br></td>          
+         <td rowspan="2" align="center">Rebaja por<br>
+          Zonas<br>
+          Extremas<br>
+          (Franquicia<br>D.L.889)<br> </td>                             
+        <td rowspan="2" align="center">Fact.<br>
+          de<br>
+          Act.<br> <br> <br> </td>
+        
+        <td colspan="5" align="center"><font size="2" face="Arial">MONTOS ACTUALIZADOS</font></td>
+      </tr>
+      <tr> 
+        <td align="center">Renta<br>
+          Act.<br>
+          Afec.<br>
+          al Impto.<br>
+          Unico 2a. Cat.<br> </td>
+          
+        <td align="center">Impto.<br>
+          Unico<br>
+          retenido<br> <br> <br> </td>
+        <td align="center">Mayor Ret.<br>
+          de impto.<br>
+          solic.Art.88<br>
+          L.I.R.<br> <br> </td>
+          
+        <td align="center">Renta Total<br>
+          Exenta y/o<br>
+          no Gravada<br>
+          <br> <br> </td>
+          
+        <td align="center">Rebaja por<br>
+          Zonas<br>
+          Extremas<br>
+          (Franquicia<br>D.L.889)<br> </td>
+      </tr>
+      <tr> 
+        <td align="center">(1) </td>
+        <td align="center">(2) </td>
+        <td align="center">(3) </td>
+        <td align="center">(2)-(3)=(4) </td>
+        <td align="center">(5) </td>
+        <td align="center">(6) </td>
+        <td align="center">(7) </td>
+        <td align="center">(8) </td>
+        <td align="center">(9) </td>
+        <td align="center">(4)*(9)=(10) </td>
+        <td align="center">(5)*(9)=(11) </td>
+        <td align="center">(6)*(9)=(12)</td>
+        <td align="center">(7)*(9)=(13)</td>
+        <td align="center">(8)*(9)=(14)</td>
+      </tr>
+      <colgroup>
+      <col align=left>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      <col align=right>
+      </colgroup>
+      $nMeses 
+    </table>
+
+
+</center></div>
+
+<p align="left">$Texto2</p>
+
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+      </tr>
+            <tr>
+                <td align="center">RUT
+                No $RutCliente</td>
+            </tr>
+            <tr>
+                <td align="center">$Texto3</td>
+            </tr>
+</table>
+</font>
+</body>
+</html>

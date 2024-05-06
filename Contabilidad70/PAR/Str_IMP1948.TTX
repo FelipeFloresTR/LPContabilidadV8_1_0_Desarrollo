@@ -1,0 +1,53 @@
+EMPLEADOR 	String	60	
+RUT	String	12	
+DIRECCION	String	60	
+GIRO	String	100	
+RUT_BEN	String	15	
+NOM_BEN	String	60	
+AT	Number		
+N_CERT	Number		
+FECHA	String	10	
+CIUDAD	String	30	
+MES	Number		
+DIA	Number		
+COL1	String	10	
+COL2	String	20	
+COL3	String	20	
+COL4	String	10	
+COL5	String	20	
+COL6	String	20	
+COL7	String	20	
+COL8	String	20	
+COL9	String	20	
+COL10	String	20	
+COL11	String	20	
+COL12	String	20	
+COL13	String	20	
+COL14	String	20	
+COL15	String	20	
+COL16	String	20	
+COL17	String	20	
+COL18	String	20	
+COL19	String	20	
+COL20	String	20	
+COL21	String	20	
+COL22	String	20	
+COL23	String	20	
+COL24	String	20
+COL25	String	20
+COL26	String	20
+COL27	String	20
+COL28	String	20
+COL29	String	20
+COL30	String	20
+COL31	String	20
+COL32	String	20
+COL33	String	20
+COL34	String	20
+COL35	String	20
+COL36	String	20
+COL37	String	20
+RUTA_FIRMA 	String	50	
+REPRESENTANTE	String	50	
+RUT_REPRESENTANTE 	String	12	
+DIR2	String	15	

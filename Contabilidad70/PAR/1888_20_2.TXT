@@ -1,0 +1,123 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<font face=Arial size=2> 
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        <td>$Tipo</td>
+        <td>: $Nombre</td>
+    </tr>
+    <tr>
+        <td>RUT No</td>
+        <td>: $RutEmp</td>
+    </tr>
+    <tr>
+        <td>Dirección</td>
+        <td>: $Direccion</td>
+    </tr>
+    <tr>
+        <td>Giro o Actividad</td>
+        <td>: $Giro</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="left">$Texto1</p>
+<div align="center"><center>
+
+
+    <TABLE WIDTH=590 BORDER CELLPADDING=7 CELLSPACING=0 bordercolor="#000000">
+      <TR><TD VALIGN="TOP" COLSPAN=1>
+	<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">SALDO DE AHORRO NETO DEL EJERCICIO POR INVERSIONES</P>
+	<P ALIGN="CENTER">EFECTUADAS CON ANTERIORIDAD AL 01.08.98</FONT></TD>
+	</TR>
+	<TR>
+	<TD VALIGN="TOP">
+	<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">NEGATIVO</FONT></TD>
+	</TR>
+	<TD VALIGN="TOP">
+	<FONT FACE="Arial"><P ALIGN="CENTER">$Texto5</FONT></TD>
+	</TR>
+</TABLE>
+
+<p>&nbsp;</p>
+
+<FONT SIZE=2></FONT>
+    <TABLE WIDTH=590 BORDER CELLPADDING=7 CELLSPACING=0 bordercolor="#000000">
+      <TR><TD VALIGN="TOP" COLSPAN=2>
+	<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">SALDO DE AHORRO NETO DEL EJERCICIO POR INVERSIONES</P>
+	<P ALIGN="CENTER">EFECTUADAS A CONTAR DEL 01.08.98</FONT></TD>
+	</TR>
+	<TR><TD WIDTH="50%" VALIGN="TOP">
+	<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">POSITIVO</FONT></TD>
+	<TD WIDTH="50%" VALIGN="TOP">
+	<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">NEGATIVO</FONT></TD>
+	</TR>
+	<TR><TD WIDTH="50%" VALIGN="TOP">
+	<FONT FACE="Arial"><P ALIGN="CENTER">$Texto6</FONT></TD>
+	<TD WIDTH="50%" VALIGN="TOP">
+	<FONT FACE="Arial"><P ALIGN="CENTER">$Texto7</FONT></TD>
+	</TR>
+</TABLE>
+
+<p>&nbsp;</p>
+
+    <table TABLE WIDTH=590 BORDER CELLPADDING=7 CELLSPACING=0 bordercolor="#000000">
+      <tr>
+        <td colspan="4"><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">INVERSIONES EFECTUADAS A CONTAR DEL 01.01.2015</P>
+            <P ALIGN="CENTER">HASTA EL 31.12.2016</FONT></td>
+      </tr>
+      <tr>
+        <td colspan="2"><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">SALDO DE AHORRO NETO DEL EJERCICIO</FONT></td>
+        <td colspan="2"><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">MONTO RENTABILIDAD O GANANCIA RETIRADA</FONT></td>
+      </tr>
+      <tr>
+        <td><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">POSITIVO</FONT></td>
+        <td><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">NEGATIVO</FONT></td>
+        <td><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">POSITIVA</FONT></td>
+        <td><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">NEGATIVA</FONT></td>
+      </tr>
+      <tr>
+        <td><FONT FACE="Arial"><P ALIGN="CENTER">$Texto8</FONT></td>
+        <td><FONT FACE="Arial"><P ALIGN="CENTER">$Texto9</FONT></td>
+        <td><FONT FACE="Arial"><P ALIGN="CENTER">$Texto10</FONT></td>
+        <td><FONT FACE="Arial"><P ALIGN="CENTER">$Texto11</FONT></td>
+      </tr>
+    </table>
+    <p>&nbsp;</p>
+
+
+</center></div>
+
+<p align="left">$Texto2</p>
+
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+      </tr>
+            <tr>
+                <td align="center">RUT
+                No $RutCliente</td>
+            </tr>
+            <tr>
+                <td align="center">$Texto3</td>
+            </tr>
+</table>
+</font>
+</body>
+</html>

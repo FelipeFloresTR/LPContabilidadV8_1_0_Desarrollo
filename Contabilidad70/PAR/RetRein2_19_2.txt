@@ -1,0 +1,149 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Certificados en Formato HTML</title>
+</head>
+
+<body bgcolor="#FFFFFF"><font face=Arial size=2>
+
+<table border="0" style="FONT-Size=80%">
+    <tr>
+        <td>$Tipo</td>
+        <td>: $Nombre</td>
+    </tr>
+    <tr>
+        <td>RUT No</td>
+        <td>: $RutEmp</td>
+    </tr>
+    <tr>
+        <td>Dirección</td>
+        <td>: $Direccion</td>
+    </tr>
+    <tr>
+        <td>Giro o Actividad</td>
+        <td>: $Giro</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center"><font size="3" ><strong>$NameCertif</strong></font></p>
+
+<p align="right">Certificado No $NumCerti</p>
+
+<p align="right">$CiudadFecha</p>
+
+<p align="left">$Texto1</p>
+
+<p></p>
+
+<div align="center"><center>
+  <font face=Arial size=2>
+ <table border="1" cellspacing="0" bordercolor="#000000" style="FONT-Size=80%">
+    <tr>
+    <tr>
+      <td width="82" rowspan="3" align="center">Fecha en que<br>
+        se efectuaron<br>
+        los Retiros<br>
+        (D&iacute;a y Mes)<br>      </td>
+      <td width="85" rowspan="3" align="center">Monto nom.<br>
+        retiro efect.<br>
+        destinados a<br>
+        reinversión<br>      </td>
+      <td width="82" rowspan="3" align="center">Modalidad<br>
+        Reinversión<br>
+        <br>
+        <br>      </td>
+      <td colspan="5" align="center"><font size="2">SITUACION TRIBUTARIA DE 
+        LOS RETIROS DESTINADOS A REINVERSION</font></td>
+      <td width="64" rowspan="3" align="center"><p>&nbsp;</p>
+          <p>Increm. por<br>
+            impto. de<br>
+            1a. Categ.<br>
+            <br>
+        </p></td>
+      <td colspan="4" align="center"><font size="2">CREDITOS PARA G. COMPL. <font face="Arial">O ADIC. ASOC. A LOS RETIROS REINVERTIDOS</font> </font></td>
+    </tr>
+    <tr>
+      <td width="83" rowspan="2" align="center" valign="middle">.Monto Nominal Retiro efetuado con cargo a Utilidades Tributables Afectas al Impto. Gl. Complementario<br>      </td>
+      <td width="83" rowspan="2" align="center">Monto nom.<br>
+        retiro efect.<br>
+        exento Imp. Gl<br>
+        Comp. o Adic.<br>      </td>
+      <td width="73" colspan="2" align="center">Monto nom.<br>
+        retiro efect.<br>
+        no const.<br>
+        Renta<br>      </td>
+      <td width="94" rowspan="2" align="center">Exceso nominal<br>
+        retiros para el<br>
+        año sgte.<br>
+        <br>      </td>
+      <td colspan="2" align="center">Impto. 
+        1a. Categoria<br>
+              <br>      </td>
+      <td width="128" rowspan="2" align="center"><font size="2" face="Arial"></font>Crédito por Impuesto. Tasa<br>
+        Externos<br>      </td>
+      <td width="147" rowspan="2" align="center"><font size="2" face="Arial"></font>Impto. Tasa<br>
+        Adic. Ex.<br>
+        Art. 21 L.I.R.<br>      </td>
+    </tr>
+    <tr>
+      <td width="36" align="center">No Acogido a Impuesto Sustitutivo</td>
+      <td width="37" align="center">Acogido a Impuesto Sustitutivo</td>
+      <td width="94" align="center"><p>con derecho a devolucion</p>        </td>
+      <td width="101" align="center">sin derecho a devolucion </td>
+    </tr>
+    <tr>
+      <td align="center">(1) </td>
+      <td align="center">(2) </td>
+      <td align="center">(3) </td>
+      <td align="center">(4)</td>
+      <td align="center">(5) </td>
+      <td align="center">(6)</td>
+      <td align="center">(7)</td>
+      <td align="center">(8) </td>
+      <td align="center">(9)</td>
+      <td align="center">(10)</td>
+      <td align="center">(11)</td>
+      <td align="center">(12)</td>
+      <td align="center">(13)</td>
+    </tr>
+    <colgroup>
+    <col align=left>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    <col align=right>
+    </colgroup>
+    $nMeses
+  </table>
+  </font>
+</center></div>
+
+<p align="left">$Texto2</p>
+
+<p align="left">&nbsp;</p>
+
+<table border="0" align="right" style="FONT-Size=90%">
+      <tr>
+                <td align="center"><strong>$RepLegal</strong></td>
+      </tr>
+            <tr>
+                <td align="center">RUT
+                No $RutCliente</td>
+            </tr>
+            <tr>
+                <td align="center">$Texto3</td>
+            </tr>
+</table>
+</font>
+</body>
+</html>
