@@ -386,6 +386,10 @@ Private Sub Bt_MarcarRes_Click()
    
    Call UpdateSQL(DbMain, Tbl, sSet, sFrom, sWhere)
    
+    '3376884
+    Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", "", 1, sWhere, gUsuario.IdUsuario, 1, 2)
+    'fin 3376884
+   
    Me.MousePointer = vbDefault
    
    MsgBox1 "Todos los comprobantes de centralización han quedado con la opción 'Imprimir Resumido' seleccionada.", vbInformation
@@ -405,9 +409,9 @@ Private Sub Form_Load()
    Call SetupPriv
    
    If Not gFunciones.ComprobanteResumido Then
-      Ch_ImpResCent.Visible = False
+      Ch_ImpResCent.visible = False
       Ch_ImpResCent.Enabled = False
-      Lb_ImpRes.Visible = False
+      Lb_ImpRes.visible = False
       Fr_OpComp.Height = Fr_OpComp.Height - 500
       Me.Height = Me.Height - 500
    End If
@@ -425,9 +429,9 @@ Private Sub Form_Load()
       
 End Sub
 
-Private Sub bt_OK_Click()
+Private Sub Bt_OK_Click()
    
-   If Not Valida() Then
+   If Not valida() Then
       Exit Sub
    End If
    
@@ -675,11 +679,11 @@ Private Sub SaveAll()
    
 End Sub
 
-Private Function Valida() As Boolean
+Private Function valida() As Boolean
    Dim Rs As Recordset
    Dim Q1 As String
    
-   Valida = False
+   valida = False
    
    'correlativos comprobantes
    If (gTipoCorrComp > 0 Or gPerCorrComp > 0) And (gTipoCorrComp <> lIndexTipoCorr Or gPerCorrComp <> lIndexPerCorr) Then  'ya existe una definición y es distinta a la que había
@@ -706,7 +710,7 @@ Private Function Valida() As Boolean
       Exit Function
    End If
          
-   Valida = True
+   valida = True
 End Function
 
 Private Sub LoadAll()

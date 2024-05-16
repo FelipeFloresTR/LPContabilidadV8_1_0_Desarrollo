@@ -284,7 +284,7 @@ Private Sub bt_Cerrar_Click()
          Call SaveFicha
       
       ElseIf MsgBox1("¿Desea guardar los cambios realizados a este detalle?", vbQuestion + vbYesNo + vbDefaultButton1) = vbYes Then
-         If Not Valida() Then
+         If Not valida() Then
             Exit Sub
          End If
 
@@ -349,7 +349,7 @@ End Sub
 
 Private Sub Bt_SaveComp_Click()
    
-   If Not Valida() Then
+   If Not valida() Then
       Exit Sub
    End If
 
@@ -674,12 +674,12 @@ Private Sub LoadComps()
 
 End Sub
 
-Private Function Valida(Optional ByVal Oper As Integer = O_EDIT) As Boolean
+Private Function valida(Optional ByVal Oper As Integer = O_EDIT) As Boolean
    Dim Rs As Recordset
    Dim Q1 As String
    Dim TotPje As Double, PjeComps As Double
    
-   Valida = False
+   valida = False
  
  
    If Not Oper = O_NEW Then
@@ -729,7 +729,7 @@ Private Function Valida(Optional ByVal Oper As Integer = O_EDIT) As Boolean
       
    End If
    
-   Valida = True
+   valida = True
    
 End Function
 Private Sub SaveCompAF()
@@ -750,9 +750,11 @@ Private Sub SaveCompAF()
    If id = 0 Then      'es nueva
    
       For i = 1 To Grid.rows - 1
-'         Fld = Fld & "," & Grid.TextMatrix(i, C_FIELD)
-'         ValFld = ValFld & "," & Str(vFmt(Grid.TextMatrix(i, C_VALOR)))
-         Fld = Fld & ", " & Grid.TextMatrix(i, C_FIELD) & " = " & str(vFmt(Grid.TextMatrix(i, C_VALOR)))
+        '637385 se descomento las primeras 2 filas y  comenta la tercera para guardar registro en bd
+         Fld = Fld & "," & Grid.TextMatrix(i, C_FIELD)
+         ValFld = ValFld & "," & str(vFmt(Grid.TextMatrix(i, C_VALOR)))
+         'Fld = Fld & ", " & Grid.TextMatrix(i, C_FIELD) & " = " & str(vFmt(Grid.TextMatrix(i, C_VALOR)))
+         'fin '637385
       Next i
       
       If Ch_SinDetComps <> 0 Then
@@ -761,28 +763,29 @@ Private Sub SaveCompAF()
          IdComp = lCbComponente.Matrix(L_IDCOMP)
       End If
       
-
-      FldArray(0).FldName = "IdActFijo"
-      FldArray(0).FldValue = lIdActFijo
-      FldArray(0).FldIsNum = True
-      
-      FldArray(1).FldName = "IdGrupo"
-      FldArray(1).FldValue = lIdGrupo
-      FldArray(1).FldIsNum = True
-            
-      FldArray(2).FldName = "IdComp"
-      FldArray(2).FldValue = IdComp
-      FldArray(2).FldIsNum = True
-            
-      FldArray(3).FldName = "IdEmpresa"
-      FldArray(3).FldValue = gEmpresa.id
-      FldArray(3).FldIsNum = True
-                  
-      FldArray(4).FldName = "Ano"
-      FldArray(4).FldValue = gEmpresa.Ano
-      FldArray(4).FldIsNum = True
-      
-      lIdCompFicha = AdvTbAddNewMult(DbMain, "ActFijoCompsFicha", "IdCompFicha", FldArray)
+'637385 se comenta lineas para guardar registro en bd
+'      FldArray(0).FldName = "IdActFijo"
+'      FldArray(0).FldValue = lIdActFijo
+'      FldArray(0).FldIsNum = True
+'
+'      FldArray(1).FldName = "IdGrupo"
+'      FldArray(1).FldValue = lIdGrupo
+'      FldArray(1).FldIsNum = True
+'
+'      FldArray(2).FldName = "IdComp"
+'      FldArray(2).FldValue = IdComp
+'      FldArray(2).FldIsNum = True
+'
+'      FldArray(3).FldName = "IdEmpresa"
+'      FldArray(3).FldValue = gEmpresa.id
+'      FldArray(3).FldIsNum = True
+'
+'      FldArray(4).FldName = "Ano"
+'      FldArray(4).FldValue = gEmpresa.Ano
+'      FldArray(4).FldIsNum = True
+'
+'      lIdCompFicha = AdvTbAddNewMult(DbMain, "ActFijoCompsFicha", "IdCompFicha", FldArray)
+'fin '637385
       
 '      If lIdCompFicha > 0 Then
 '         Q1 = "UPDATE ActFijoCompsFicha SET"
@@ -796,36 +799,38 @@ Private Sub SaveCompAF()
 '
 '         Call ExecSQL(DbMain, Q1)
 '      End If
+
+      '637385 se comenta lineas para guardar registro en bd
+'      Call LoadComps
+'      If Ch_SinDetComps <> 0 Then
+'         LoadDetFin (-1)
+'      Else
+'         id = lIdCompFicha
+'         Call lCbComponente.SelItem(id)
+'      End If
+      
+      '637385 se descomenta lineas para guardar registro en bd
+      Q1 = "INSERT INTO ActFijoCompsFicha ( IdActFijo, IdGrupo, IdComp, IdEmpresa, Ano " & Fld & ")"
+      Q1 = Q1 & " VALUES (" & lIdActFijo & "," & lIdGrupo & "," & IdComp & "," & gEmpresa.id & "," & gEmpresa.Ano & ValFld & ")"
+
+      Call ExecSQL(DbMain, Q1)
       
       Call LoadComps
-      If Ch_SinDetComps <> 0 Then
-         LoadDetFin (-1)
-      Else
-         id = lIdCompFicha
-         Call lCbComponente.SelItem(id)
+
+      Q1 = "SELECT IdCompFicha FROM ActFijoCompsFicha WHERE IdActFijo = " & lIdActFijo & " AND IdGrupo = " & lIdGrupo & " AND IdComp = " & IdComp
+
+      Set Rs = OpenRs(DbMain, Q1)
+      If Not Rs.EOF Then
+         If Ch_SinDetComps <> 0 Then
+            LoadDetFin (-1)
+         Else
+            id = vFld(Rs("IdCompFicha"))
+            Call lCbComponente.SelItem(id)
+         End If
       End If
-      
-      
-'      Q1 = "INSERT INTO ActFijoCompsFicha ( IdActFijo, IdGrupo, IdComp, IdEmpresa, Ano " & Fld & ")"
-'      Q1 = Q1 & " VALUES (" & lIdActFijo & "," & lIdGrupo & "," & IdComp & "," & gEmpresa.id & "," & gEmpresa.Ano & ValFld & ")"
-'
-'      Call ExecSQL(DbMain, Q1)
-      
-'      Call LoadComps
-'
-'      Q1 = "SELECT IdCompFicha FROM ActFijoCompsFicha WHERE IdActFijo = " & lIdActFijo & " AND IdGrupo = " & lIdGrupo & " AND IdComp = " & IdComp
-'
-'      Set Rs = OpenRs(DbMain, Q1)
-'      If Not Rs.EOF Then
-'         If Ch_SinDetComps <> 0 Then
-'            LoadDetFin (-1)
-'         Else
-'            id = vFld(Rs("IdCompFicha"))
-'            Call lCbComponente.SelItem(id)
-'         End If
-'      End If
-'
-'      Call CloseRs(Rs)
+
+      Call CloseRs(Rs)
+      'fin 637385
       
    Else   'ya existe
       Q1 = "UPDATE ActFijoCompsFicha SET "
@@ -886,7 +891,7 @@ Private Sub Cb_Componente_Click()
    If Not lInLoad And lModif Then
       If MsgBox1("¿Desea guardar los cambios realizados a este detalle?", vbQuestion + vbYesNo + vbDefaultButton1) = vbYes Then
          
-         If Not Valida() Then
+         If Not valida() Then
             InClick = True
             Call lCbComponente.SelItem(lIdCompFicha)
             DoEvents
@@ -1056,7 +1061,7 @@ Private Sub Ls_CompGrupo_DblClick()
    If Not lInLoad And lModif Then
       Ls_CompGrupo.visible = False
       If MsgBox1("¿Desea guardar los cambios realizados a este detalle?", vbQuestion + vbYesNo + vbDefaultButton1) = vbYes Then
-         If Not Valida() Then
+         If Not valida() Then
             Exit Sub
          End If
 
@@ -1078,7 +1083,7 @@ Private Sub Ls_CompGrupo_DblClick()
    Call lCbComponente.AddItem(Ls_CompGrupo, 0, id, "", True)
    Ls_CompGrupo.visible = False
    
-   If Not Valida(O_NEW) Then
+   If Not valida(O_NEW) Then
       Exit Sub
    Else
       Call SaveCompAF

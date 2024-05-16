@@ -465,6 +465,10 @@ Private Sub bt_DelCartola_Click()
          Call ExecSQL(DbMain, Q1)
       'End If
       
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmImpCartola.bt_DelCartola_Click()", Q1, 1, "WHERE idCartola=" & lidCartola & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+      'fin 3376884
+      
 '      Q1 = "DELETE * FROM DetCartola WHERE idCartola=" & lidCartola
 '      Rc = ExecSQL(DbMain, Q1)
       Q1 = " WHERE idCartola=" & lidCartola
@@ -524,7 +528,7 @@ Private Sub bt_Help_Click()
 End Sub
 
 Private Sub Bt_Imp_Click()
-   Dim FName As String, Fd As Long, Buf As String, p As Long, l As Integer, r As Integer
+   Dim fname As String, Fd As Long, Buf As String, p As Long, l As Integer, r As Integer
    Dim Fecha As Long, Detalle As String, NroDoc As String, Cargo As Double, Abono As Double
    Dim TCargo As Double, TAbono As Double, Aux As String
    Dim Dt1 As Long, Dt2 As Long, nMsg1 As Byte
@@ -543,12 +547,12 @@ Private Sub Bt_Imp_Click()
       Exit Sub
    End If
 
-   FName = CmDialog1.Filename
+   fname = CmDialog1.Filename
    Fd = FreeFile
    
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Exit Sub
    End If
    
@@ -1158,6 +1162,10 @@ Private Function SaveAll() As Boolean
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
             Call ExecSQL(DbMain, Q1)
             
+            '3376884
+            Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmImpCartola.SaveAll", Q1, 1, "WHERE idCartola=" & lidCartola & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+            'fin 3376884
+            
 '            Q1 = "DELETE * FROM DetCartola WHERE idCartola=" & idCartola
 '            Rc = ExecSQL(DbMain, Q1)
             Q1 = " WHERE idCartola=" & idCartola
@@ -1275,6 +1283,11 @@ Private Function SaveAll() As Boolean
       Q1 = "UPDATE MovComprobante SET idCartola=0 WHERE idCartola=" & lidCartola
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Rc = ExecSQL(DbMain, Q1)
+      
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmImpCartola.SaveAll", Q1, 1, "WHERE idCartola=" & lidCartola & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+      'fin 3376884
+      
       Q1 = "UPDATE DetCartola SET IdMov=0 WHERE idCartola=" & lidCartola
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Rc = ExecSQL(DbMain, Q1)

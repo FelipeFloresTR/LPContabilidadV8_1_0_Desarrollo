@@ -604,7 +604,7 @@ Private Sub Bt_GenCuotas_Click()
          Grid.TextMatrix(Row, C_NUMCUOTA) = i
          If Day(FInicio) <= 28 Then
             Dt = DateAdd("m", 1 * (i - 1), FInicio)
-            Grid.TextMatrix(Row, C_LNGFECHAEXIGPAGO) = CLng(DateSerial(Year(Dt), Month(Dt), Day(FInicio)))
+            Grid.TextMatrix(Row, C_LNGFECHAEXIGPAGO) = CLng(DateSerial(Year(Dt), month(Dt), Day(FInicio)))
          Else
             Dt = DateAdd("d", 30 * (i - 1), FInicio)
             Grid.TextMatrix(Row, C_LNGFECHAEXIGPAGO) = Dt
@@ -635,9 +635,9 @@ Private Sub Bt_GenCuotas_Click()
 
 End Sub
 
-Private Sub bt_OK_Click()
+Private Sub Bt_OK_Click()
    
-   If Valida() Then
+   If valida() Then
       Call SaveGrid
       lRc = vbOK
       lFVenc = GetTxDate(Tx_FInicio)
@@ -663,7 +663,7 @@ Private Sub Bt_VerLibCaja_Click()
    Set Rs = OpenRs(DbMain, Q1)
    
    If Not Rs.EOF Then
-      Mes = Month(vFld(Rs("FechaIngresoLibro")))
+      Mes = month(vFld(Rs("FechaIngresoLibro")))
    End If
    
    Call CloseRs(Rs)
@@ -882,6 +882,10 @@ Private Sub SaveGrid()
          Q1 = Q1 & " WHERE IdDoc = " & lIdDoc
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
+         
+         'Tracking 3227543
+        Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDocCuotas.SaveGrid1", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+        ' fin 3227543
       
       End If
       
@@ -891,16 +895,20 @@ Private Sub SaveGrid()
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Call ExecSQL(DbMain, Q1)
       
+      'Tracking 3227543
+        Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDocCuotas.SaveGrid2", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+        ' fin 3227543
+      
    End If
    
 
 End Sub
-Private Function Valida() As Boolean
+Private Function valida() As Boolean
    Dim i As Integer
    Dim Total As Double
    Dim NCuotas As Integer
    
-   Valida = False
+   valida = False
    
    For i = Grid.FixedRows To Grid.rows - 1
    
@@ -927,7 +935,7 @@ Private Function Valida() As Boolean
       Exit Function
    End If
    
-   Valida = True
+   valida = True
    
 End Function
 
@@ -1171,10 +1179,10 @@ Private Sub SetUpPrtGrid()
 End Sub
 Private Sub Bt_ConvMoneda_Click()
    Dim Frm As FrmConverMoneda
-   Dim Valor As Double
+   Dim valor As Double
       
    Set Frm = New FrmConverMoneda
-   Frm.FView (Valor)
+   Frm.FView (valor)
       
    Set Frm = Nothing
    

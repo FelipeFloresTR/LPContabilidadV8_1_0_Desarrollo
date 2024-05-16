@@ -1845,6 +1845,10 @@ Private Sub SaveGrid(Grid As Control, ByVal bConciliado As Boolean)
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
             Call ExecSQL(DbMain, Q1)
             
+            '3376884
+            Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmConciliacion.SaveGrid1", Q1, 1, "WHERE idMov=" & Val(Grid.TextMatrix(Row, C_IDMOV)) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+            'fin 3376884
+            
 #If DATACON = 1 Then
          ElseIf Not lDbAnoAnt Is Nothing Then   'es del año anterior
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano - 1
@@ -1852,11 +1856,19 @@ Private Sub SaveGrid(Grid As Control, ByVal bConciliado As Boolean)
                Call ExecSQL(lDbAnoAnt, Q1)
             Else
                Call ExecSQL(DbMain, Q1)
+               '3376884
+                Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmConciliacion.SaveGrid2", Q1, 1, "WHERE idMov=" & Val(Grid.TextMatrix(Row, C_IDMOV)) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano - 1, 1, 2)
+               'fin 3376884
+
             End If
 #Else
          Else
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano - 1
             Call ExecSQL(DbMain, Q1)
+            
+            '3376884
+            Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmConciliacion.SaveGrid3", Q1, 1, "WHERE idMov=" & Val(Grid.TextMatrix(Row, C_IDMOV)) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano - 1, 1, 2)
+            'fin 3376884
          
 #End If
          End If

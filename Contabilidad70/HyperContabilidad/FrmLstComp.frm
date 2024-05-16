@@ -855,6 +855,10 @@ Private Sub Bt_CambiarEstadoComps_Click()
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
+   '3376884
+   Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmLstComp.Bt_CambiarEstadoComps_Click", Q1, 1, "WHERE IdComp IN (" & LstComp & ") AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+   'Fin 3376884
+   
    'actualizamos el estado en la lista
    For i = Grid.FixedRows To Grid.rows - 1
       If Val(Grid.TextMatrix(i, C_IDCOMP)) <= 0 Then
@@ -925,7 +929,7 @@ Private Sub Bt_CopyExcel_Click()
 End Sub
 
 Private Sub Bt_DelComp_Click()
-   Dim idcomp As Long, PcName As String
+   Dim IdComp As Long, PcName As String
    Dim CorrComp As Long
    Dim FechaComp As Long
    Dim EstadoComp As Integer
@@ -939,9 +943,9 @@ Private Sub Bt_DelComp_Click()
       Exit Sub
    End If
    
-   idcomp = Val(Grid.TextMatrix(Grid.Row, C_IDCOMP))
+   IdComp = Val(Grid.TextMatrix(Grid.Row, C_IDCOMP))
    
-   If idcomp = 0 Then
+   If IdComp = 0 Then
       Exit Sub
    End If
 
@@ -957,19 +961,19 @@ Private Sub Bt_DelComp_Click()
    End If
    'FIN FEÑA
    
-   PcName = IsLockedAction(DbMain, LK_COMPROBANTE, idcomp)
+   PcName = IsLockedAction(DbMain, LK_COMPROBANTE, IdComp)
    If PcName <> "" Then
       MsgBox1 "Este comprobante se está editando en el equipo '" & PcName & "'. No puede ser eliminado.", vbInformation
       Exit Sub
    End If
 
-   If DeleteComprobante(idcomp, , DocFull) = True Then
+   If DeleteComprobante(IdComp, , DocFull) = True Then
 
       MousePointer = vbHourglass
       Call LoadAll
       MousePointer = vbDefault
       
-      Call AddLogComprobantes(idcomp, gUsuario.IdUsuario, O_DELETE, Now, EC_ELIMINADO, CorrComp, FechaComp, TipoComp, EC_ELIMINADO, TipoAjuste)
+      Call AddLogComprobantes(IdComp, gUsuario.IdUsuario, O_DELETE, Now, EC_ELIMINADO, CorrComp, FechaComp, TipoComp, EC_ELIMINADO, TipoAjuste)
 
       MsgBox1 "El comprobante ha sido eliminado.", vbInformation + vbOKOnly
    
@@ -1090,7 +1094,7 @@ End Sub
 
 Private Sub Bt_Search_Click()
 
-   If Valida() = False Then
+   If valida() = False Then
       Exit Sub
    End If
    
@@ -1118,7 +1122,7 @@ End Sub
 
 
 Private Sub Bt_ViewCompRes_Click()
-   Dim idcomp As Long
+   Dim IdComp As Long
    Dim Frm As FrmComprobante
    Dim Row As Integer
    
@@ -1128,11 +1132,11 @@ Private Sub Bt_ViewCompRes_Click()
       Exit Sub
    End If
       
-   idcomp = Val(Grid.TextMatrix(Row, C_IDCOMP))
+   IdComp = Val(Grid.TextMatrix(Row, C_IDCOMP))
 
-   If idcomp <> 0 Then
+   If IdComp <> 0 Then
       Set Frm = New FrmComprobante
-      Call Frm.FViewResumido(idcomp)
+      Call Frm.FViewResumido(IdComp)
       Set Frm = Nothing
       
       Grid.Row = Row
@@ -1297,7 +1301,7 @@ Private Sub SetUpGrid()
    Call FGrTotales(Grid, GridTot)
 
 End Sub
-Private Sub LoadAll(Optional ByVal idcomp As Long = 0)
+Private Sub LoadAll(Optional ByVal IdComp As Long = 0)
    Dim Q1 As String
    Dim Q2 As String
    Dim Rs As Recordset
@@ -1308,8 +1312,8 @@ Private Sub LoadAll(Optional ByVal idcomp As Long = 0)
 
    Grid.Redraw = False
    
-   If idcomp > 0 Then
-      Wh = " WHERE IdComp = " & idcomp
+   If IdComp > 0 Then
+      Wh = " WHERE IdComp = " & IdComp
    Else
       Wh = CreateWhere(JoinStr)
    End If
@@ -1342,7 +1346,7 @@ Private Sub LoadAll(Optional ByVal idcomp As Long = 0)
    Q1 = Q1 & " ORDER BY " & lOrdenGr(lOrdenSel)
    Set Rs = OpenRs(DbMain, Q1)
    
-   If idcomp <= 0 Then
+   If IdComp <= 0 Then
       Grid.rows = Grid.FixedRows
       i = Grid.FixedRows
    Else
@@ -1351,7 +1355,7 @@ Private Sub LoadAll(Optional ByVal idcomp As Long = 0)
    
    Do While Rs.EOF = False
    
-      If idcomp <= 0 Then
+      If IdComp <= 0 Then
          Grid.rows = i + 1
       End If
       
@@ -1396,7 +1400,7 @@ Private Sub LoadAll(Optional ByVal idcomp As Long = 0)
    
    Call CloseRs(Rs)
    
-   If idcomp <= 0 Then
+   If IdComp <= 0 Then
       Call FGrVRows(Grid)
       Grid.rows = Grid.rows + 1
       
@@ -1530,19 +1534,19 @@ Private Sub Grid_DblClick()
    
 End Sub
 Private Sub ViewDetComp(ByVal Row As Integer, ByVal Col As Integer)
-   Dim idcomp As Long
+   Dim IdComp As Long
    Dim Frm As FrmComprobante
 
    If Row < Grid.FixedRows Then
       Exit Sub
    End If
       
-   idcomp = Val(Grid.TextMatrix(Row, C_IDCOMP))
+   IdComp = Val(Grid.TextMatrix(Row, C_IDCOMP))
    CodTipoLib = Val(Grid.TextMatrix(Row, C_TIPOLIB))
 
-   If idcomp <> 0 Then
+   If IdComp <> 0 Then
       Set Frm = New FrmComprobante
-      Call Frm.FEdit(idcomp, False)
+      Call Frm.FEdit(IdComp, False)
       Set Frm = Nothing
       Call UpdateComp
       Grid.Row = Row
@@ -1748,10 +1752,10 @@ Private Sub FillCb()
 
 
 End Sub
-Private Function Valida() As Boolean
+Private Function valida() As Boolean
    Dim F1 As Long, F2 As Long
    
-   Valida = False
+   valida = False
    
    F1 = GetDate(Tx_Fecha(0))
    F2 = GetDate(Tx_Fecha(1))
@@ -1780,7 +1784,7 @@ Private Function Valida() As Boolean
       Exit Function
    End If
    
-   Valida = True
+   valida = True
 End Function
 Private Sub SetUpPrtGrid()
    Dim i As Integer
@@ -2226,6 +2230,10 @@ Else
 
 
          lidComp = AdvTbAddNewMult(DbMain, lTblComprobante, "IdComp", FldArray)
+         
+         '3376884
+         Call SeguimientoComprobantes(CLng(lidComp), gEmpresa.id, gEmpresa.Ano, "FrmLstComp.Bt_traspasar_Click", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+         'fin 3376884
 
             If lidComp = -1 Then
               Call AddLogImp(FNameLogImp, "Traspaso Comprobante ", 0, "No fue posible Traspasar Comprobante " & vFld(Rs("IdComp")) & ".")
@@ -2317,6 +2325,10 @@ Else
 
 
           idMov = AdvTbAddNewMult(DbMain, lTblMovComprobante, "IdMov", FldArrayMovCom)
+          
+          '3376884
+          Call SeguimientoMovComprobante(CLng(lidComp), gEmpresa.id, gEmpresa.Ano, "FrmLstComp.Bt_traspasar_Click", Q1, 1, "", 1, 1)
+          'fin 3376884
 
 
             If idMov = -1 Then

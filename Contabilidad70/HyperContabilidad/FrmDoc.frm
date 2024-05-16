@@ -1037,6 +1037,10 @@ Private Sub SaveAll()
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
+   'Tracking 3227543
+    Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDoc.SaveAll1", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+    ' fin 3227543
+   
          
    'grabamos correaltivo cheque para la cuenta seleccionada, si corresponde
    If CbItemData(Cb_Cuentas) > 0 Then

@@ -223,11 +223,11 @@ Private Sub Form_Load()
    
    If lOper = O_IMPORT Then
       Me.Caption = "Importar Libro Auxiliar desde Sucursal"
-      Bt_Export.Visible = False
+      Bt_Export.visible = False
    Else
       Me.Caption = "Exportar Libro Auxiliar desde Sucursal"
-      Bt_Import.Visible = False
-      Ch_Plan.Visible = False
+      Bt_Import.visible = False
+      Ch_Plan.visible = False
       Ch_Plan = 1
    End If
    
@@ -1001,6 +1001,11 @@ Private Function ImportLibroMes(ByVal TipoLib As Integer, ByVal Rut As String, B
          Call ExecSQL(DbMain, Q1)
          
       End If
+      
+      'Tracking 3227543
+     Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmImpExpLib.ImportLibroMes", "", 1, "", gUsuario.IdUsuario, 2, 1)
+     Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmImpExpLib.ImportLibroMes", "", 1, "", 2, 1)
+     ' fin 3227543
       
       
       Rs.MoveNext

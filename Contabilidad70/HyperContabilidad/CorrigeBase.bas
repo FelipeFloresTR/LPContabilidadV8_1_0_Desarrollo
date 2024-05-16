@@ -606,18 +606,56 @@ Public Sub CorrigeBase()
     If Not CorrigeBase_V738() Then   'agregada 08 MAR 2023 FFV ADO 2932636 tema 2
       Exit Sub
      End If
+    
+    If Not CorrigeBase_V739() Then   'agrega tablas de auditoria documentos y comprobantes
+      Exit Sub
+    End If
 
 
 '   Call AppendIdEmpresaAno("Comprobante", True)      'para solucionar tema de cliente
 '   Call AppendIdEmpresaAno("MovComprobante", True)
    
-   If lDbVer > 739 Then
+   If lDbVer > 740 Then
       MsgBox1 "¡ ATENCION !" & vbCrLf & vbCrLf & "La base de datos corresponde a una versión posterior de este programa." & vbCrLf & "Debe actualizar el programa antes de continuar, de lo contrario podría dañar la información..", vbCritical
       Call CloseDb(DbMain)
       End
    End If
 
 End Sub
+
+Public Function CorrigeBase_V739() As Boolean   'Agregada 12 octubre 2023
+   Dim Q1 As String
+   Dim Tbl As TableDef
+   Dim Fld As Field
+   Dim Rc As Integer
+   Dim Rs As Recordset
+   Dim CapPropio As Double
+
+   On Error Resume Next
+   
+   '--------------------- Versión 739 -----------------------------------
+   If lDbVer = 739 And lUpdOK = True Then
+   
+      ERR.Clear
+            
+      Call DuplicTable(DbMain, "Documento", "Tracking_Documento")
+      Call DuplicTable(DbMain, "MovDocumento", "Tracking_MovDocumento")
+      Call DuplicTable(DbMain, "Comprobante", "Tracking_Comprobante")
+      Call DuplicTable(DbMain, "MovComprobante", "Tracking_MovComprobante")
+      
+      
+            
+      If lUpdOK Then
+         lDbVer = 740
+         Q1 = "UPDATE ParamEmpresa SET Valor=" & lDbVer & " WHERE Tipo='DBVER'"
+         Call ExecSQL(DbMain, Q1)
+      End If
+   
+   End If
+   
+   CorrigeBase_V739 = lUpdOK
+
+End Function
 
 
 '2861733 tema 2
@@ -635,32 +673,32 @@ Public Function CorrigeBase_V738() As Boolean   'Agregada 14 dic 2020
    '--------------------- Versión 738 -----------------------------------
    If lDbVer = 738 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo idCCosto a MovActivoFijo
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("idCCosto", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.idCCosto", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.idCCosto", vbExclamation
          lUpdOK = False
       End If
       
       
        'Agregamos campo IdAreaNeg a MovActivoFijo
-       Err.Clear
+       ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdAreaNeg", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.IdAreaNeg", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.IdAreaNeg", vbExclamation
          lUpdOK = False
       End If
       
@@ -678,9 +716,9 @@ Public Function CorrigeBase_V738() As Boolean   'Agregada 14 dic 2020
       Rc = ExecSQL(DbMain, Q1, False)
       
       
-       If Err <> 0 Then
+       If ERR <> 0 Then
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error, vbExclamation
+         MsgBox "Error " & ERR & ", " & Error, vbExclamation
          lUpdOK = False
       End If
             
@@ -706,17 +744,17 @@ Public Function CorrigeBase_V737() As Boolean   'Agregada 14 dic 2020
    Dim Rs As Recordset
    Dim CapPropio As Double
    
-    Dim idxDocumento As index
+    Dim idxDocumento As Index
 
    On Error Resume Next
    
    '--------------------- Versión 737 -----------------------------------
    If lDbVer = 737 And lUpdOK = True Then
    
-       Err.Clear
+       ERR.Clear
        
     Call CloseDb(DbMain)
-    Call OpenDbEmp(gEmpresa.Rut, gEmpresa.ano)
+    Call OpenDbEmp(gEmpresa.Rut, gEmpresa.Ano)
     
        Q1 = "DROP INDEX idx_TipoLibDoc ON Documento "
       Call ExecSQL(DbMain, Q1, False)
@@ -760,9 +798,9 @@ Public Function CorrigeBase_V737() As Boolean   'Agregada 14 dic 2020
       Q1 = "CREATE INDEX idx_AnoDOC ON Documento (Ano) "
       Rc = ExecSQL(DbMain, Q1, False)
       
-       If Err <> 0 Then
+       If ERR <> 0 Then
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error, vbExclamation
+         MsgBox "Error " & ERR & ", " & Error, vbExclamation
          lUpdOK = False
       End If
       
@@ -792,15 +830,15 @@ Public Function CorrigeBase_V736() As Boolean 'Agregada 25 ENE 2023 FPG
    '--------------------- Versión 736 -----------------------------------
    If lDbVer = 736 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
 
-      Q1 = "INSERT INTO ParamEmpresa (IdEmpresa, Ano, Tipo, Codigo, Valor) VALUES (" & gEmpresa.id & "," & gEmpresa.ano & ",'DATOSII',1,'1')"
+      Q1 = "INSERT INTO ParamEmpresa (IdEmpresa, Ano, Tipo, Codigo, Valor) VALUES (" & gEmpresa.id & "," & gEmpresa.Ano & ",'DATOSII',1,'1')"
       Call ExecSQL(DbMain, Q1)
       
-      Q1 = "INSERT INTO ParamEmpresa (IdEmpresa, Ano, Tipo, Codigo, Valor) VALUES (" & gEmpresa.id & "," & gEmpresa.ano & ",'DATOSII',2,'0')"
+      Q1 = "INSERT INTO ParamEmpresa (IdEmpresa, Ano, Tipo, Codigo, Valor) VALUES (" & gEmpresa.id & "," & gEmpresa.Ano & ",'DATOSII',2,'0')"
       Call ExecSQL(DbMain, Q1)
       
-      Q1 = "INSERT INTO ParamEmpresa (IdEmpresa, Ano, Tipo, Codigo, Valor) VALUES (" & gEmpresa.id & "," & gEmpresa.ano & ",'DATOSII',3,'0')"
+      Q1 = "INSERT INTO ParamEmpresa (IdEmpresa, Ano, Tipo, Codigo, Valor) VALUES (" & gEmpresa.id & "," & gEmpresa.Ano & ",'DATOSII',3,'0')"
       Call ExecSQL(DbMain, Q1)
       
       If lUpdOK Then
@@ -828,47 +866,47 @@ Public Function CorrigeBase_V735() As Boolean 'Agregada 19 nov 2021 FPG Solicita
    '--------------------- Versión 735 -----------------------------------
    If lDbVer = 735 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo CodArea a tabla Empresa
       Set Tbl = DbMain.TableDefs("Empresa")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodArea", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.CodArea", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.CodArea", vbExclamation
          lUpdOK = False
       End If
       
       'Agregamos campo Celular a tabla Empresa
       Set Tbl = DbMain.TableDefs("Empresa")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Celular", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Celular", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Celular", vbExclamation
          lUpdOK = False
       End If
       
       'Agregamos campo Celular a tabla Empresa
       Set Tbl = DbMain.TableDefs("Empresa")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Villa", dbText, 80)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Villa", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Villa", vbExclamation
          lUpdOK = False
       End If
       
@@ -899,20 +937,20 @@ Private Function CorrigeBase_V734() As Boolean
    '--------------------- Versión 734 -----------------------------------
    If lDbVer = 734 And lUpdOK = True Then
 
-        Err.Clear
+        ERR.Clear
       'Call CompactDb2(DbMain, True, gEmpresa.ConnStr)  'no hubo error
       If OpenDbEmp() Then
           Set Tbl = DbMain.TableDefs("Documento")
           
           'agregamos campo Tratamiento a tabla Documento
-          Err.Clear
+          ERR.Clear
           Tbl.Fields.Append Tbl.CreateField("Tratamiento", dbLong)
     
-          If Err = 0 Then
+          If ERR = 0 Then
              Tbl.Fields.Refresh
-          ElseIf Err <> 3191 Then ' ya existe
+          ElseIf ERR <> 3191 Then ' ya existe
              MsgBeep vbExclamation
-             MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.Tratamiento", vbExclamation
+             MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.Tratamiento", vbExclamation
              lUpdOK = False
           End If
       End If
@@ -1015,7 +1053,7 @@ Private Function CorrigeBase_V733() As Boolean
    '--------------------- Versión 733 -----------------------------------
    If lDbVer = 733 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
 '      If gFunciones.ExpFUT Then   'se elimina esta verificación porque crea problemas con empresas nuevas hasta que saquemos actualización que ya no usa campo (FCA 29/11/2017)
          Call CreateTblFirmas
@@ -1052,7 +1090,7 @@ Private Function CorrigeBase_V732() As Boolean
    '--------------------- Versión 732 -----------------------------------
    If lDbVer = 732 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
 '      If gFunciones.ExpFUT Then   'se elimina esta verificación porque crea problemas con empresas nuevas hasta que saquemos actualización que ya no usa campo (FCA 29/11/2017)
          Call CreateTblMembrete
@@ -1133,7 +1171,7 @@ Private Function CorrigeBase_V730() As Boolean
    '--------------------- Versión 730 -----------------------------------
    If lDbVer = 730 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
 '      If gFunciones.ExpFUT Then   'se elimina esta verificación porque crea problemas con empresas nuevas hasta que saquemos actualización que ya no usa campo (FCA 29/11/2017)
          Call CreateTblPercepciones
@@ -1141,14 +1179,14 @@ Private Function CorrigeBase_V730() As Boolean
 '      End If
       Set Tbl = DbMain.TableDefs("Cuentas")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Percepcion", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.Percepcion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.Percepcion", vbExclamation
          lUpdOK = False
       End If
 
@@ -1180,19 +1218,19 @@ Public Function CorrigeBase_V729() As Boolean 'Agregada 10 ene 2022 FPG Solicita
    '--------------------- Versión 729 -----------------------------------
    If lDbVer = 729 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo PorcExisteOServ a tabla Empresa
       Set Tbl = DbMain.TableDefs("Empresa")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("PorcExisteOServ", dbInteger)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.PorcExisteOServ", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.PorcExisteOServ", vbExclamation
          lUpdOK = False
       End If
       
@@ -1222,33 +1260,33 @@ Public Function CorrigeBase_V728() As Boolean 'Agregada 19 nov 2021 FPG Solicita
    '--------------------- Versión 728 -----------------------------------
    If lDbVer = 728 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo FDesde3Porc a tabla Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FDesde3Porc", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.FDesde3Porc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.FDesde3Porc", vbExclamation
          lUpdOK = False
       End If
       
       'Agregamos campo FHasta3Porc a tabla Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FHasta3Porc", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.FHasta3Porc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.FHasta3Porc", vbExclamation
          lUpdOK = False
       End If
       
@@ -1278,7 +1316,7 @@ Public Function CorrigeBase_V727() As Boolean   'Agregada 21 oct 2021
    '--------------------- Versión 727 -----------------------------------
    If lDbVer = 727 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
    
       'Actualizamos EsTotalDoc para Libro de Retenciones
       'Para solucionar tema del clientes en Boletas de Pago
@@ -1312,44 +1350,44 @@ Public Function CorrigeBase_V726() As Boolean 'Agregada 4 oct 2021
    '--------------------- Versión 726 -----------------------------------
    If lDbVer = 726 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo Ret3Porc a tabla Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Ret3Porc", dbBoolean)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.Ret3Porc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.Ret3Porc", vbExclamation
          lUpdOK = False
       End If
       
       'Agregamos campo ValRet3Porc a tabla Documento
       Set Tbl = DbMain.TableDefs("Documento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ValRet3Porc", dbDouble)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.ValRet3Porc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.ValRet3Porc", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdCuentaRet3Porc", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IdCuentaRet3Porc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IdCuentaRet3Porc", vbExclamation
          lUpdOK = False
       End If
 
@@ -1412,7 +1450,7 @@ Public Function CorrigeBase_V724() As Boolean   'Agregada 9 sep 2021
    '--------------------- Versión 724 -----------------------------------
    If lDbVer = 724 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
    
       'Actualizamos EsTotalDoc por si acaso  FCA 8 sep 2021
       'Para solucionar tema de cliente que importó documentos desde Facturación
@@ -1447,19 +1485,19 @@ Public Function CorrigeBase_V723() As Boolean   'Agregada 22 jun 2021
    '--------------------- Versión 723 -----------------------------------
    If lDbVer = 723 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo MontoAfectaBaseImp a tabla LibroCaja
       Set Tbl = DbMain.TableDefs("LibroCaja")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("MontoAfectaBaseImp", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.MontoAfectaBaseImp", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.MontoAfectaBaseImp", vbExclamation
          lUpdOK = False
       End If
             
@@ -1489,103 +1527,103 @@ Public Function CorrigeBase_V722() As Boolean   'Agregada 18 ene 2021
    '--------------------- Versión 722 -----------------------------------
    If lDbVer = 722 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
        'Agregamos tabla BaseImponible14D
       
       Set Tbl = New TableDef
       Tbl.Name = "BaseImponible14D"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdBaseImponible14D", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.IdBaseImponible14D", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.IdBaseImponible14D", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdEmpresa", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.IdEmpresa", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Ano", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.Ano", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.Ano", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Tipo", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.Tipo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.Tipo", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Nivel", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.Nivel", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.Nivel", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Codigo", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.Codigo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.Codigo", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Fecha", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.Fecha", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.Fecha", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Valor", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14D.Valor", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14D.Valor", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON BaseImponible14D (IdBaseImponible14D) WITH PRIMARY"
@@ -1594,8 +1632,8 @@ Public Function CorrigeBase_V722() As Boolean   'Agregada 18 ene 2021
          Q1 = "CREATE UNIQUE INDEX IdxItem ON BaseImponible14D (Empresa, Ano, Codigo, Fecha)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla BaseImponible14D", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla BaseImponible14D", vbExclamation
          lUpdOK = False
 
       End If
@@ -1628,19 +1666,19 @@ Public Function CorrigeBase_V721() As Boolean   'Agregada 14 dic 2020
    '--------------------- Versión 721 -----------------------------------
    If lDbVer = 721 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo DepLey21256 a MovActivoFijo
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqTribEnt", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.FranqTribEnt", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.FranqTribEnt", vbExclamation
          lUpdOK = False
       End If
             
@@ -1669,7 +1707,7 @@ Public Function CorrigeBase_V720() As Boolean   'Agregada 16 nov 2020
    '--------------------- Versión 720 -----------------------------------
    If lDbVer = 720 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'agrandamos campo Orden en Comprobante Tipo
       #If DATACON = DAO_CONN Then
@@ -1679,30 +1717,30 @@ Public Function CorrigeBase_V720() As Boolean   'Agregada 16 nov 2020
       'Agregamos campo DepLey21256 a MovActivoFijo
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepLey21256", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepLey21256", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepLey21256", vbExclamation
          lUpdOK = False
       End If
 
       'Agregamos campo DepLey21256 a MovActivoFijo
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepLey21256Hist", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepLey21256Hist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepLey21256Hist", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
 
             
       If lUpdOK Then
@@ -1730,10 +1768,10 @@ Public Function CorrigeBase_V719() As Boolean   'Agregada 2 nov 2020
    '--------------------- Versión 719 -----------------------------------
    If lDbVer = 719 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'copiamos Capital Ptopio Tributario desde tabla ParamEmpresa a EmpresasAno dado que ahor ase requiere revisar años antriores en el informe de CPS
-      Q1 = "SELECT Valor FROM ParamEmpresa WHERE Tipo = 'CAPPROPIO' AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.ano
+      Q1 = "SELECT Valor FROM ParamEmpresa WHERE Tipo = 'CAPPROPIO' AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Set Rs = OpenRs(DbMain, Q1)
       If Not Rs.EOF Then
          CapPropio = Val(vFld(Rs("Valor")))
@@ -1742,7 +1780,7 @@ Public Function CorrigeBase_V719() As Boolean   'Agregada 2 nov 2020
       
       If CapPropio <> 0 Then
          Q1 = "UPDATE EmpresasAno SET CPS_CapPropioTrib = " & CapPropio
-         Q1 = Q1 & " WHERE IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.ano
+         Q1 = Q1 & " WHERE IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
       End If
             
@@ -1772,21 +1810,21 @@ Public Function CorrigeBase_V718() As Boolean   'Agregada 27 oct 2020
    '--------------------- Versión 718 -----------------------------------
    If lDbVer = 718 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       
       'Agregamos campo Descrip a tabla DetCapPropioSimpl
       
       Set Tbl = DbMain.TableDefs("DetCapPropioSimpl")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Descrip", dbText, 80)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.Descrip", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.Descrip", vbExclamation
          lUpdOK = False
       End If
       Set Tbl = Nothing
@@ -1828,7 +1866,7 @@ Public Function CorrigeBase_V717() As Boolean   'Agregada 23 sept 2020
    '--------------------- Versión 717 -----------------------------------
    If lDbVer = 717 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       
       'Agregamos tabla DetCapPropioSimpl
@@ -1836,119 +1874,119 @@ Public Function CorrigeBase_V717() As Boolean   'Agregada 23 sept 2020
       Set Tbl = New TableDef
       Tbl.Name = "DetCapPropioSimpl"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdDetCapPropioSimpl", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.IdDetCapPropioSimpl", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.IdDetCapPropioSimpl", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdEmpresa", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.IdEmpresa", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Ano", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.Ano", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.Ano", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoDetCPS", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.TipoDetCPS", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.TipoDetCPS", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IngresoManual", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.IngresoManual", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.IngresoManual", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCuenta", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.IdCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.IdCuenta", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CodCuenta", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.CodCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.CodCuenta", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Fecha", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.Fecha", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.Fecha", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdMovComp", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.IdMovComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.IdMovComp", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Valor", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetCapPropioSimpl.Valor", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetCapPropioSimpl.Valor", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON DetCapPropioSimpl (IdDetCapPropioSimpl) WITH PRIMARY"
@@ -1958,8 +1996,8 @@ Public Function CorrigeBase_V717() As Boolean   'Agregada 23 sept 2020
          Rc = ExecSQL(DbMain, Q1, False)
       
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla DetCapPropioSimpl", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla DetCapPropioSimpl", vbExclamation
          lUpdOK = False
 
       End If
@@ -1989,31 +2027,31 @@ Public Function CorrigeBase_V716() As Boolean   'Agregada 16 sept 2020
    '--------------------- Versión 716 -----------------------------------
    If lDbVer = 716 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Socios")
       
       'agregamos campo MontoIngresadoUsuario
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("MontoIngresadoUsuario", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Socios.MontoIngresadoUsuario", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Socios.MontoIngresadoUsuario", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo MontoIngresadoUsuario
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("MontoATraspasar", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Socios.MontoATraspasar", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Socios.MontoATraspasar", vbExclamation
          lUpdOK = False
       End If
                  
@@ -2041,7 +2079,7 @@ Public Function CorrigeBase_V715() As Boolean   'Agregada 9 sep 2020
    '--------------------- Versión 715 -----------------------------------
    If lDbVer = 715 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Tabla ImpAdic mejoramos índice
       Q1 = "DROP INDEX IdxTipo ON ImpAdic "
@@ -2074,7 +2112,7 @@ Public Function CorrigeBase_V714() As Boolean   'Agregada 5 ago 2020
    '--------------------- Versión 714 -----------------------------------
    If lDbVer = 714 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Parche por algunos casos en que quedó con año y código anterior
       Q1 = "UPDATE ImpAdic INNER JOIN Cuentas ON ImpAdic.IdCuenta = Cuentas.IdCuenta "
@@ -2106,91 +2144,91 @@ Public Function CorrigeBase_V713() As Boolean   'Agregada 10 jun 2020
    '--------------------- Versión 713 -----------------------------------
    If lDbVer = 713 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Empresa")
       
       'agregamos campo Franq14ASemiIntegrado
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Franq14ASemiIntegrado", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Franq14ASemiIntegrado", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Franq14ASemiIntegrado", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo FranqProPymeGeneral
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqProPymeGeneral", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqProPymeGeneral", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqProPymeGeneral", vbExclamation
          lUpdOK = False
       End If
     
       'agregamos campo FranqProPymeTransp
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqProPymeTransp", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqProPymeTransp", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqProPymeTransp", vbExclamation
          lUpdOK = False
       End If
     
       'agregamos campo FranqRentasPresuntas
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqRentasPresuntas", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqRentasPresuntas", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqRentasPresuntas", vbExclamation
          lUpdOK = False
       End If
     
       'agregamos campo FranqRentaEfectiva
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqRentaEfectiva", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqRentaEfectiva", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqRentaEfectiva", vbExclamation
          lUpdOK = False
       End If
     
       'agregamos campo FranqOtro
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqOtro", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqOtro", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqOtro", vbExclamation
          lUpdOK = False
       End If
     
       'agregamos campo FranqNoSujetoArt14
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqNoSujetoArt14", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqNoSujetoArt14", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqNoSujetoArt14", vbExclamation
          lUpdOK = False
       End If
     
@@ -2219,98 +2257,98 @@ Public Function CorrigeBase_V712() As Boolean   'Agregada 6 may 2020
    '--------------------- Versión 712 -----------------------------------
    If lDbVer = 712 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo TipoDepLey21210 a MovActivoFijo
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoDepLey21210", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.TipoDepLey21210", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.TipoDepLey21210", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo DepDecimaParte2 a MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepDecimaParte2", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParte2", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParte2", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
      
       'Agregamos campo DepDecimaParte2Hist a MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepDecimaParte2Hist", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParte2Hist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParte2Hist", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
      
       'Agregamos campo PatenteRol a MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("PatenteRol", dbText, 30)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.PatenteRol", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.PatenteRol", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
      
       'Agregamos campo NombreProy a MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NombreProy", dbText, 60)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.NombreProy", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.NombreProy", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
      
       'Agregamos campo FechaProy a MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FechaProy", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.FechaProy", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.FechaProy", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
      
       Tbl.Fields.Append Tbl.CreateField("TipoDepLey21210Hist", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.TipoDepLey21210Hist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.TipoDepLey21210Hist", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
            
       If lUpdOK Then
          lDbVer = 713
@@ -2344,98 +2382,98 @@ Public Function CorrigeBase_V711() As Boolean   'agregada 2 mar 2020
       Set Tbl = New TableDef
       Tbl.Name = "CtasAjustesExContRLI"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCtaAjustesRLI", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.IdCtaAjustesRLI", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.IdCtaAjustesRLI", vbExclamation
          lUpdOK = False
       End If
       
      
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdEmpresa", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.IdEmpresa", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
      
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Ano", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.IdEmpresa", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
      
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoAjuste", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.TipoAjuste", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.TipoAjuste", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdGrupo", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.IdGrupo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.IdGrupo", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdItem", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.IdItem", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.IdItem", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCuenta", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.IdCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.IdCuenta", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CodCuenta", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExContRLI.CodCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExContRLI.CodCuenta", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON CtasAjustesExContRLI (IdCtaAjustesRLI) WITH PRIMARY"
@@ -2445,8 +2483,8 @@ Public Function CorrigeBase_V711() As Boolean   'agregada 2 mar 2020
          Rc = ExecSQL(DbMain, Q1, False)
       
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla CtasAjustesExContRLI", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla CtasAjustesExContRLI", vbExclamation
          lUpdOK = False
 
       End If
@@ -2477,22 +2515,22 @@ Public Function CorrigeBase_V710() As Boolean   'Agregada 28 ene 2020
    '--------------------- Versión 710 -----------------------------------
    If lDbVer = 710 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
        'Agregamos campo DocOtroEsCargo a tabla Documento (esto para traer los OtrosDocs del año anterior)
       Set Tbl = DbMain.TableDefs("Documento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DocOtroEsCargo", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.DocOtroEsCargo", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.DocOtroEsCargo", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
      
            
       If lUpdOK Then
@@ -2518,7 +2556,7 @@ Public Function CorrigeBase_V709() As Boolean   'Agregada 22 ene 2020   (este co
    '--------------------- Versión 709 -----------------------------------
    If lDbVer = 709 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'esta función verifica que el idEMpresa y el año en cada una de las tablas corresponda. Repetimos aplicación porque a algunos clientes al momento de crear el nuevo año y hacer el corrigebase del año anterior el gEmpresa.Id no estaba asignado y quedaba en cero en las tablas
       Call VerificaTblEmpAno
@@ -2548,7 +2586,7 @@ Public Function CorrigeBase_V708() As Boolean   'Agregada 9 ene 2020   (este cor
    '--------------------- Versión 708 -----------------------------------
    If lDbVer = 708 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'esta función verifica que el año en cada una de las tablas corresponda. Repetimos aplicación porque a algunos cliente no se aplicó la anterior (versión 706)
       Call VerificaTblEmpAno
@@ -2578,21 +2616,21 @@ Public Function CorrigeBase_V707() As Boolean   'Agregada 6 ene 2020
    '--------------------- Versión 707 -----------------------------------
    If lDbVer = 707 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'agregamos campo a la tabla Socios para la cantidad de acciones
       
       Set Tbl = DbMain.TableDefs("Socios")
       
       'agregamos campo CantAcciones
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CantAcciones", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Socios.CantAcciones", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Socios.CantAcciones", vbExclamation
          lUpdOK = False
       End If
                  
@@ -2621,7 +2659,7 @@ Public Function CorrigeBase_V706() As Boolean   'Agregada 3 ene 2020   (este cor
    '--------------------- Versión 706 -----------------------------------
    If lDbVer = 706 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'cambiamos código plan SII para cuenta Deudores incobrables en la tabla Cuentas
       QBase = "UPDATE Cuentas "
@@ -2656,31 +2694,31 @@ Public Function CorrigeBase_V705() As Boolean   'Agregada 27 dic 2019
    '--------------------- Versión 705 -----------------------------------
    If lDbVer = 705 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Empresa")
       
       'agregamos campo FranqSocProfPrimCat
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqSocProfPrimCat", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqSocProfPrimCat", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqSocProfPrimCat", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo FranqSocProfSegCat
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqSocProfSegCat", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqSocProfSegCat", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqSocProfSegCat", vbExclamation
          lUpdOK = False
       End If
     
@@ -2837,29 +2875,29 @@ Public Function CorrigeBase_V702() As Boolean   'agregada 17 ene 2019
       'Agregamos campo IdCtaAfectoOld a tabla Documento (esto para traer los datos del año anterior al crear nuevo año en empresas juntas)
       Set Tbl = DbMain.TableDefs("ImpAdic")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Ano", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "ImpAdic.Ano", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "ImpAdic.Ano", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
                   
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCuenta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "ImpAdic.CodCuenta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "ImpAdic.CodCuenta", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
                                     
                
       Q1 = "UPDATE ImpAdic INNER JOIN Cuentas ON ImpAdic.IdCuenta = Cuentas.IdCuenta "
@@ -2900,57 +2938,57 @@ Public Function CorrigeBase_V701() As Boolean   'agregada 14 ene 2019
       'Agregamos campo IdCtaAfectoOld a tabla Documento (esto para traer los datos del año anterior al crear nuevo año en empresas juntas)
       Set Tbl = DbMain.TableDefs("Documento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaAfectoOld", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.CodCtaAfectoOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.CodCtaAfectoOld", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
                   
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaExentoOld", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.CodCtaExentoOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.CodCtaExentoOld", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
                                     
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaTotalOld", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.CodCtaTotalOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.CodCtaTotalOld", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
       
       'Agregamos campo IdCompOld a tabla CT_Comprobante (esto para traer los datos de comprobantes tipo de empresa vacía (Reset de Comp Tipo))
       Set Tbl = DbMain.TableDefs("CT_Comprobante")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdCompOld", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "CT_Comprobante.IdCompOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "CT_Comprobante.IdCompOld", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       
       'asignamos IdEmpresa a Comprobante Tipo
       Q1 = "UPDATE CT_Comprobante SET IdEmpresa = " & gEmpresa.id
@@ -2992,56 +3030,56 @@ Public Function CorrigeBase_V700() As Boolean   'agregada 7 ene 2019
       'Agregamos campo IdCuentaOld a tabla Cuentas (esto para traer los datos del año anterior al crear nuevo año en empresas juntas)
       Set Tbl = DbMain.TableDefs("Cuentas")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdCuentaOld", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.IdCuentaOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.IdCuentaOld", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
             
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdPadreOld", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.IdPadreOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.IdPadreOld", vbExclamation
          lUpdOK = False
       End If
 
       Set Tbl = DbMain.TableDefs("CuentasBasicas")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdCuentaOld", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "CuentasBasicas.IdCuentaOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "CuentasBasicas.IdCuentaOld", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
                   
       Set Tbl = DbMain.TableDefs("ParamEmpresa")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ValorOld", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "ParamEmpresa.ValorOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "ParamEmpresa.ValorOld", vbExclamation
          lUpdOK = False
       End If
-      Err.Clear
+      ERR.Clear
       
       Q1 = "DROP INDEX CodFECU ON Cuentas "
       Rc = ExecSQL(DbMain, Q1, False)
@@ -3049,14 +3087,14 @@ Public Function CorrigeBase_V700() As Boolean   'agregada 7 ene 2019
       'Agregamos campo Vigente a Sucursales
       Set Tbl = DbMain.TableDefs("Sucursales")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Vigente", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Sucursales.Vigente", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Sucursales.Vigente", vbExclamation
          lUpdOK = False
       End If
      
@@ -3191,10 +3229,10 @@ Public Function CorrigeBase_V365() As Boolean   'agregada 12/7/2019
 
       Set Tbl = DbMain.TableDefs("Empresa")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Ano", dbInteger)
    
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
       End If
       
@@ -3252,14 +3290,14 @@ Public Function CorrigeBase_V365() As Boolean   'agregada 12/7/2019
       'Agregamos campo Vigente a AreaNegocio
       Set Tbl = DbMain.TableDefs("AreaNegocio")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Vigente", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "AreaNegocio.Vigente", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "AreaNegocio.Vigente", vbExclamation
          lUpdOK = False
       End If
       
@@ -3269,14 +3307,14 @@ Public Function CorrigeBase_V365() As Boolean   'agregada 12/7/2019
       'Agregamos campo Vigente a CentroCosto
       Set Tbl = DbMain.TableDefs("CentroCosto")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Vigente", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "CentroCosto.Vigente", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "CentroCosto.Vigente", vbExclamation
          lUpdOK = False
       End If
      
@@ -3286,14 +3324,14 @@ Public Function CorrigeBase_V365() As Boolean   'agregada 12/7/2019
       'Agregamos campo Vigente a Socios
       Set Tbl = DbMain.TableDefs("Socios")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Vigente", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Socios.Vigente", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Socios.Vigente", vbExclamation
          lUpdOK = False
       End If
      
@@ -3347,48 +3385,48 @@ Public Function CorrigeBase_V364() As Boolean   'agregada 3 may 2019
       'Agregamos campos CodCtaAfectoVta, CodCtaExentoVta, CodCtaTotalVta y Giro a Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaAfectoVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCtaAfectoVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCtaAfectoVta", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaExentoVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCtaExentoVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCtaExentoVta", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaTotalVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCtaTotalVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCtaTotalVta", vbExclamation
          lUpdOK = False
       End If
                  
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("EsDelGiro", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.EsDelGiro", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.EsDelGiro", vbExclamation
          lUpdOK = False
       End If
       
@@ -3396,69 +3434,69 @@ Public Function CorrigeBase_V364() As Boolean   'agregada 3 may 2019
       'Agregamos campo CodCCosto y CodAreaNeg para Ventas a Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCCostoAfectoVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCCostoAfectoVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCCostoAfectoVta", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodAreaNegAfectoVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodAreaNegAfectoVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodAreaNegAfectoVta", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCCostoExentoVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCCostoExentoVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCCostoExentoVta", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodAreaNegExentoVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodAreaNegExentoVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodAreaNegExentoVta", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCCostoTotalVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCCostoTotalVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCCostoTotalVta", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodAreaNegTotalVta", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodAreaNegTotalVta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodAreaNegTotalVta", vbExclamation
          lUpdOK = False
       End If
       
@@ -3535,14 +3573,14 @@ Public Function CorrigeBase_V362() As Boolean   'agregada 29 oct 2018
       'Agregamos campo URLDte a tabla Documento (esto para la importación de documentos desde facturación)
       Set Tbl = DbMain.TableDefs("Documento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("UrlDTE", dbText, 250)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.UrlDTE", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.UrlDTE", vbExclamation
          lUpdOK = False
       End If
       
@@ -3613,14 +3651,14 @@ Public Function CorrigeBase_V360() As Boolean   'agregada 4 sep 2018
       'Agregamos campo CodCuentaOld a tabla Cuentas (esto para la importación de documentos de año anterior)
       Set Tbl = DbMain.TableDefs("MovDocumento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCuentaOld", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovDocumento.CodCuentaOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovDocumento.CodCuentaOld", vbExclamation
          lUpdOK = False
       End If
    
@@ -3698,69 +3736,69 @@ Public Function CorrigeBase_V358() As Boolean   'agregada 4 jun 2018
       'Agregamos campo CodCCosto y CodAreaNeg a Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCCostoAfecto", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCCostoAfecto", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCCostoAfecto", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodAreaNegAfecto", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodAreaNegAfecto", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodAreaNegAfecto", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCCostoExento", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCCostoExento", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCCostoExento", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodAreaNegExento", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodAreaNegExento", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodAreaNegExento", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCCostoTotal", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCCostoTotal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCCostoTotal", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodAreaNegTotal", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodAreaNegTotal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodAreaNegTotal", vbExclamation
          lUpdOK = False
       End If
       
@@ -3797,14 +3835,14 @@ Public Function CorrigeBase_V357() As Boolean   'agregada 22 may 2018
       'Agregamos campo PropIVA a Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("PropIVA", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.PropIVA", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.PropIVA", vbExclamation
          lUpdOK = False
       End If
                  
@@ -3841,36 +3879,36 @@ Public Function CorrigeBase_V356() As Boolean   'agregada 14 may 2018
       'Agregamos campos CodCtaAfecto, CodCtaExento y CodCtaTotal a Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaAfecto", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCtaAfecto", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCtaAfecto", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaExento", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCtaExento", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCtaExento", vbExclamation
          lUpdOK = False
       End If
                  
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaTotal", dbText, 15)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.CodCtaTotal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.CodCtaTotal", vbExclamation
          lUpdOK = False
       End If
                  
@@ -3940,14 +3978,14 @@ Public Function CorrigeBase_V354() As Boolean   'agregada 5 abr 2018
       'Agregamos campo CodCtaPlanSII a Cuentas
       Set Tbl = DbMain.TableDefs("Cuentas")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodCtaPlanSII", dbText, 10)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CodCtaPlanSII", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CodCtaPlanSII", vbExclamation
          lUpdOK = False
       End If
                  
@@ -3974,93 +4012,93 @@ Public Function CorrigeBase_V354() As Boolean   'agregada 5 abr 2018
       Set Tbl = New TableDef
       Tbl.Name = "InfoAnualDJ1847"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdEmpresa", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.IdEmpresa", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Ano", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.Ano", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.Ano", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdEntSupervisora", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.IdEntSupervisora", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.IdEntSupervisora", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("AnoAjusteIFRS", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.AnoAjusteIFRS", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.AnoAjusteIFRS", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FolioInicial", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.FolioInicial", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.FolioInicial", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FolioFinal", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.FolioFinal", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.FolioFinal", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdAjustesRLI", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "InfoAnualDJ1847.IdAjustesRLI", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "InfoAnualDJ1847.IdAjustesRLI", vbExclamation
          lUpdOK = False
       End If
       
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX Idx ON InfoAnualDJ1847 (IdEmpresa, Ano) WITH PRIMARY"
          Rc = ExecSQL(DbMain, Q1, False)
          
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla AsistImpPrimCat", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla AsistImpPrimCat", vbExclamation
          lUpdOK = False
 
       End If
@@ -4099,86 +4137,86 @@ Public Function CorrigeBase_V353() As Boolean   'agregada 17 ene 2018
       Set Tbl = New TableDef
       Tbl.Name = "AsistImpPrimCat"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdAsistImpPrimCat", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.IdAsistImpPrimCat", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.IdAsistImpPrimCat", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdItem", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.IdItem", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.IdItem", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("RemEjAntNominal", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.RemEjAntNominal", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.RemEjAntNominal", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("RemEjAntAct", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.RemEjAntAct", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.RemEjAntAct", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("GeneradoAno", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.GeneradoAno", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.GeneradoAno", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CredUtilizado", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.CredUtilizado", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.CredUtilizado", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("RemEjSgte", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AsistImpPrimCat.RemEjSgte", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AsistImpPrimCat.RemEjSgte", vbExclamation
          lUpdOK = False
       End If
       
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON AsistImpPrimCat (IdAsistImpPrimCat) WITH PRIMARY"
@@ -4187,17 +4225,17 @@ Public Function CorrigeBase_V353() As Boolean   'agregada 17 ene 2018
          Q1 = "CREATE UNIQUE INDEX IdxItem ON AsistImpPrimCat (IdItem)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla AsistImpPrimCat", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla AsistImpPrimCat", vbExclamation
          lUpdOK = False
 
       End If
 
       Set Tbl = Nothing
       
-      If gEmpresa.ano = 2016 Then
+      If gEmpresa.Ano = 2016 Then
          Q1 = "INSERT INTO ParamEmpresa (Tipo, Codigo, Valor) VALUES ('IMP1CAT',0,'0.24')"
-      ElseIf gEmpresa.ano = 2017 Then
+      ElseIf gEmpresa.Ano = 2017 Then
          Q1 = "INSERT INTO ParamEmpresa (Tipo, Codigo, Valor) VALUES ('IMP1CAT',0,'0.25')"
       Else
          Q1 = "INSERT INTO ParamEmpresa (Tipo, Codigo, Valor) VALUES ('IMP1CAT',0,'0.25')"
@@ -4229,45 +4267,45 @@ Public Function CorrigeBase_V352() As Boolean   'Agregada 10 ene 2018
    '--------------------- Versión 352 -----------------------------------
    If lDbVer = 352 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Empresa")
       
       'agregamos campo FranqRentaAtribuida
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqRentaAtribuida", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqRentaAtribuida", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqRentaAtribuida", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo FranqSemiIntegrado
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqSemiIntegrado", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqSemiIntegrado", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqSemiIntegrado", vbExclamation
          lUpdOK = False
       End If
     
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agregamos campo IdANegCCosto
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdANegCCosto", dbText, 20)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.IdANegCCosto", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.IdANegCCosto", vbExclamation
          lUpdOK = False
       End If
     
@@ -4304,52 +4342,52 @@ Public Function CorrigeBase_V351() As Boolean   'agregada 4 ene 2018
       Set Tbl = New TableDef
       Tbl.Name = "BaseImponible14Ter"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdBaseImponible14Ter", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14Ter.IdBaseImponible14Ter", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14Ter.IdBaseImponible14Ter", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoBaseImp", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14Ter.TipoBaseImp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14Ter.TipoBaseImp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdItemBaseImp", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14Ter.IdItemBaseImp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14Ter.IdItemBaseImp", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Valor", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "BaseImponible14Ter.Valor", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "BaseImponible14Ter.Valor", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON BaseImponible14Ter (IdBaseImponible14Ter) WITH PRIMARY"
@@ -4358,8 +4396,8 @@ Public Function CorrigeBase_V351() As Boolean   'agregada 4 ene 2018
          Q1 = "CREATE UNIQUE INDEX IdxItem ON BaseImponible14Ter (TipoBaseImp, IdItemBaseImp)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla BaseImponible14Ter", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla BaseImponible14Ter", vbExclamation
          lUpdOK = False
 
       End If
@@ -4399,14 +4437,14 @@ Public Function CorrigeBase_V350() As Boolean   'agregada 27 dic 2017
       'Agregamos campo TipoPartida a Cuentas
       Set Tbl = DbMain.TableDefs("Cuentas")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoPartida", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.TipoPartida", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.TipoPartida", vbExclamation
          lUpdOK = False
       End If
                  
@@ -4428,7 +4466,7 @@ Public Function CorrigeBase_V350() As Boolean   'agregada 27 dic 2017
       
       Call CloseRs(Rs)
       
-      If gEmpresa.ano >= 2017 Then
+      If gEmpresa.Ano >= 2017 Then
          Q1 = "UPDATE Cuentas SET CodF22 = '' WHERE CodF22 NOT IN (" & LSTCODF22_2017 & ")"     'se eliminan códigos F22 ya no válidos desde 2017
          Call ExecSQL(DbMain, Q1)
       End If
@@ -4463,52 +4501,52 @@ Public Function CorrigeBase_V349() As Boolean   'agregada 14 dic 2017
       Set Tbl = New TableDef
       Tbl.Name = "AjustesExtLibCaja"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdAjustesExtLibCaja", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AjustesExtLibCaja.IdAjustesExtLibCaja", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AjustesExtLibCaja.IdAjustesExtLibCaja", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoAjuste", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AjustesExtLibCaja.TipoAjuste", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AjustesExtLibCaja.TipoAjuste", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdItemAjuste", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AjustesExtLibCaja.IdItemAjuste", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AjustesExtLibCaja.IdItemAjuste", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Valor", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AjustesExtLibCaja.Valor", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AjustesExtLibCaja.Valor", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON AjustesExtLibCaja (IdAjustesExtLibCaja) WITH PRIMARY"
@@ -4517,8 +4555,8 @@ Public Function CorrigeBase_V349() As Boolean   'agregada 14 dic 2017
          Q1 = "CREATE UNIQUE INDEX IdxItem ON AjustesExtLibCaja (TipoAjuste, IdItemAjuste)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla AjustesExtLibCaja", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla AjustesExtLibCaja", vbExclamation
          lUpdOK = False
 
       End If
@@ -4555,25 +4593,25 @@ Public Function CorrigeBase_V348() As Boolean   'agregada 9 nov 2017
       'Agregamos campo NumDocAsoc y DTEDocAsoc a Documento
       Set Tbl = DbMain.TableDefs("Documento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NumDocAsoc", dbText, 20)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.NumDocAsoc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.NumDocAsoc", vbExclamation
          lUpdOK = False
       End If
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DTEDocAsoc", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.DTEDocAsoc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.DTEDocAsoc", vbExclamation
          lUpdOK = False
       End If
      
@@ -4639,27 +4677,27 @@ Public Function CorrigeBase_V346() As Boolean   'agregada 5 sept 2017
       'Agregamos Campo Ingreso a tabla LibCaja
       Set Tbl = DbMain.TableDefs("LibroCaja")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Ingreso", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.Ingreso", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Ingreso", vbExclamation
          lUpdOK = False
       End If
    
       'Agregamos Campo Egreso a tabla LibCaja
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Egreso", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.Egreso", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Egreso", vbExclamation
          lUpdOK = False
       End If
    
@@ -4702,14 +4740,14 @@ Public Function CorrigeBase_V345() As Boolean   'agregada 30 ago 2017
       'Agregamos Campo CompraBienRaiz a tabla Documento
       Set Tbl = DbMain.TableDefs("Documento")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CompraBienRaiz", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.CompraBienRaiz", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.CompraBienRaiz", vbExclamation
          lUpdOK = False
       End If
    
@@ -4743,27 +4781,27 @@ Public Function CorrigeBase_V344() As Boolean   'agregada 16 ago 2017
       'Agregamos Campo OtrosIngEg14TER a Comprobante para indicar que debemos importar este comprobante como "Otros Ingresos y Egresos" a Libro de Caja
       Set Tbl = DbMain.TableDefs("Comprobante")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("OtrosIngEg14TER", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Comprobante.OtrosIngEg14TER", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Comprobante.OtrosIngEg14TER", vbExclamation
          lUpdOK = False
       End If
    
       Set Tbl = DbMain.TableDefs("CT_Comprobante")
      
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("OtrosIngEg14TER", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "OtrosIngEg14TER", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "OtrosIngEg14TER", vbExclamation
          lUpdOK = False
       End If
    
@@ -4799,64 +4837,64 @@ Public Function CorrigeBase_V343() As Boolean   'agregada 2 ago 2017
       Set Tbl = New TableDef
       Tbl.Name = "CtasAjustesExCont"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCtaAjustes", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExCont.IdCuentas14TER", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExCont.IdCuentas14TER", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoAjuste", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExCont.TipoAjuste", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExCont.TipoAjuste", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdItem", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExCont.IdItem", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExCont.IdItem", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCuenta", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExCont.IdCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExCont.IdCuenta", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CodCuenta", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "CtasAjustesExCont.CodCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CtasAjustesExCont.CodCuenta", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON CtasAjustesExCont (IdCuentas14TER) WITH PRIMARY"
@@ -4865,8 +4903,8 @@ Public Function CorrigeBase_V343() As Boolean   'agregada 2 ago 2017
          Q1 = "CREATE UNIQUE INDEX IdxItem ON CtasAjustesExCont (TipoAjuste, IdItem)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla CtasAjustesExCont", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla CtasAjustesExCont", vbExclamation
          lUpdOK = False
 
       End If
@@ -4876,14 +4914,14 @@ Public Function CorrigeBase_V343() As Boolean   'agregada 2 ago 2017
       'agregamos campo IdComp a LibroCaja para identificar comprobante  asociado a otros ingresos y egresos
       Set Tbl = DbMain.TableDefs("LibroCaja")
          
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdComp", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdComp", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdComp", vbExclamation
          lUpdOK = False
       End If
 
@@ -4919,14 +4957,14 @@ Public Function CorrigeBase_V342() As Boolean   'agregada 20 jul 2017, entregada
       
       'agregamos campo NumCuotas a Documento para registrar que el documento es venta con cuotas, a credito
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NumCuotas", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.NumCuotas", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.NumCuotas", vbExclamation
          lUpdOK = False
       End If
 
@@ -4934,14 +4972,14 @@ Public Function CorrigeBase_V342() As Boolean   'agregada 20 jul 2017, entregada
       
       'agregamos campo Estado a DocCuotas para registrar si la cuota está pagada
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Estado", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "DocCuotas.Estado", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "DocCuotas.Estado", vbExclamation
          lUpdOK = False
       End If
             
@@ -4949,14 +4987,14 @@ Public Function CorrigeBase_V342() As Boolean   'agregada 20 jul 2017, entregada
       
       Set Tbl = DbMain.TableDefs("MovComprobante")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdDocCuota", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovComprobante.IdDocCuota", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovComprobante.IdDocCuota", vbExclamation
          lUpdOK = False
       End If
       
@@ -5042,98 +5080,98 @@ Public Function CorrigeBase_V340() As Boolean   'agregada 6 jul 2017
       Set Tbl = New TableDef
       Tbl.Name = "DocCuotas"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdDocCuotas", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.IdDocCuotas", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.IdDocCuotas", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdDoc", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.IdDoc", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.IdDoc", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NumCuota", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.NumCuota", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.NumCuota", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaExigPago", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.FechaExigPago", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.FechaExigPago", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("MontoCuota", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.MontoCuota", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.MontoCuota", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaIngPercibido", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.FechaIngPercibido", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.FechaIngPercibido", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCompPago", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.IdCompPago", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.IdCompPago", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdLibCaja", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "DocCuotas.IdLibCaja", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DocCuotas.IdLibCaja", vbExclamation
          lUpdOK = False
       End If
 
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON DocCuotas (IdDocCuotas) WITH PRIMARY"
@@ -5142,8 +5180,8 @@ Public Function CorrigeBase_V340() As Boolean   'agregada 6 jul 2017
          Q1 = "CREATE UNIQUE INDEX IdxIdDoc ON DocCuotas (IdDoc)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla DocCuotas", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla DocCuotas", vbExclamation
          lUpdOK = False
 
       End If
@@ -5183,14 +5221,14 @@ Public Function CorrigeBase_V339() As Boolean   'entregada 7 jul 2017
       
       'agregamos campo EntRelacionada a Documento para registrar que el documento es venta con una entidad relacionada
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("EntRelacionada", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.EntRelacionada", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.EntRelacionada", vbExclamation
          lUpdOK = False
       End If
       
@@ -5203,14 +5241,14 @@ Public Function CorrigeBase_V339() As Boolean   'entregada 7 jul 2017
       
       'agregamos campo IdEntReal al Libro de Caja para registrar que el ID de la entidad a la cual se le hizo realmente la venta
       'dado que en el caso de los ingresos, el RUT es el de la empresa emisora (no el que está en el libro de ventas), salvo en el caso de (FCV) y (LFV) y las notas de crédito/débito asociadas a dichos documentos.
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdEntReal", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdEntReal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdEntReal", vbExclamation
          lUpdOK = False
       End If
 
@@ -5256,14 +5294,14 @@ Public Function CorrigeBase_V338() As Boolean   'agregada 15 mayo 2017
       
       'agregamos campo FechaIngresoLibro a LibroCaja para almacenar la fecha en que se registró el documento en el libro de caja
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FechaIngresoLibro", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.FechaIngresoLibro", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.FechaIngresoLibro", vbExclamation
          lUpdOK = False
       End If
 
@@ -5305,14 +5343,14 @@ Public Function CorrigeBase_V337() As Boolean   'agregada 24 abril 2017
       
       'agregamos campo CodF22_14Ter a tabla Cuentas
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodF22_14Ter", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CodF22_14Ter", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CodF22_14Ter", vbExclamation
          lUpdOK = False
       End If
 
@@ -5325,109 +5363,109 @@ Public Function CorrigeBase_V337() As Boolean   'agregada 24 abril 2017
       Set Tbl = New TableDef
       Tbl.Name = "Socios"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdSocio", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.IdSocio", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.IdSocio", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("RUT", dbText, 12)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.RUT", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.RUT", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Nombre", dbText, 50)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.Nombre", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.Nombre", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PjePart", dbSingle)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.PjePart", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.PjePart", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("MontoSuscrito", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.MontoSuscrito", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.MontoSuscrito", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("MontoPagado", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.MontoPagado", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.MontoPagado", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCuentaAportes", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.IdCuentaAportes", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.IdCuentaAportes", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCuentaRetiros", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.IdCuentaRetiros", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.IdCuentaRetiros", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdTipoSocio", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Socios.IdTipoSocio", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Socios.IdTipoSocio", vbExclamation
          lUpdOK = False
       End If
 
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON Socios (IdSocio) WITH PRIMARY"
@@ -5436,8 +5474,8 @@ Public Function CorrigeBase_V337() As Boolean   'agregada 24 abril 2017
          Q1 = "CREATE UNIQUE INDEX IdxRut ON Socios (RUT)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla Socios", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla Socios", vbExclamation
          lUpdOK = False
 
       End If
@@ -5477,14 +5515,14 @@ Public Function CorrigeBase_V336() As Boolean   'agregada 13 abril 2017
       
       'agregamos campo EntRelacionada a tabla Entidades
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("EntRelacionada", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.EntRelacionada", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.EntRelacionada", vbExclamation
          lUpdOK = False
       End If
 
@@ -5523,14 +5561,14 @@ Public Function CorrigeBase_V335() As Boolean   'agregada 11 abril 2017
       
       'agregamos campo IVAIrrec a tabla LibroCaja
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IVAIrrec", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LibroCaja.IVAIrrec", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IVAIrrec", vbExclamation
          lUpdOK = False
       End If
 
@@ -5599,14 +5637,14 @@ Public Function CorrigeBase_V333() As Boolean   'agregada 1 dic 2016
       'agregamos campo EsRecuperable a tabla ImpAdic, para almacenar Si Es Recuperable en cada impuesto adicional
       Set Tbl = DbMain.TableDefs("ImpAdic")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("EsRecuperable", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "ImpAdic.EsRecuperable", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "ImpAdic.EsRecuperable", vbExclamation
          lUpdOK = False
       End If
 
@@ -5614,40 +5652,40 @@ Public Function CorrigeBase_V333() As Boolean   'agregada 1 dic 2016
       Set Tbl = DbMain.TableDefs("Documento")
       'agregamos campo CodSIIDTEIVAIrrec a tabla Documento, para almacenar código SII del IVA Irrecuperable
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodSIIDTEIVAIrrec", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.CodSIIDTEIVAIrrec", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.CodSIIDTEIVAIrrec", vbExclamation
          lUpdOK = False
       End If
 
       'agregamos campo TipoDocAsoc a tabla Documento, para almacenar tipo doc y saber si es una factura de compra. Esto para libro electrónico de compras
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoDocAsoc", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.TipoDocAsoc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.TipoDocAsoc", vbExclamation
          lUpdOK = False
       End If
 
       'agregamos campo IVAActFijo a tabla Documento, para almacenar el valor del IVA Activo fijo del documento
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IVAActFijo", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IVAActFijo", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IVAActFijo", vbExclamation
          lUpdOK = False
       End If
 
@@ -5657,40 +5695,40 @@ Public Function CorrigeBase_V333() As Boolean   'agregada 1 dic 2016
       
       'agregamos campo Tasa a tabla MovDocumento, para almacenar Tasa en cada impuesto adicional
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Tasa", dbSingle)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovDocumento.Tasa", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovDocumento.Tasa", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo EsRecuperable a tabla MovDocumento, para almacenar Si Es Recuperable en cada impuesto adicional
             
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("EsRecuperable", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovDocumento.EsRecuperable", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovDocumento.EsRecuperable", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo CodSIIDTE a tabla MovDocumento, para almacenar el código SIIDTE en cada impuesto adicional
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodSIIDTE", dbText, 2)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovDocumento.CodSIIDTE", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovDocumento.CodSIIDTE", vbExclamation
          lUpdOK = False
       End If
 
@@ -5726,14 +5764,14 @@ Public Function CorrigeBase_V332() As Boolean   'agregada 16 nov
       
       'agregamos campo Tasa a tabla ImpAdic, para almacenar Tasa de la empresa para ese impuesto
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Tasa", dbSingle)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "ImpAdic.Tasa", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "ImpAdic.Tasa", vbExclamation
          lUpdOK = False
       End If
 
@@ -5774,53 +5812,53 @@ Public Function CorrigeBase_V331() As Boolean   'agregada 26 oct 16 - entregada
       Set Tbl = New TableDef
       Tbl.Name = "ImpAdic"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdImpAdic", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ImpAdic.IdImpAdic", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ImpAdic.IdImpAdic", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoLib", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ImpAdic.TipoLib", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ImpAdic.TipoLib", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoValor", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ImpAdic.TipoValor", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ImpAdic.TipoValor", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCuenta", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ImpAdic.IdCuenta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ImpAdic.IdCuenta", vbExclamation
          lUpdOK = False
       End If
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON ImpAdic (IdImpAdic) WITH PRIMARY"
@@ -5829,8 +5867,8 @@ Public Function CorrigeBase_V331() As Boolean   'agregada 26 oct 16 - entregada
          Q1 = "CREATE UNIQUE INDEX IdxTipo ON ImpAdic (TipoLib, TipoValor)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla ImpAdic", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla ImpAdic", vbExclamation
          lUpdOK = False
 
       End If
@@ -5862,45 +5900,45 @@ Public Function CorrigeBase_V330() As Boolean   'abierta 5 oct 2016
    '--------------------- Versión 330 -----------------------------------
    If lDbVer = 330 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Entidades")
       
       'agregamos campo IdEmpresa a tabla entidades (para importación desde facturación)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdEmpresa", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.IdEmpresa", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
                             
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agregamos campo IdEmpresa a tabla Documento (para importación desde facturación)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdEmpresa", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IdEmpresa", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IdEmpresa", vbExclamation
          lUpdOK = False
       End If
                                                       
       'agregamos campo FImpFacturacion a tabla Documento (para indicar fecha de importación desde facturación)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FImpFacturacion", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.FImpFacturacion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.FImpFacturacion", vbExclamation
          lUpdOK = False
       End If
       
@@ -5928,7 +5966,7 @@ Public Function CorrigeBase_V329() As Boolean   'agregada 25 jul 2016 - entregad
    '--------------------- Versión 329 -----------------------------------
    If lDbVer = 329 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       #If DATACON = DAO_CONN Then
       Call AlterField(DbMain, "Entidades", "CodActEcon", dbText, 8)
       #End If
@@ -5957,19 +5995,19 @@ Public Function CorrigeBase_V328() As Boolean   'entregada 4 ene 2016
    '--------------------- Versión 328 -----------------------------------
    If lDbVer = 328 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agregamos campo ObligaLibComprasVentas
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IVAInmueble", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IVAInmueble", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IVAInmueble", vbExclamation
          lUpdOK = False
       End If
                             
@@ -5997,19 +6035,19 @@ Public Function CorrigeBase_V327() As Boolean   'entregada 4 dic 2015
    '--------------------- Versión 327 -----------------------------------
    If lDbVer = 327 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Empresa")
       
       'agregamos campo ObligaLibComprasVentas
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ObligaLibComprasVentas", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.ObligaLibComprasVentas", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.ObligaLibComprasVentas", vbExclamation
          lUpdOK = False
       End If
                  
@@ -6050,297 +6088,297 @@ Public Function CorrigeBase_V326() As Boolean   'entregada 19/10/15
       Set Tbl = New TableDef
       Tbl.Name = "LibroCaja"
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdLibroCaja", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdLibroCaja", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdLibroCaja", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdDoc", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdDoc", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdDoc", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoOper", dbInteger)         'Ingreso o Egreso
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.TipoOper", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.TipoOper", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoDoc", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdTipoDoc", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdTipoDoc", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoLib", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdTipoLib", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdTipoLib", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NumDoc", dbText, 20)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.NumDoc", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.NumDoc", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NumDocHasta", dbText, 20)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.NumDocHasta", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.NumDocHasta", vbExclamation
          lUpdOK = False
       End If
 
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DTE", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.DTE", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.DTE", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdEntidad", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdEntidad", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdEntidad", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("RutEntidad", dbText, 12)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.RutEntidad", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.RutEntidad", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NombreEntidad", dbText, 40)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.NombreEntidad", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.NombreEntidad", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaOperacion", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.FechaOperacion", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.FechaOperacion", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Afecto", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Neto", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Neto", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IVA", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IVA", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IVA", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Exento", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Exento", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Exento", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("OtroImp", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Exento", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Exento", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Total", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Total", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Total", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Pagado", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Pagado", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Pagado", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Descrip", dbText, 50)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Glosa", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Glosa", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ConEntRel", dbBoolean)        'Con entidad relacionada
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.ConEntRel", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.ConEntRel", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("OperDevengada", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.OperDevengada", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.OperDevengada", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PagoAPlazo", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.PagoAPlazo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.PagoAPlazo", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaExigPago", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.FechaExigPago", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.FechaExigPago", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Estado", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.Estado", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.Estado", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdUsuario", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.IdUsuario", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.IdUsuario", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaCreacion", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LibroCaja.FechaCreacion", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LibroCaja.FechaCreacion", vbExclamation
          lUpdOK = False
       End If
 
 
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
 
          Q1 = "CREATE UNIQUE INDEX Idx ON LibroCaja (IdLibroCaja) WITH PRIMARY"
@@ -6352,8 +6390,8 @@ Public Function CorrigeBase_V326() As Boolean   'entregada 19/10/15
          Q1 = "CREATE INDEX IdxNumDoc ON LibroCaja (TipoDoc, TipoLib, IdEntidad, NumDoc)"
          Rc = ExecSQL(DbMain, Q1, False)
 
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla LibroCaja", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla LibroCaja", vbExclamation
          lUpdOK = False
 
       End If
@@ -6390,14 +6428,14 @@ Public Function CorrigeBase_V325() As Boolean   'entregada 8/07/15
       'agregamos campo EsSupermercado a tabla Entidades
       Set Tbl = DbMain.TableDefs("Entidades")
        
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("EsSupermercado", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Entidades.EsSupermercado", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Entidades.EsSupermercado", vbExclamation
          lUpdOK = False
       End If
             
@@ -6431,36 +6469,36 @@ Public Function CorrigeBase_V324() As Boolean   'entregada 29/01/2015
       Set Tbl = DbMain.TableDefs("ActFijoCompsFicha")
        
       'agregamos campos para el reporte IFRS
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepPeriodo", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.DepPeriodo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.DepPeriodo", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Factor", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.Factor", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.Factor", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Revalorizacion", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.Revalorizacion", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.Revalorizacion", vbExclamation
          lUpdOK = False
       End If
         
@@ -6494,113 +6532,113 @@ Public Function CorrigeBase_V323() As Boolean   'entregada dic 2014
       Set Tbl = DbMain.TableDefs("ActFijoCompsFicha")
        
       'agregamos campos para el reporte IFRS
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NoExisteValRazonable", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.NoExisteValRazonable", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.NoExisteValRazonable", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("OtrasDiferencias", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.OtrasDiferencias", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.OtrasDiferencias", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepAcum", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.DepAcum", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.DepAcum", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("VidaUtilDep", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.VidaUtilDep", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.VidaUtilDep", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ReservaAcum", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ReservaAcum", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ReservaAcum", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepAcumuladaAnoAnt", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.DepAcumuladaAnoAnt", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.DepAcumuladaAnoAnt", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("VidaUtilYaDep", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.VidaUtilYaDep", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.VidaUtilYaDep", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ReservaAcumAnt", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ReservaAcumAnt", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ReservaAcumAnt", vbExclamation
          lUpdOK = False
       End If
              
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCompFichaOldTmp", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.IdCompFichaOldTmp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.IdCompFichaOldTmp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCompFichaOld", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.IdCompFichaOld", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.IdCompFichaOld", vbExclamation
          lUpdOK = False
       End If
              
@@ -6609,25 +6647,25 @@ Public Function CorrigeBase_V323() As Boolean   'entregada dic 2014
       Set Tbl = DbMain.TableDefs("ActFijoFicha")
        
       'agregamos campo IdFichaOld a tabla ActFijoFicha
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdFichaOldTmp", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.IdFichaOldTmp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.IdFichaOldTmp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdFichaOld", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.IdFichaOld", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.IdFichaOld", vbExclamation
          lUpdOK = False
       End If
   
@@ -6659,58 +6697,58 @@ Public Function CorrigeBase_V322() As Boolean   'entregada 23  oct 2014
       'Agregamos campos de Dep. Instantánea, DécimaParte y VidaUtilAnos a tabla MovActivoFijo
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
        
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepInstant", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepInstant", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepInstant", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepDecimaParte", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParte", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParte", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepInstantHist", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepInstantHist", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepInstantHist", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DepDecimaParteHist", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParteHist", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepDecimaParteHist", vbExclamation
          lUpdOK = False
       End If
         
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("VidaUtilAnos", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.VidaUtilAnos", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.VidaUtilAnos", vbExclamation
          lUpdOK = False
       End If
        
@@ -6744,14 +6782,14 @@ Public Function CorrigeBase_V321() As Boolean   'entregada 4 sept 2014
       'Agregamos campo FechaImportFile a tabla MovActivoFijo
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
        
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaImportFile", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.FechaImport", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.FechaImport", vbExclamation
          lUpdOK = False
       End If
         
@@ -6785,14 +6823,14 @@ Public Function CorrigeBase_V320() As Boolean   'entregada 21 ago 2014
       'Agregamos campo SinDetComps en ActFijoFicha
       Set Tbl = DbMain.TableDefs("ActFijoFicha")
        
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("SinDetComps", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.SinDetComps", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.SinDetComps", vbExclamation
          lUpdOK = False
       End If
         
@@ -6826,25 +6864,25 @@ Public Function CorrigeBase_V319() As Boolean   'entregada 20 jun 2014
       'Agregamos campo Adq_OtrosConceptos y Gast_OtrosConceptos en ActFijoFicha
       Set Tbl = DbMain.TableDefs("ActFijoFicha")
        
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("AdquiOtrosConceptos", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.AdquiOtrosConceptos", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.AdquiOtrosConceptos", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("GastoOtrosConceptos", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.GastoOtrosConceptos", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.GastoOtrosConceptos", vbExclamation
          lUpdOK = False
       End If
     
@@ -6879,31 +6917,31 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
       Set Tbl = New TableDef
       Tbl.Name = "AFGrupos"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdGrupo", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AFGrupos.IdGrupo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AFGrupos.IdGrupo", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NombGrupo", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AFGrupos.NombGrupo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AFGrupos.NombGrupo", vbExclamation
          lUpdOK = False
       End If
       
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX IdxGrupo ON AFGrupos (IdGrupo) WITH PRIMARY"
@@ -6912,8 +6950,8 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
          Q1 = "CREATE UNIQUE INDEX IdxNombre ON AFGrupos (NombGrupo)"
          Rc = ExecSQL(DbMain, Q1, False)
                   
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla AFGrupos", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla AFGrupos", vbExclamation
          lUpdOK = False
          
       End If
@@ -6934,42 +6972,42 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
       Set Tbl = New TableDef
       Tbl.Name = "AFComponentes"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdComp", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AFComponentes.IdComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AFComponentes.IdComp", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdGrupo", dbLong)   'padre
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AFComponentes.IdGrupo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AFComponentes.IdGrupo", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("NombComp", dbText, 30)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "AFComponentes.NombComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "AFComponentes.NombComp", vbExclamation
          lUpdOK = False
       End If
       
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX IdxComp ON AFComponentes (IdComp) WITH PRIMARY"
@@ -6978,8 +7016,8 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
          Q1 = "CREATE UNIQUE INDEX IdxNombre ON AFComponentes (NombComp)"
          Rc = ExecSQL(DbMain, Q1, False)
                  
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla AFComponentes", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla AFComponentes", vbExclamation
          lUpdOK = False
          
       End If
@@ -6991,163 +7029,163 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
       Set Tbl = New TableDef
       Tbl.Name = "ActFijoFicha"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdFicha", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.IdFicha", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.IdFicha", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdActFijo", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.IdActFijo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.IdActFijo", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdGrupo", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.IdGrupo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.IdGrupo", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PrecioFactura", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.PrecioFactura", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.PrecioFactura", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DerechosIntern", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.DerechosIntern", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.DerechosIntern", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Transporte", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.Transporte", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.Transporte", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ObrasAdapt", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.ObrasAdapt", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.ObrasAdapt", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PrecioAdquis", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.PrecioAdquis", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.PrecioAdquis", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IVARecuperable", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.IVARecuperable", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.IVARecuperable", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FormacionPers", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.FormacionPers", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.FormacionPers", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ObrasReubic", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.ObrasReubic", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.ObrasReubic", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TotalGastos", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.TotalGastos", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.TotalGastos", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaIncorporacion", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.FechaIncorporacion", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.FechaIncorporacion", vbExclamation
          lUpdOK = False
       End If
     
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaDisponible", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoFicha.FechaDisponible", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoFicha.FechaDisponible", vbExclamation
          lUpdOK = False
       End If
     
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX Idx ON ActFijoFicha (IdFicha) WITH PRIMARY"
@@ -7160,8 +7198,8 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
          Rc = ExecSQL(DbMain, Q1, False)
                  
                  
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla ActFijoFicha", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla ActFijoFicha", vbExclamation
          lUpdOK = False
          
       End If
@@ -7172,174 +7210,174 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
       Set Tbl = New TableDef
       Tbl.Name = "ActFijoCompsFicha"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdCompFicha", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.IdCompFicha", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.IdCompFicha", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdActFijo", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.IdActFijo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.IdActFijo", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdGrupo", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.IdGrupo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.IdGrupo", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdComp", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.IdComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.IdComp", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PjeDivComp", dbSingle)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.PjeDivComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.PjeDivComp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ValorCompra", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ValorCompra", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ValorCompra", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ValorResidual", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ValorResidual", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ValorResidual", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PjeAmortizacion", dbSingle)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.PjeAmortizacion", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.PjeAmortizacion", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("VidaUtil", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.VidaUtil", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.VidaUtil", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CostosAdicionales", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.CostosAdicionales", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.CostosAdicionales", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TasaDesc", dbSingle)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.TasaDesc", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.TasaDesc", vbExclamation
          lUpdOK = False
       End If
   
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CostoDesmant", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.CostoDesmant", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.CostoDesmant", vbExclamation
          lUpdOK = False
       End If
  
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ValActCostoDesmant", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ValActCostoDesmant", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ValActCostoDesmant", vbExclamation
          lUpdOK = False
       End If
  
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ValorBien", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ValorBien", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ValorBien", vbExclamation
          lUpdOK = False
       End If
  
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ValorRazonable_31_12", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "ActFijoCompsFicha.ValorRazonable_31_12", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ActFijoCompsFicha.ValorRazonable_31_12", vbExclamation
          lUpdOK = False
       End If
  
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX Idx ON ActFijoCompsFicha (IdCompFicha) WITH PRIMARY"
@@ -7351,8 +7389,8 @@ Public Function CorrigeBase_V318() As Boolean   'entregada 7 jun 2014
          Q1 = "CREATE INDEX IdxComp ON ActFijoCompsFicha (IdGrupo, IdComp)"
          Rc = ExecSQL(DbMain, Q1, False)
                                   
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla ActFijoCompsFicha", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla ActFijoCompsFicha", vbExclamation
          lUpdOK = False
          
       End If
@@ -7388,16 +7426,16 @@ Public Function CorrigeBase_V317() As Boolean   'entregada el 21 de enero 2014
       'Agregamos campo TipoAjusteComp en LogComprobantes
       Set Tbl = DbMain.TableDefs("LogComprobantes")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoAjusteComp", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogComprobantes.TipoAjusteComp", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.TipoAjusteComp", vbExclamation
          lUpdOK = False
 
       End If
@@ -7432,16 +7470,16 @@ Public Function CorrigeBase_V316() As Boolean   'entregada 10 enero 2014
       'Agregamos campo CodIFRS a Cuentas
       Set Tbl = DbMain.TableDefs("Cuentas")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CodIFRS", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CodIFRS", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CodIFRS", vbExclamation
          lUpdOK = False
 
       End If
@@ -7514,16 +7552,16 @@ Public Function CorrigeBase_V314() As Boolean   'agregada 29 oct 2013     entreg
       'Agregamos campo TipoAjuste a Comprobante
       Set Tbl = DbMain.TableDefs("Comprobante")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoAjuste", dbByte)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Comprobante.TipoAjuste", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Comprobante.TipoAjuste", vbExclamation
          lUpdOK = False
 
       End If
@@ -7533,30 +7571,30 @@ Public Function CorrigeBase_V314() As Boolean   'agregada 29 oct 2013     entreg
       'Agregamos campos DebeTrib y HaberTrib a tabla Cuentas
       Set Tbl = DbMain.TableDefs("Cuentas")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("DebeTrib", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.DebeTrib", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.DebeTrib", vbExclamation
          lUpdOK = False
 
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("HaberTrib", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.HaberTrib", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.HaberTrib", vbExclamation
          lUpdOK = False
 
       End If
@@ -7590,16 +7628,16 @@ Public Function CorrigeBase_V313() As Boolean   'entregada 14 sep 2013
       'Agregamos campo ValIVAIrrec a Documento
       Set Tbl = DbMain.TableDefs("Documento")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("ValIVAIrrec", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.ValIVAIrrec", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.ValIVAIrrec", vbExclamation
          lUpdOK = False
 
       End If
@@ -7634,16 +7672,16 @@ Public Function CorrigeBase_V312() As Boolean   'entregada 10 sep 2013
       'Agregamos campo PropIVA a Documento
       Set Tbl = DbMain.TableDefs("Documento")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("PropIVA", dbInteger)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.PropIVA", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.PropIVA", vbExclamation
          lUpdOK = False
 
       End If
@@ -7653,48 +7691,48 @@ Public Function CorrigeBase_V312() As Boolean   'entregada 10 sep 2013
       Set Tbl = New TableDef
       Tbl.Name = "PropIVA_TotMensual"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Mes", dbInteger)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "PropIVA_TotMensual.Mes", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "PropIVA_TotMensual.Mes", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TotalAfecto", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "PropIVA_TotMensual.TotalAfecto", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "PropIVA_TotMensual.TotalAfecto", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TotalExento", dbDouble)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "PropIVA_TotMensual.TotalExento", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "PropIVA_TotMensual.TotalExento", vbExclamation
          lUpdOK = False
       End If
       
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX IdxMes ON PropIVA_TotMensual (Mes)"
          Rc = ExecSQL(DbMain, Q1, False)
                   
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla PropIVA_TotMensual", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla PropIVA_TotMensual", vbExclamation
          lUpdOK = False
          
       End If
@@ -7730,16 +7768,16 @@ Public Function CorrigeBase_V311() As Boolean   '13 ago 13
       'Agregamos campo a comprobante para la fecha de importación
       Set Tbl = DbMain.TableDefs("Comprobante")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaImport", dbLong)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Comprobante.FechaImport", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Comprobante.FechaImport", vbExclamation
          lUpdOK = False
 
       End If
@@ -7774,121 +7812,121 @@ Public Function CorrigeBase_V310() As Boolean   '10 jul 13
       Set Tbl = New TableDef
       Tbl.Name = "LogComprobantes"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdLog", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.IdLog", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.IdLog", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdComp", dbLong)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.IdComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.IdComp", vbExclamation
          lUpdOK = False
       End If
            
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdUsuario", dbLong)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.IdUsuario", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.IdUsuario", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Fecha", dbDouble)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.Fecha", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.Fecha", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdOper", dbInteger)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.IdOper", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.IdOper", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Estado", dbInteger)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.Estado", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.Estado", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CorrComp", dbLong)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.CorrComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.CorrComp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("FechaComp", dbLong)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.FechaComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.FechaComp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("TipoComp", dbByte)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.TipoComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.TipoComp", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("EstadoComp", dbByte)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "LogComprobantes.EstadoComp", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "LogComprobantes.EstadoComp", vbExclamation
          lUpdOK = False
       End If
       
            
            
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX IdLog ON LogComprobantes (IdLog)"
@@ -7897,8 +7935,8 @@ Public Function CorrigeBase_V310() As Boolean   '10 jul 13
          Q1 = "CREATE  INDEX Fecha ON LogComprobantes (Fecha)"
          Rc = ExecSQL(DbMain, Q1, False)
          
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla LogComprobantes", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla LogComprobantes", vbExclamation
          lUpdOK = False
          
       End If
@@ -7931,7 +7969,7 @@ Public Function CorrigeBase_V309() As Boolean   '12 dic 12
    
       'Agregamos Cred 33 bis a ParamEmpresa
       
-      If gEmpresa.ano >= 2012 Then
+      If gEmpresa.Ano >= 2012 Then
          Q1 = "INSERT INTO ParamEmpresa (Tipo, Codigo, Valor) VALUES ('CREDART33',0,'0.04')"
          Call ExecSQL(DbMain, Q1)
       End If
@@ -7962,16 +8000,16 @@ Public Function CorrigeBase_V308() As Boolean   '12 dic 12
       'Agregamos campo a comprobante para marcar C.M.
       Set Tbl = DbMain.TableDefs("Comprobante")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("EsCCMM", dbBoolean)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Comprobante.EsCCMM", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Comprobante.EsCCMM", vbExclamation
          lUpdOK = False
 
       End If
@@ -7999,19 +8037,19 @@ Public Function CorrigeBase_V307() As Boolean   'Version 4.0, 26 sept 2012
    '--------------------- Versión 307 -----------------------------------
    If lDbVer = 307 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
       'agregamos campo Cred4PorcAnoInit
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Cred4PorcAnoInit", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.Cred4PorcAnoInit", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.Cred4PorcAnoInit", vbExclamation
          lUpdOK = False
       End If
                  
@@ -8043,33 +8081,33 @@ Public Function CorrigeBase_V306() As Boolean   ''Version 4.0, ???? agosto 2012
    
       'agregamos los campos de IFRS en la tabla Cuentas
 
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Cuentas")
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CodIFRS_EstRes", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CodIFRS_EstRes", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CodIFRS_EstRes", vbExclamation
          lUpdOK = False
 
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("CodIFRS_EstFin", dbText, 15)
       Tbl.Fields.Append Fld
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
 
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CodIFRS_EstRes", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CodIFRS_EstRes", vbExclamation
          lUpdOK = False
 
       End If
@@ -8151,31 +8189,31 @@ Public Function CorrigeBase_V304() As Boolean   'Version 3.0, 16 nov. 2011
    '--------------------- Versión 304 -----------------------------------
    If lDbVer = 304 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Empresa")
       
       'agregamos campo Franq14ter
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Franq14ter", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Franq14ter", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Franq14ter", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo Franq14quater
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Franq14quater", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Franq14quater", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Franq14quater", vbExclamation
          lUpdOK = False
       End If
     
@@ -8203,32 +8241,32 @@ Public Function CorrigeBase_V303() As Boolean   'Version 3.0, 26 Oct. 2011
    '--------------------- Versión 303 -----------------------------------
    If lDbVer = 303 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
       'agregamos campo FImported a tabla MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FImported", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.FImported", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.FImported", vbExclamation
          lUpdOK = False
       End If
       
     
       'agregamos campo ValorReajustado a tabla MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ValReajustadoNetoAnt", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.ValReajustadoNetoAnt", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.ValReajustadoNetoAnt", vbExclamation
          lUpdOK = False
       End If
             
@@ -8260,7 +8298,7 @@ Public Function CorrigeBase_V302() As Boolean   'Version 3.0, 7 sept. 2011
    '--------------------- Versión 302 -----------------------------------
    If lDbVer = 302 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       'recálculo de Docs con IVA Irrecuperable por cambio en detalle de otros impuestos en libro de compras
       #If DATACON = DAO_CONN Then
@@ -8337,19 +8375,19 @@ Public Function CorrigeBase_V301() As Boolean   'Version 3.0, 31 agosto 2011
    '--------------------- Versión 301 -----------------------------------
    If lDbVer = 301 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agregamos campo IdDocAsoc a tabla Documento
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdDocAsoc", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IdDocAsoc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IdDocAsoc", vbExclamation
          lUpdOK = False
       End If
       
@@ -8378,19 +8416,19 @@ Public Function CorrigeBase_V300() As Boolean   'Version 3.0, 29 julio 2011
    '--------------------- Versión 300 -----------------------------------
    If lDbVer <= 300 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovComprobante")
       
       'agregamos campo Nota a tabla MovComprobante
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Nota", dbText, 120)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovComprobante.Nota", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovComprobante.Nota", vbExclamation
          lUpdOK = False
       End If
       
@@ -8407,54 +8445,54 @@ Public Function CorrigeBase_V300() As Boolean   'Version 3.0, 29 julio 2011
       #End If
       
       'agregamos capos a tabla Docemnto para manejas el Doc Maquina Registradora
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
       'campo NumFiscImpr (n° fiscal impresora)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NumFiscImpr", dbText, 20)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.NumFiscImpr", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.NumFiscImpr", vbExclamation
          lUpdOK = False
       End If
       
       'campo NumInformeZ (n° informe Z)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NumInformeZ", dbText, 20)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.NumInformeZ", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.NumInformeZ", vbExclamation
          lUpdOK = False
       End If
       
       'campo CantBoletas (cantidad de boletas emitidas)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CantBoletas", dbLong)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.CantBoletas", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.CantBoletas", vbExclamation
          lUpdOK = False
       End If
       
       'campo VentasAcumInfZ (ventas acumuladas según informe Z)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("VentasAcumInfZ", dbDouble)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.VentasAcumInfZ", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.VentasAcumInfZ", vbExclamation
          lUpdOK = False
       End If
       
@@ -8508,7 +8546,7 @@ Private Function CorrigeBase_V50() As Boolean     '7 abr 2011 v2.0.11
    '--------------------- Versión 50 -----------------------------------
    If lDbVer = 50 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       'eliminamos algunos códigos de exportación a Form 22, de acuerdo a lo solicitado por Victor Morales
       'en reporte 54-B, 7 abr 2011
@@ -8546,19 +8584,19 @@ Private Function CorrigeBase_V49() As Boolean     '21 Enero 2011 v.2.0.9
    '--------------------- Versión 49 -----------------------------------
    If lDbVer = 49 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
       'agregamos campo ValorLibro a tabla MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ValorLibro", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.ValorLibro", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.ValorLibro", vbExclamation
          lUpdOK = False
       End If
       
@@ -8620,19 +8658,19 @@ Private Function CorrigeBase_V47() As Boolean     '7 ene 2010 (v 2.0.7)
    '--------------------- Versión 47 -----------------------------------
    If lDbVer = 47 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovComprobante")
       
       'agregamos campo DeRemu a tabla Cuentas
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DeRemu", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovComprobante.DeRemu", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovComprobante.DeRemu", vbExclamation
          lUpdOK = False
       End If
       
@@ -8664,19 +8702,19 @@ Private Function CorrigeBase_V46() As Boolean     '30 nov.2009 (v 2.0.7)
    '--------------------- Versión 46 -----------------------------------
    If lDbVer = 46 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("Cuentas")
       
       'agregamos campo CorrelativoCheque a tabla Cuentas
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CorrelativoCheque", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CorrelativoCheque", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CorrelativoCheque", vbExclamation
          lUpdOK = False
       End If
       
@@ -8708,19 +8746,19 @@ Private Function CorrigeBase_V45() As Boolean     '23 oct.2009 (v 2.0.7)
    '--------------------- Versión 45 -----------------------------------
    If lDbVer = 45 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
       'agregamos campo TotalmenteDepreciado a tabla MovActFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TotalmenteDepreciado", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.TotalmenteDepreciado", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.TotalmenteDepreciado", vbExclamation
          lUpdOK = False
       End If
       
@@ -8752,56 +8790,56 @@ Private Function CorrigeBase_V44() As Boolean     '11 jun 2009 (v 2.0.5)
    '--------------------- Versión 44 -----------------------------------
    If lDbVer = 44 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
       'agregamos campo ValReajustadoNeto a tabla MovActFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ValReajustadoNeto", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.ValReajustadoNeto", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.ValReajustadoNeto", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo IdActFijoOld a tabla MovActFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdActFijoOld", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.IdActFijoOld", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.IdActFijoOld", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo IdActFijoOldTmp a tabla MovActFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdActFijoOldTmp", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.IdActFijoOldTmp", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.IdActFijoOldTmp", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo OldIdDocTmp a tabla Documento
       Set Tbl = DbMain.TableDefs("Documento")
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("OldIdDocTmp", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.OldIdDocTmp", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.OldIdDocTmp", vbExclamation
          lUpdOK = False
       End If
    
@@ -8832,7 +8870,7 @@ Private Function CorrigeBase_V43() As Boolean     '21 abr. 2009 (v 2.0.4)
    '--------------------- Versión 43 -----------------------------------
    If lDbVer = 43 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
 '      If gFunciones.ExpFUT Then   'se elimina esta verificación porque crea problemas con empresas nuevas hasta que saquemos actualización que ya no usa campo (FCA 29/11/2017)
          Call CrearTblCtasFUT
@@ -8878,7 +8916,7 @@ Private Function CorrigeBase_V42() As Boolean     '25 nov. 2008 (v 2.0.4)
    '--------------------- Versión 42 -----------------------------------
    If lDbVer = 42 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       
       'limpiamos tipo contrib de FUT y general
       'ya no se usa el campo TFontribFUT porque se igauló al campo TipoContrib
@@ -8916,36 +8954,36 @@ Private Function CorrigeBase_V41() As Boolean     '9 oct. 2008 (v 2.0.4)
    '--------------------- Versión 41 -----------------------------------
    If lDbVer = 41 And lUpdOK = True Then
          
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
       'agregamos campo NoDepreciable a tabla MovActFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NoDepreciable", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.NoDepreciable", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.NoDepreciable", vbExclamation
          lUpdOK = False
       End If
             
       'agregamos campo ValCred33 a tabla MovActFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ValCred33", dbDouble)
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActFijo.ValCred33", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActFijo.ValCred33", vbExclamation
          lUpdOK = False
       End If
            
            
        'cambiamos largo campo Giro a tabla Empresa
-      Err.Clear
+      ERR.Clear
       
       #If DATACON = DAO_CONN Then
       Call AlterField(DbMain, "Empresa", "Giro", dbText, 80)
@@ -8979,7 +9017,7 @@ Private Function CorrigeBase_V40() As Boolean     '21 jul 2008 (v 2.0.4)
    If lDbVer = 40 And lUpdOK = True Then
          
       'cambiamos tipo campo IVAIrrecuperable a tabla Documento
-      Err.Clear
+      ERR.Clear
       
       #If DATACON = DAO_CONN Then
       Call AlterField(DbMain, "Documento", "IVAIrrecuperable", dbInteger)
@@ -9010,30 +9048,30 @@ Private Function CorrigeBase_V39() As Boolean     '15 jul 2008 (v 2.0.4)
    '--------------------- Versión 39 -----------------------------------
    If lDbVer = 39 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agregamos campo IVAIrrecuperable a tabla Documento
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IVAIrrecuperable", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IVAIrrecuperable", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IVAIrrecuperable", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo DocOtrosEnAnalitico a tabla Documento
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DocOtrosEnAnalitico", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.DocOtrosEnAnalitico", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.DocOtrosEnAnalitico", vbExclamation
          lUpdOK = False
       End If
       
@@ -9063,17 +9101,17 @@ Private Function CorrigeBase_V38() As Boolean     '3 jul 2008 (v 2.0.1)
    '--------------------- Versión 38 -----------------------------------
    If lDbVer = 38 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FechaUtilizacion", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.FechaUtilizacion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.FechaUtilizacion", vbExclamation
          lUpdOK = False
       End If
             
@@ -9103,28 +9141,28 @@ Private Function CorrigeBase_V37() As Boolean     '17 jun 2008 (v 2.0.1)
    '--------------------- Versión 37 -----------------------------------
    If lDbVer = 37 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Giro", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.Giro", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.Giro", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FacCompraRetParcial", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.FacCompraRetParcial", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.FacCompraRetParcial", vbExclamation
          lUpdOK = False
       End If
       
@@ -9182,7 +9220,7 @@ Private Function CorrigeBase_V35() As Boolean     '01 feb 2008
    '--------------------- Versión 35 -----------------------------------
    If lDbVer = 35 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       Call CreateTableLockAction(DbMain, False)
       
    '--------------------- Actualización Versión -------------------------
@@ -9210,17 +9248,17 @@ Private Function CorrigeBase_V34() As Boolean     '27 Nov 2006
    '--------------------- Versión 34 -----------------------------------
    If lDbVer = 34 And lUpdOK = True Then
    
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Cartola")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("SaldoIni", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cartola.SaldoIni", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cartola.SaldoIni", vbExclamation
          lUpdOK = False
       End If
       
@@ -9404,17 +9442,17 @@ Private Function CorrigeBase_V30() As Boolean     '27 Marzo 2006
    
       '--------------------- Documento -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FImportSuc", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.FImportSuc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.FImportSuc", vbExclamation
          lUpdOK = False
       End If
       
@@ -9511,18 +9549,18 @@ Private Function CorrigeBase_V28() As Boolean     '08 Marzo 2006
          
       '--------------------- Tabla Documento -----------------
                   
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
                                
       'agregamos campo TotPagadoAnoAnt
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TotPagadoAnoAnt", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.TotPagadoAnoAnt", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.TotPagadoAnoAnt", vbExclamation
          lUpdOK = False
       End If
       
@@ -9570,7 +9608,7 @@ Private Function CorrigeBase_V27() As Boolean     '23 Enero 2006
          
       '--------------------- Codigos F22 en Tabla Cuentas -----------------
                   
-      Err.Clear
+      ERR.Clear
       'eliminamos algunos códigos de exportación a Form 22:
       '  628 porque es un campo que se ingresa con detalles, no ingreso directo
       '  366 y 384 porque son campos calculados por Form 22
@@ -9621,7 +9659,7 @@ Private Function CorrigeBase_V26() As Boolean     '23 Diciembre 2005
          
       '--------------------- Notas -----------------
                   
-      Err.Clear
+      ERR.Clear
       #If DATACON = DAO_CONN Then
       Call AlterField(DbMain, "Notas", "Incluir", dbInteger)
       #End If
@@ -9669,18 +9707,18 @@ Private Function CorrigeBase_V25() As Boolean     '14 Diciembre 2005
          
       '--------------------- Comprobante Tipo -----------------
                   
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("CT_Comprobante")
                                
       'agregamos campo Imprimir Resumido (para versión 2006)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ImpResumido", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "ImpResumido", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "ImpResumido", vbExclamation
          lUpdOK = False
       End If
            
@@ -9727,18 +9765,18 @@ Private Function CorrigeBase_V24() As Boolean     '15 Octubre 2005
          
       '--------------------- Comprobante -----------------
                   
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Comprobante")
                                
       'agregamos campo Imprimir Resumido (para versión 2006)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("ImpResumido", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Comprobante.ImpResumido", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Comprobante.ImpResumido", vbExclamation
          lUpdOK = False
       End If
            
@@ -9786,120 +9824,120 @@ Private Function CorrigeBase_V23() As Boolean     '25 Agosto 2005
          
       '--------------------- MovActivoFijo -----------------
                   
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
              
                   
       'cambiamos nobres de campos de depreciación en MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Fields("DepFin").Name = "DepNormal"
       Tbl.Fields("DepTrib").Name = "DepAcelerada"
       Tbl.Fields("DepFinHist").Name = "DepNormalHist"
       Tbl.Fields("DepTribHist").Name = "DepAceleradaHist"
       
       'agregamos campo Tipo depreciación
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoDep", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.TipoDep", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.TipoDep", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo Tipo Depreciación Histórica
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoDepHist", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.TipoDepHist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.TipoDepHist", vbExclamation
          lUpdOK = False
       End If
 
       'agregamos campo Depreciación Acumulada Histórica
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepAcumHist", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepAcumHist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepAcumHist", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo Vida útil
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("VidaUtil", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.VidaUtil", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.VidaUtil", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo Depreciación Acumulada Final (a final del año actual)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepAcumFinal", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepAcumFinal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepAcumFinal", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo Vida útil Residual (a final año actual)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("VidaUtilResidual", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.VidaUtilResidual", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.VidaUtilResidual", vbExclamation
          lUpdOK = False
       End If
       
       'agregamos campo FExported (Fecha exportación a año siguiente o importación desde año anterior)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FExported", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.FExported", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.FExported", vbExclamation
          lUpdOK = False
       End If
       
       'eliminamos campos que no se usan en MovActivoFijo
-      Err.Clear
+      ERR.Clear
       Tbl.Indexes.Delete ("IdDocVenta")
       Tbl.Fields.Delete ("IdDocVenta")
-      Err.Clear
+      ERR.Clear
       Tbl.Indexes.Delete ("IdCompVenta")
       Tbl.Fields.Delete ("IdCompVenta")
-      Err.Clear
+      ERR.Clear
       Tbl.Indexes.Delete ("IdMovCompVenta")
       Tbl.Fields.Delete ("IdMovCompVenta")
-      Err.Clear
+      ERR.Clear
       Tbl.Indexes.Delete ("IdCuentaVenta")
       Tbl.Fields.Delete ("IdCuentaVenta")
       
       'eliminamos campo IdActFijo de MovComprobante (no se usa)
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovComprobante")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Delete ("IdActFijo")
            
            
@@ -9949,49 +9987,49 @@ Private Function CorrigeBase_V22() As Boolean      ' 12 Julio 2005
       Set Tbl = New TableDef
       Tbl.Name = "Sucursales"
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdSucursal", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Sucursales.IdSucursal", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Sucursales.IdSucursal", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Codigo", dbText, 15)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Sucursales.Codigo", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Sucursales.Codigo", vbExclamation
          lUpdOK = False
       End If
            
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("Descripcion", dbText, 30)
       Tbl.Fields.Append Fld
       
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Sucursales.Descripcion", vbExclamation
+      ElseIf ERR <> 3191 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Sucursales.Descripcion", vbExclamation
          lUpdOK = False
       End If
            
       DbMain.TableDefs.Append Tbl
-      If Err = 0 Then
+      If ERR = 0 Then
          DbMain.TableDefs.Refresh
          
          Q1 = "CREATE UNIQUE INDEX IdSucursal ON Sucursales (IdSucursal)"
          Rc = ExecSQL(DbMain, Q1, False)
          
-      ElseIf Err <> 3010 Then ' ya existe
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla Sucursales", vbExclamation
+      ElseIf ERR <> 3010 Then ' ya existe
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla Sucursales", vbExclamation
          lUpdOK = False
          
       End If
@@ -10000,17 +10038,17 @@ Private Function CorrigeBase_V22() As Boolean      ' 12 Julio 2005
       
       '--------------------- Add Campo Sucursal a Docs ---------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdSucursal", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IdSucursal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IdSucursal", vbExclamation
          lUpdOK = False
       End If
            
@@ -10064,47 +10102,47 @@ Private Function CorrigeBase_2005_01() As Boolean
 
       Set Tbl = DbMain.TableDefs("LogImpreso")
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Delete "id"
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3265 Then
+      ElseIf ERR <> 3265 Then
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogImpreso.Id", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogImpreso.Id", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Set Fld = Tbl.CreateField("IdLog", dbLong)
       Fld.Attributes = dbAutoIncrField ' Autonumber
       Tbl.Fields.Append Fld
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then
+      ElseIf ERR <> 3191 Then
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogImpreso.IdLog", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogImpreso.IdLog", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdUsuario", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogImpreso.IdUsuario", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogImpreso.IdUsuario", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Mes", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogImpreso.Mes", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogImpreso.Mes", vbExclamation
          lUpdOK = False
       End If
       
@@ -10112,14 +10150,14 @@ Private Function CorrigeBase_2005_01() As Boolean
 
       Set Tbl = DbMain.TableDefs("Notas")
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IncluirInfo", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Notas.IncluirInfo", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Notas.IncluirInfo", vbExclamation
          lUpdOK = False
       End If
 
@@ -10139,7 +10177,7 @@ Private Function CorrigeBase_2005_01() As Boolean
 
       '--------------------- Empresa -----------------------------------
 
-      Err.Clear
+      ERR.Clear
       
       #If DATACON = DAO_CONN Then
       Call AlterField(DbMain, "Empresa", "RutRepLegal1", dbText, 12)
@@ -10163,28 +10201,28 @@ Private Function CorrigeBase_2005_01() As Boolean
 
       '--------------------- Documento -----------------------------------
 
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FEmisionOri", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "FEmisionOri.FEmisionOri", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "FEmisionOri.FEmisionOri", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CorrInterno", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "FEmisionOri.CorrInterno", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "FEmisionOri.CorrInterno", vbExclamation
          lUpdOK = False
       End If
       
@@ -10205,21 +10243,21 @@ Private Function CorrigeBase_2005_01() As Boolean
 
       '--------------------- Documento -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("SaldoDoc", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.SaldoDoc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.SaldoDoc", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Call ExecSQL(DbMain, "UPDATE Documento SET SaldoDoc=NULL")
       
       
@@ -10239,55 +10277,55 @@ Private Function CorrigeBase_2005_01() As Boolean
 
       '--------------------- LogImpreso -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("LogImpreso")
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FDesde", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogImpreso.FDesde", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogImpreso.FDesde", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FHasta", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "LogImpreso.FHasta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "LogImpreso.FHasta", vbExclamation
          lUpdOK = False
       End If
       
       '--------------------- Documento -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FExported", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.FExported", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.FExported", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("OldIdDoc", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.OldIdDoc", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.OldIdDoc", vbExclamation
          lUpdOK = False
       End If
       
@@ -10305,7 +10343,7 @@ Private Function CorrigeBase_2005_01() As Boolean
    
       '--------------------- MovActivoFijo -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       #If DATACON = DAO_CONN Then
       Call AlterField(DbMain, "MovActivoFijo", "Cred4Porc", dbBoolean)
       #End If
@@ -10326,66 +10364,66 @@ Private Function CorrigeBase_2005_01() As Boolean
    
       '--------------------- Entidades -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Entidades")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Giro", dbText, 50)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.Giro", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.Giro", vbExclamation
          lUpdOK = False
       End If
       
       '--------------------- MovActivoFijo -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepFinHist", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepFinHist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepFinHist", vbExclamation
          lUpdOK = False
       End If
             
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DepTribHist", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.DepTribHist", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.DepTribHist", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NetoVenta", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.NetoVenta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.NetoVenta", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IVAVenta", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.IVAVenta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.IVAVenta", vbExclamation
          lUpdOK = False
       End If
       
@@ -10406,87 +10444,87 @@ Private Function CorrigeBase_2005_01() As Boolean
          
       '--------------------- MovActivoFijo -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovActivoFijo")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FechaVentaBaja", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.FechaVentaBaja", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.FechaVentaBaja", vbExclamation
          lUpdOK = False
       End If
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdDocVenta", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovActivoFijo.IdDocVenta", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovActivoFijo.IdDocVenta", vbExclamation
          lUpdOK = False
       End If
       
       '--------------------- MovComprobante -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("MovComprobante")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdActFijo", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "MovComprobante.IdActFijo", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "MovComprobante.IdActFijo", vbExclamation
          lUpdOK = False
       End If
       
       
       '--------------------- Documento -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agergamos campo es DTE (Doc Trib Electrónico)
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DTE", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.DTE", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.DTE", vbExclamation
          lUpdOK = False
       End If
       
       'porcentaje de retención: 10% o 20%  (nacional o extranjero)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("PorcentRetencion", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.PorcentRetencion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.PorcentRetencion", vbExclamation
          lUpdOK = False
       End If
       
       'Tipo de retención: Dieta u Honorarios
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoRetencion", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.TipoRetencion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.TipoRetencion", vbExclamation
          lUpdOK = False
       End If
       
@@ -10509,17 +10547,17 @@ Private Function CorrigeBase_2005_01() As Boolean
      
       '--------------------- Cuentas -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Cuentas")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("CodF29", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Cuentas.CodF29", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Cuentas.CodF29", vbExclamation
          lUpdOK = False
       End If
 
@@ -10540,83 +10578,83 @@ Private Function CorrigeBase_2005_01() As Boolean
      
       '--------------------- Empresa -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Empresa")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoContrib", dbInteger)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.TipoContrib", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.TipoContrib", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TransaBolsa", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.TransaBolsa", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.TransaBolsa", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Franq14bis", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Franq14bis", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Franq14bis", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqLey18392", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqLey18392", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqLey18392", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqDL600", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqDL600", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqDL600", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqDL701", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqDL701", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqDL701", vbExclamation
          lUpdOK = False
       End If
 
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FranqDS341", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.FranqDS341", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.FranqDS341", vbExclamation
          lUpdOK = False
       End If
 
@@ -10683,43 +10721,43 @@ Private Function CorrigeBase_2005_01() As Boolean
       
       'estos campos ya habían sido agregados en la versión 7 pero algunos usuarios por alguna razón no los tienen ????
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
       'agregamos campo es DTE (Doc Trib Electrónico)
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("DTE", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.DTE", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.DTE", vbExclamation
          lUpdOK = False
       End If
       
       'porcentaje de retención: 10% o 20%  (nacional o extranjero)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("PorcentRetencion", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.PorcentRetencion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.PorcentRetencion", vbExclamation
          lUpdOK = False
       End If
       
       'Tipo de retención: Dieta u Honorarios
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoRetencion", dbByte)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.TipoRetencion", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.TipoRetencion", vbExclamation
          lUpdOK = False
       End If
       
@@ -10739,20 +10777,20 @@ Private Function CorrigeBase_2005_01() As Boolean
                               
       '--------------------- Documento -----------------------------------
             
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
             
       'agregamos campo MovEdited que indica si los movimientos han sido editados en la ventana de detalle del doc.
       'para evitar que el libro de compras, ventas o retenciones pise los movimientos definidos por el usuario
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("MovEdited", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.MovEdited", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.MovEdited", vbExclamation
          lUpdOK = False
       End If
      
@@ -10772,19 +10810,19 @@ Private Function CorrigeBase_2005_01() As Boolean
                               
       '--------------------- Documento -----------------------------------
             
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
             
       'agregamos campo OtrosVal para acumular total de otros valores que no sean Afecto, Exento, IVA, OtrosImp
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("OtrosVal", dbDouble)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.OtrosVal", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.OtrosVal", vbExclamation
          lUpdOK = False
       End If
      
@@ -10805,58 +10843,58 @@ Private Function CorrigeBase_2005_01() As Boolean
                               
       '--------------------- Documento -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
       'Fecha de importación desde F29
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("FImporF29", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.FImporF29", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.FImporF29", vbExclamation
          lUpdOK = False
       End If
             
       'número del documento asociado (por ejemplo una factura asociada a una nota de crédito)
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NumDocRef", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.NumDocRef", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.NumDocRef", vbExclamation
          lUpdOK = False
       End If
 
       ' Id de la cuenta contable correspondiente al cheque con el que se paga este documento
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("IdCtaBanco", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.IdCtaBanco", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.IdCtaBanco", vbExclamation
          lUpdOK = False
       End If
 
       '---------------------  Entidades -----------------------------------
       
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Entidades")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("NotValidRut", dbBoolean)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Entidades.NotValidRut", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Entidades.NotValidRut", vbExclamation
          lUpdOK = False
       End If
 
@@ -10875,17 +10913,17 @@ Private Function CorrigeBase_2005_01() As Boolean
    
    If lDbVer = 16 And lUpdOK = True Then   '13 Abril 2005
    
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Empresa")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Opciones", dbLong)
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.Opciones", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.Opciones", vbExclamation
          lUpdOK = False
       End If
       
@@ -10979,17 +11017,17 @@ Private Function CorrigeBase_2005_01() As Boolean
    If lDbVer = 20 And lUpdOK = True Then   ' 14 Junio 2005, después de generar Test del día
          
       'agregamos campo TipoRelEnt a tabla documentos para almacenar si la entidad relacionada es: Emisor, Receptor u Otro
-      Err.Clear
+      ERR.Clear
       Set Tbl = DbMain.TableDefs("Documento")
       
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("TipoRelEnt", dbInteger)  'tipo de relación de la entidad con el doc
 
-      If Err = 0 Then
+      If ERR = 0 Then
          Tbl.Fields.Refresh
-      ElseIf Err <> 3191 Then ' ya existe
+      ElseIf ERR <> 3191 Then ' ya existe
          MsgBeep vbExclamation
-         MsgBox "Error " & Err & ", " & Error & vbLf & "Documento.TipoRelEnt", vbExclamation
+         MsgBox "Error " & ERR & ", " & Error & vbLf & "Documento.TipoRelEnt", vbExclamation
          lUpdOK = False
       End If
       
@@ -11036,158 +11074,158 @@ Public Function CreateTblPercepciones() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "Percepciones"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IDPerc", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.IDPerc", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.IDPerc", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IDComp", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.IDComp", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.IDComp", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Orden", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.Orden", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.Orden", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdCuenta", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.IdCuenta", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.IdCuenta", vbExclamation
    End If
    
-    Err.Clear
+    ERR.Clear
     Set Fld = Tbl.CreateField("IdEmpresa", dbLong)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.IdEmpresa", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.IdEmpresa", vbExclamation
        lUpdOK = False
     End If
     
-    Err.Clear
+    ERR.Clear
     Set Fld = Tbl.CreateField("Ano", dbInteger)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.Ano", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.Ano", vbExclamation
        lUpdOK = False
     End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Fecha", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.Fecha", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.Fecha", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("NumCertificado", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.NumCertificado", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.NumCertificado", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("RutEmpresa", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.RutEmpresa", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.RutEmpresa", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Regimen", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.Regimen", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.Regimen", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Contabilizacion", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.Contabilizacion", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.Contabilizacion", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("TasaTef", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.TasaTef", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.TasaTef", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("TasaTex", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.TasaTex", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.TasaTex", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Percepciones", dbDouble)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Percepciones.Percepciones", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Percepciones.Percepciones", vbExclamation
    End If
       
       
@@ -11217,37 +11255,37 @@ Public Function CreateTblDetPercepciones() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "DetPercepciones"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IDPerc", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetPercepciones.IDPerc", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetPercepciones.IDPerc", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("CodDet", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetPercepciones.CodDet", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetPercepciones.CodDet", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Valor", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetPercepciones = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetPercepciones.Valor", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetPercepciones.Valor", vbExclamation
    End If
    
 '   ERR.Clear
@@ -11290,71 +11328,71 @@ Private Function CreateTblDetSaldosAp() As Boolean    '04 Oct. 2005
    Set Tbl = New TableDef
    Tbl.Name = "DetSaldosAp"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Id", dbLong)
    Fld.Attributes = dbAutoIncrField
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetSaldosAp = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetSaldosAp.Id", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetSaldosAp.Id", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdCuenta", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetSaldosAp = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetSaldosAp.IdCuenta", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetSaldosAp.IdCuenta", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdEntidad", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetSaldosAp = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetSaldosAp.IdEntidad", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetSaldosAp.IdEntidad", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Debe", dbDouble)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetSaldosAp = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetSaldosAp.Debe", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetSaldosAp.Debe", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Haber", dbDouble)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetSaldosAp = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetSaldosAp.Haber", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetSaldosAp.Haber", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Saldo", dbDouble)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblDetSaldosAp = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "DetSaldosAp.Saldo", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "DetSaldosAp.Saldo", vbExclamation
    End If
       
    DbMain.TableDefs.Append Tbl
@@ -11384,14 +11422,14 @@ Public Function CrearTblCtasFUT() As Boolean
 
    Set Tbl = DbMain.TableDefs("Empresa")
 
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("TContribFUT", dbLong)
    Tbl.Fields.Append Fld
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then
+   ElseIf ERR <> 3191 Then
       MsgBeep vbExclamation
-      MsgBox "Error " & Err & ", " & Error & vbLf & "Empresa.TContribFUT", vbExclamation
+      MsgBox "Error " & ERR & ", " & Error & vbLf & "Empresa.TContribFUT", vbExclamation
       CrearTblCtasFUT = False
    End If
       
@@ -11400,64 +11438,64 @@ Public Function CrearTblCtasFUT() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "CuentasFUT"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Id", dbLong)
    Fld.Attributes = dbAutoIncrField
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasFUT.Id", vbExclamation
+   ElseIf ERR <> 3191 Then ' ya existe
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasFUT.Id", vbExclamation
       CrearTblCtasFUT = False
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("TipoIngGas", dbInteger)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasFUT.TipoIngGas", vbExclamation
+   ElseIf ERR <> 3191 Then ' ya existe
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasFUT.TipoIngGas", vbExclamation
       CrearTblCtasFUT = False
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdItem", dbInteger)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasFUT.IdItem", vbExclamation
+   ElseIf ERR <> 3191 Then ' ya existe
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasFUT.IdItem", vbExclamation
       CrearTblCtasFUT = False
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdCuenta", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasFUT.IdCuenta", vbExclamation
+   ElseIf ERR <> 3191 Then ' ya existe
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasFUT.IdCuenta", vbExclamation
       CrearTblCtasFUT = False
    End If
 
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("CodCuenta", dbText, 15)  'se almacena el código para agilizar el query sobre los movimientos, dado que pueden ser cuentas no de último nivel
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasFUT.CodCuenta", vbExclamation
+   ElseIf ERR <> 3191 Then ' ya existe
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasFUT.CodCuenta", vbExclamation
       CrearTblCtasFUT = False
    End If
    
    DbMain.TableDefs.Append Tbl
-   If Err = 0 Then
+   If ERR = 0 Then
       DbMain.TableDefs.Refresh
       
       Q1 = "CREATE UNIQUE INDEX Id ON CuentasFUT (Id) WITH PRIMARY"
@@ -11466,8 +11504,8 @@ Public Function CrearTblCtasFUT() As Boolean
       Q1 = "CREATE UNIQUE INDEX IdItem ON CuentasFUT (TipoIngGas, IdItem)"
       Rc = ExecSQL(DbMain, Q1)
       
-   ElseIf Err <> 3010 Then ' ya existe
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Tabla CuentasFUT", vbExclamation
+   ElseIf ERR <> 3010 Then ' ya existe
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Tabla CuentasFUT", vbExclamation
       CrearTblCtasFUT = False
       
    End If
@@ -11493,48 +11531,48 @@ Private Function CrearTblCtasRazFin() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "CuentasRazon"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdRazon", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CrearTblCtasRazFin = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasRazon.IdRazon", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasRazon.IdRazon", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("NumDenom", dbInteger)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CrearTblCtasRazFin = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasRazon.NumDenom", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasRazon.NumDenom", vbExclamation
    End If
       
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("CodCuenta", dbText, 15)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CrearTblCtasRazFin = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasRazon.IdCuenta", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasRazon.IdCuenta", vbExclamation
    End If
             
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Operador", dbText, 1)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CrearTblCtasRazFin = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "CuentasRazon.Operador", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "CuentasRazon.Operador", vbExclamation
    End If
    
    DbMain.TableDefs.Append Tbl
@@ -11550,27 +11588,27 @@ Private Function CrearTblCtasRazFin() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "ParamRazon"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("IdRazon", dbLong)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CrearTblCtasRazFin = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "ParamRazon.IdRazon", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "ParamRazon.IdRazon", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("CantDias", dbLong)
    Tbl.Fields.Append Fld
 
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
    
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       MsgBeep vbExclamation
-      MsgBox "Error " & Err & ", " & Error & vbLf & "ParamRazon.CantDias", vbExclamation
+      MsgBox "Error " & ERR & ", " & Error & vbLf & "ParamRazon.CantDias", vbExclamation
       CrearTblCtasRazFin = False
    
    End If
@@ -11591,7 +11629,7 @@ Private Sub UpdImpAdicionales2016()
 
    'Compras
    
-   If gEmpresa.ano < 2016 Then
+   If gEmpresa.Ano < 2016 Then
    
       'Cambiamos todos los otros impuestos asociados a Diesel y Transporte a Específico Diesel y Específico Transporte
       Q1 = "UPDATE MovDocumento INNER JOIN Documento ON MovDocumento.IdDoc = Documento.IdDoc"
@@ -11634,10 +11672,10 @@ Private Sub AppendIdEmpresaAno(ByVal Tabla As String, Optional ByVal AppendAno A
    
    Set Tbl = DbMain.TableDefs(Tabla)
   
-   Err.Clear
+   ERR.Clear
    Tbl.Fields.Append Tbl.CreateField("IdEmpresa", dbLong)
 
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
    End If
    
@@ -11647,10 +11685,10 @@ Private Sub AppendIdEmpresaAno(ByVal Tabla As String, Optional ByVal AppendAno A
    
    If AppendAno Then
    
-      Err.Clear
+      ERR.Clear
       Tbl.Fields.Append Tbl.CreateField("Ano", dbInteger)
 
-      If Err = 0 Or Err = 3191 Then
+      If ERR = 0 Or ERR = 3191 Then
          Tbl.Fields.Refresh
                        
          Q1 = "UPDATE " & Tabla & " SET Ano = " & lEmpAnoEnArchivo
@@ -11800,7 +11838,7 @@ Private Sub DelCompAperturaDuplicadosSY()     'Caso Soledad Yañez (7 sept 2020)
       idcomp = vFld(Rs("IdComp"))
    
       Q1 = "UPDATE EmpresasAno SET IdCompAper = " & idcomp
-      Q1 = Q1 & " WHERE IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.ano
+      Q1 = Q1 & " WHERE IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Call ExecSQL(DbMain, Q1)
           
       Rs.MoveNext    'saltamos el primero
@@ -11816,7 +11854,7 @@ Private Sub DelCompAperturaDuplicadosSY()     'Caso Soledad Yañez (7 sept 2020)
          Q1 = "DELETE * FROM Comprobante WHERE IdComp = " & idcomp
          Call ExecSQL(DbMain, Q1)
          
-         AddLog ("Se elimina comprobante de Apertura Financiero duplicado RUTEmp=" & FmtRut(gEmpresa.Rut) & " Año=" & gEmpresa.ano & " IdComp=" & idcomp)
+         AddLog ("Se elimina comprobante de Apertura Financiero duplicado RUTEmp=" & FmtRut(gEmpresa.Rut) & " Año=" & gEmpresa.Ano & " IdComp=" & idcomp)
          
          Rs.MoveNext
          
@@ -11838,7 +11876,7 @@ Private Sub DelCompAperturaDuplicadosSY()     'Caso Soledad Yañez (7 sept 2020)
    
       'Actualizamos IdCompAperTrib en la tabla EmpresasAno
       Q1 = "UPDATE EmpresasAno SET IdCompAperTrib = " & idcomp
-      Q1 = Q1 & " WHERE IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.ano
+      Q1 = Q1 & " WHERE IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Call ExecSQL(DbMain, Q1)
       
 
@@ -11854,7 +11892,7 @@ Private Sub DelCompAperturaDuplicadosSY()     'Caso Soledad Yañez (7 sept 2020)
          Q1 = "DELETE * FROM Comprobante WHERE IdComp = " & idcomp
          Call ExecSQL(DbMain, Q1)
          
-         AddLog ("Se elimina comprobante de Apertura Tributario duplicado RUTEmp=" & FmtRut(gEmpresa.Rut) & " Año=" & gEmpresa.ano & " IdComp=" & idcomp)
+         AddLog ("Se elimina comprobante de Apertura Tributario duplicado RUTEmp=" & FmtRut(gEmpresa.Rut) & " Año=" & gEmpresa.Ano & " IdComp=" & idcomp)
                      
          Rs.MoveNext
          
@@ -11883,7 +11921,7 @@ Private Sub DelCompAperturaDuplicadosSY()     'Caso Soledad Yañez (7 sept 2020)
             Q1 = "DELETE * FROM Comprobante WHERE IdComp = " & idcomp
             Call ExecSQL(DbMain, Q1)
             
-            AddLog ("Se elimina comprobante de con valor cero y sin movimeintos RUTEmp=" & FmtRut(gEmpresa.Rut) & " Año=" & gEmpresa.ano & " IdComp=" & idcomp)
+            AddLog ("Se elimina comprobante de con valor cero y sin movimeintos RUTEmp=" & FmtRut(gEmpresa.Rut) & " Año=" & gEmpresa.Ano & " IdComp=" & idcomp)
          End If
          
       End If
@@ -11920,58 +11958,58 @@ Public Function CreateTblMembrete() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "Membrete"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("TituloMembrete1", dbText)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblMembrete = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Membrete.TituloMembrete1", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Membrete.TituloMembrete1", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("TituloMembrete2", dbText)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblMembrete = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Membrete.TituloMembrete2", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Membrete.TituloMembrete2", vbExclamation
    End If
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("Texto1", dbText)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblMembrete = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Membrete.Texto1", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Membrete.Texto1", vbExclamation
    End If
    
-    Err.Clear
+    ERR.Clear
     Set Fld = Tbl.CreateField("Texto2", dbText)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Membrete.Texto2", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Membrete.Texto2", vbExclamation
        lUpdOK = False
     End If
     
-    Err.Clear
+    ERR.Clear
     Set Fld = Tbl.CreateField("IdEmpresa", dbInteger)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Membrete.IdEmpresa", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Membrete.IdEmpresa", vbExclamation
        lUpdOK = False
     End If
       
@@ -11998,47 +12036,47 @@ Public Function CreateTblFirmas() As Boolean
    Set Tbl = New TableDef
    Tbl.Name = "Firmas"
    
-   Err.Clear
+   ERR.Clear
    Set Fld = Tbl.CreateField("patch", dbText)
    Tbl.Fields.Append Fld
    
-   If Err = 0 Then
+   If ERR = 0 Then
       Tbl.Fields.Refresh
-   ElseIf Err <> 3191 Then ' ya existe
+   ElseIf ERR <> 3191 Then ' ya existe
       CreateTblFirmas = False
-      MsgBox1 "Error " & Err & ", " & Error & vbLf & "Firmas.patch", vbExclamation
+      MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Firmas.patch", vbExclamation
    End If
    
-    Err.Clear
+    ERR.Clear
     Set Fld = Tbl.CreateField("IdEmpresa", dbInteger)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Firmas.IdEmpresa", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Firmas.IdEmpresa", vbExclamation
        lUpdOK = False
     End If
     
-     Err.Clear
+     ERR.Clear
     Set Fld = Tbl.CreateField("Tipo", dbText)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Firmas.Tipo", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Firmas.Tipo", vbExclamation
        lUpdOK = False
     End If
     
-    Err.Clear
+    ERR.Clear
     Set Fld = Tbl.CreateField("ano", dbText)
     Tbl.Fields.Append Fld
 
-    If Err = 0 Then
+    If ERR = 0 Then
        Tbl.Fields.Refresh
-    ElseIf Err <> 3191 Then ' ya existe
-       MsgBox1 "Error " & Err & ", " & Error & vbLf & "Firmas.ano", vbExclamation
+    ElseIf ERR <> 3191 Then ' ya existe
+       MsgBox1 "Error " & ERR & ", " & Error & vbLf & "Firmas.ano", vbExclamation
        lUpdOK = False
     End If
       

@@ -1244,19 +1244,19 @@ Public Function CrearMdbVacia(ByVal Ano As Integer, ByVal RutMdb As String, Opti
          Exit Function
       End If
       
-      Err.Clear
+      ERR.Clear
       
       Call FileCopy(gDbPath & "\" & BD_VACIA, gDbPath & "\Empresas\" & Ano & "\" & RutMdb)
    
-      If Err = 75 Then
+      If ERR = 75 Then
          MsgBox1 "¡ADVERTENCIA!, no se podrá crear la empresa, porque no se ha encontrado " & BD_VACIA & " en el directorio " & gDbPath & vbCrLf & vbCrLf & "Verifique si el archivo existe. Si no es así, búsquelo en el CD de instalación del sistema o bien comuníquese con soporte.", vbExclamation
          Exit Function
       
-      ElseIf Err = 76 Then
+      ElseIf ERR = 76 Then
          MsgBox1 "¡ADVERTENCIA!, no se podrá crear la empresa, porque no existe el directorio ..\Empresas bajo el directorio ..\Datos.", vbExclamation
          Exit Function
       
-      ElseIf Err <> 0 Then
+      ElseIf ERR <> 0 Then
          MsgBox1 "Error al crear la base de datos de la empresa en el directorio " & gDbPath & "\Empresas\" & Ano & "." & vbCrLf & vbCrLf & Error, vbExclamation
          Exit Function
          
@@ -1277,19 +1277,19 @@ Public Function OpenDb(Db As Database, ByVal DbName As String) As Boolean
    
    OpenDb = True
    
-   Err.Clear
+   ERR.Clear
    
    On Error Resume Next
    
    Set Db = OpenDatabase(DbName, False, False, ConnStr)  'modo no exclusivo
    
-   If Err = 3356 Then
+   If ERR = 3356 Then
       MsgBox1 "Ya existe algún usuario trabajando con la empresa seleccionada.", vbExclamation
       OpenDb = False
    End If
    
-   If (Err Or Db Is Nothing) And Err <> 3356 Then
-      MsgBox "Error " & Err & ", " & Error & NL & DbName, vbExclamation
+   If (ERR Or Db Is Nothing) And ERR <> 3356 Then
+      MsgBox "Error " & ERR & ", " & Error & NL & DbName, vbExclamation
       OpenDb = False
    End If
 
@@ -1331,31 +1331,31 @@ Public Function OpenDbAdm(Optional ByVal BD_Name As String = "") As Integer
       Call CloseDb(DbMain)
    End If
       
-   Err.Clear
+   ERR.Clear
    'Set DbMain = OpenDatabase(DbName, True, False, ConnStr) ' MODO EXCLUSIVO
    Set DbMain = OpenDatabase(DbName, False, False, gComunConnStr)
    
    If DbMain Is Nothing Then
-      SqlErr = " Error " & Err & ", '" & Error & "'"
+      SqlErr = " Error " & ERR & ", '" & Error & "'"
       Buf = "Falló OpenDB: [" & DbName & "] ConnStr=" & (gComunConnStr <> "") & ", " & SqlErr
       Call AddLog(Buf)
    End If
    
 '   gComunConnStr = Mid(gComunConnStr, 2)  'sin el ; del principio  FCA: 2 feb 2016 se comenta esta línea
    
-   If Err = 3356 Then
+   If ERR = 3356 Then
       MsgBox1 "Ya existe algún usuario trabajando con la empresa seleccionada.", vbExclamation
       OpenDbAdm = False
    End If
    
-   If Err = 3343 Then
+   If ERR = 3343 Then
       Call AddLog("A RepairDB")
       MsgBox1 "Se ha detectado fallo en la base de datos " & BD_Name & ", se tratará de reparar. Intente ingresar nuevamente.", vbExclamation
       Call RepairDb(DbName)
       OpenDbAdm = False
    End If
    
-   If (Err Or DbMain Is Nothing) And Err <> 3356 And Err <> 3343 Then
+   If (ERR Or DbMain Is Nothing) And ERR <> 3356 And ERR <> 3343 Then
       MsgBox SqlErr & vbCrLf & "'" & DbName & "'", vbExclamation
       OpenDbAdm = False
    End If
@@ -1419,22 +1419,22 @@ Public Function OpenDbEmp(Optional ByVal Rut As String = "", Optional ByVal Ano 
       Call CloseDb(DbMain)
    End If
    
-   Err.Clear
+   ERR.Clear
    'Set DbMain = OpenDatabase(DbName, True, False, ConnStr) ' MODO EXCLUSIVO
    Set DbMain = OpenDatabase(DbName, False, False, gEmpresa.ConnStr)
 '   gEmpresa.ConnStr = Mid(gEmpresa.ConnStr, 2) 'sin el ; del principio    FCA: 2 feb 2016 se comenta esta línea
    
-   If Err Then
-      SqlErr = "Error " & Err & ", '" & Error & "'"
+   If ERR Then
+      SqlErr = "Error " & ERR & ", '" & Error & "'"
    
-      If Err = 3356 Then
+      If ERR = 3356 Then
          MsgBox1 "Ya existe algún usuario trabajando con la empresa seleccionada.", vbExclamation
          OpenDbEmp = False
       End If
    
    End If
    
-   If (Err Or DbMain Is Nothing) And Err <> 3356 Then
+   If (ERR Or DbMain Is Nothing) And ERR <> 3356 Then
       MsgBox "Error al abrir la base." & vbCrLf & SqlErr & vbCrLf & DbName, vbExclamation
       OpenDbEmp = False
    End If
@@ -1496,22 +1496,22 @@ Public Function OpenDbEmp2(DbEmp As Database, Optional ByVal Rut As String = "",
    
    Call SetDbSecurity(DbName, Passw, gCfgFile, SG_SEGCFG, gEmpresa.ConnStr)
 
-   Err.Clear
+   ERR.Clear
    'Set DbEmp = OpenDatabase(DbName, True, False, ConnStr) ' MODO EXCLUSIVO
    Set DbEmp = OpenDatabase(DbName, False, False, gEmpresa.ConnStr)
    'gEmpresa.ConnStr = Mid(gEmpresa.ConnStr, 2) 'sin el ; del principio   FCA: 2 feb 2016 se comenta esta línea
    
-   If Err Then
-      SqlErr = "Error " & Err & ", '" & Error & "'"
+   If ERR Then
+      SqlErr = "Error " & ERR & ", '" & Error & "'"
    
-      If Err = 3356 Then
+      If ERR = 3356 Then
          MsgBox1 "Ya existe algún usuario trabajando con la empresa seleccionada.", vbExclamation
          OpenDbEmp2 = False
       End If
    
    End If
    
-   If (Err Or DbEmp Is Nothing) And Err <> 3356 Then
+   If (ERR Or DbEmp Is Nothing) And ERR <> 3356 Then
       MsgBox SqlErr & vbCrLf & DbName, vbExclamation
       OpenDbEmp2 = False
    End If
@@ -1604,11 +1604,11 @@ Function OpenMsSql() As Boolean
    '3025162
    DbMain.Open
       
-   If Err Then
-      sErr1 = Err.Number
-      sError1 = Err.Description
+   If ERR Then
+      sErr1 = ERR.Number
+      sError1 = ERR.Description
 
-      If Err <> 3059 Then
+      If ERR <> 3059 Then
          MsgBox1 "Problemas para conectarse a la base de datos: verifique la ubicación del servidor y la clave." & vbCrLf & vbCrLf & "Revise el archivo LPContab.cfg en la carpeta de la aplicación.", vbExclamation
 '         MsgBox1 "Error " & Err & ", " & Error & vbLf & ConnStr, vbCritical
          Call AddLog("Error " & sErr1 & ", " & sError1 & ", [" & ConnStr & "]")
@@ -1818,6 +1818,10 @@ Public Function GenCompAperSinMovs(ByVal NumCompAper As Long, ByVal IdEmpresa As
    FldArray(11).FldIsNum = True
    
    IdCompAper = AdvTbAddNewMult(DbMain, "Comprobante", "IdComp", FldArray)
+   
+   '3376884
+    Call SeguimientoComprobantes(IdCompAper, gEmpresa.id, gEmpresa.Ano, "HyperComun.GenCompAperSinMovs", "", 1, "", gUsuario.IdUsuario, 1, 1)
+    'Fin 3376884
 
 
 '   Set Rs = DbMain.OpenRecordset("Comprobante")
@@ -1867,6 +1871,10 @@ Public Function GenCompAperSinMovs(ByVal NumCompAper As Long, ByVal IdEmpresa As
    FldArray(9).FldIsNum = True
    
    IdCompAperTrib = AdvTbAddNewMult(DbMain, "Comprobante", "IdComp", FldArray)
+   
+   '3376884
+    Call SeguimientoComprobantes(IdCompAperTrib, gEmpresa.id, gEmpresa.Ano, "HyperComun.GenCompAperSinMovs", "", 1, "", gUsuario.IdUsuario, 1, 1)
+    'Fin 3376884
    
    'Guardamos Id Comprobante de apertura
    Q1 = "UPDATE EmpresasAno SET IdCompAper=" & IdCompAper & ", NCompAper=" & NumCompAper
@@ -2072,8 +2080,8 @@ Public Sub AddLog(ByVal Msg As String, Optional ByVal Dbg As Integer = 0)
       Exit Sub
    End If
 
-   nErr = Err.Number
-   sErr = Err.Description
+   nErr = ERR.Number
+   sErr = ERR.Description
    
    On Error Resume Next
 
@@ -2085,26 +2093,26 @@ Public Sub AddLog(ByVal Msg As String, Optional ByVal Dbg As Integer = 0)
    Close #Fd
    On Error GoTo 0
 
-   Err.Number = nErr
-   Err.Description = sErr
+   ERR.Number = nErr
+   ERR.Description = sErr
 
 End Sub
-Public Sub AddLogImp(ByVal FNameLogImp As String, ByVal FName As String, ByVal Linea As Integer, ByVal Msg As String)
+Public Sub AddLogImp(ByVal FNameLogImp As String, ByVal fname As String, ByVal Linea As Integer, ByVal Msg As String)
    Dim Er As Integer, sErr As String, Fd As Integer
 
-   Er = Err
+   Er = ERR
    sErr = Error
    On Error Resume Next
 
    Fd = FreeFile
    Open FNameLogImp For Append Access Write As #Fd
 
-   Print #Fd, Format(Now, "yyyy-mm-dd hh:nn:ss") & vbTab & FName & vbTab & "Línea: " & Linea & vbTab & Msg
+   Print #Fd, Format(Now, "yyyy-mm-dd hh:nn:ss") & vbTab & fname & vbTab & "Línea: " & Linea & vbTab & Msg
    
    Close #Fd
    On Error GoTo 0
 
-   Err = Er
+   ERR = Er
 
 End Sub
 Public Function AddDebug(ByVal Msg As String, Optional ByVal Dbg As Integer = 0)
@@ -2622,6 +2630,127 @@ Public Function GetValMoneda(ByVal Simbolo As String, ValMoneda As Double, Optio
    
    Call CloseRs(Rs)
       
+End Function
+
+
+'Public Function SeguimientoDocumento(IdDoc As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Optional ByVal Query As String = "", Optional ByVal Vigente As Integer = 0, Optional ByVal Where As String = "", Optional ByVal Usuario As String = "", Optional ByVal FIngreso As Integer = 1, Optional ByVal Ajuste As Integer = 1) As Boolean
+Public Function SeguimientoDocumento(IdDoc As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Query As String, Vigente As Integer, Where As String, Usuario As Integer, FIngreso As Integer, Ajuste As Integer) As Boolean
+   Dim Q1 As String, Rs As Recordset, bIns As Boolean, Pid As Long, oPid As Long, nConected As Integer
+   Dim Frm As FrmDesbloquear
+   Dim fechaHoy As String
+   fechaHoy = "GetDate()"
+   #If DATACON = 1 Then
+        fechaHoy = "Now()"
+   #End If
+    Q1 = "INSERT INTO Tracking_Documento"
+    Q1 = Q1 & "       (IdDoc,IdEmpresa,Ano,IdCompCent,IdCompPago,TipoLib,TipoDoc,NumDoc,NumDocHasta,IdEntidad,TipoEntidad,RutEntidad,NombreEntidad,FEmision"
+    Q1 = Q1 & "       ,FVenc,Descrip,Estado,Exento,IdCuentaExento,Afecto,IdCuentaAfecto,IVA,IdCuentaIVA,OtroImp,IdCuentaOtroImp,Total,IdCuentaTotal,IdUsuario"
+    Q1 = Q1 & "       ,FechaCreacion,FEmisionOri,CorrInterno,SaldoDoc,FExported,OldIdDoc,DTE,PorcentRetencion,TipoRetencion,MovEdited,OtrosVal,FImporF29,NumDocRef"
+    Q1 = Q1 & "       ,IdCtaBanco,TipoRelEnt,IdSucursal,TotPagadoAnoAnt,FImportSuc,Giro,FacCompraRetParcial,IVAIrrecuperable,DocOtrosEnAnalitico,OldIdDocTmp,NumFiscImpr"
+    Q1 = Q1 & "       ,NumInformeZ,CantBoletas,VentasAcumInfZ,IdDocAsoc,PropIVA,ValIVAIrrec,IVAInmueble,FImpFacturacion,CodSIIDTEIVAIrrec,TipoDocAsoc,IVAActFijo"
+    Q1 = Q1 & "       ,EntRelacionada,NumCuotas,CompraBienRaiz,NumDocAsoc,DTEDocAsoc,IdANegCCosto,UrlDTE,CodCtaAfectoOld,CodCtaExentoOld,CodCtaTotalOld,DocOtroEsCargo"
+    Q1 = Q1 & "       ,ValRet3Porc,IdCuentaRet3Porc,Tratamiento, Origen, Query, Vigente, FechaHora, FormaIngreso, Ajuste)"
+    Q1 = Q1 & " SELECT IdDoc,IdEmpresa,Ano,IdCompCent,IdCompPago,TipoLib,TipoDoc,NumDoc,NumDocHasta,IdEntidad,TipoEntidad,RutEntidad,NombreEntidad,FEmision"
+    Q1 = Q1 & "     ,FVenc,Descrip,Estado,Exento,IdCuentaExento,Afecto,IdCuentaAfecto,IVA,IdCuentaIVA,OtroImp,IdCuentaOtroImp,Total,IdCuentaTotal," & Usuario
+    Q1 = Q1 & "     ,FechaCreacion,FEmisionOri,CorrInterno,SaldoDoc,FExported,OldIdDoc,DTE,PorcentRetencion,TipoRetencion,MovEdited,OtrosVal,FImporF29,NumDocRef"
+    Q1 = Q1 & "     ,IdCtaBanco,TipoRelEnt,IdSucursal,TotPagadoAnoAnt,FImportSuc,Giro,FacCompraRetParcial,IVAIrrecuperable,DocOtrosEnAnalitico,OldIdDocTmp,NumFiscImpr"
+    Q1 = Q1 & "     ,NumInformeZ,CantBoletas,VentasAcumInfZ,IdDocAsoc,PropIVA,ValIVAIrrec,IVAInmueble,FImpFacturacion,CodSIIDTEIVAIrrec,TipoDocAsoc,IVAActFijo"
+    Q1 = Q1 & "     ,EntRelacionada,NumCuotas,CompraBienRaiz,NumDocAsoc,DTEDocAsoc,IdANegCCosto,UrlDTE,CodCtaAfectoOld,CodCtaExentoOld,CodCtaTotalOld,DocOtroEsCargo"
+    Q1 = Q1 & "     ,ValRet3Porc,IdCuentaRet3Porc,Tratamiento, '" & Origen & "' AS Origen, '" & Replace(Query, Chr(39), "") & "' AS Query," & Vigente & " AS Vigente, " & fechaHoy & " AS FechaHora, " & FIngreso & " AS FormaIngreso, " & Ajuste & " AS Ajuste"
+    Q1 = Q1 & "     FROM Documento"
+    If Where <> "" Then
+        Q1 = Q1 & Where & ""
+    Else
+        Q1 = Q1 & "     WHERE IdDoc =  " & IdDoc & ""
+    End If
+    Call ExecSQL(DbMain, Q1)
+    
+   
+End Function
+
+'Public Function SeguimientoMovDocumento(IdDoc As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Optional ByVal Query As String = "", Optional ByVal Vigente As Integer = 0, Optional ByVal Where As String = "", Optional ByVal FIngreso As Integer = 1, Optional ByVal Ajuste As Integer = 1) As Boolean
+Public Function SeguimientoMovDocumento(IdDoc As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Query As String, Vigente As Integer, Where As String, FIngreso As Integer, Ajuste As Integer) As Boolean
+   Dim QU1 As String, Rs As Recordset, bIns As Boolean, Pid As Long, oPid As Long, nConected As Integer
+   Dim Frm As FrmDesbloquear
+   
+   Dim fechaHoy As String
+   fechaHoy = "GetDate()"
+   #If DATACON = 1 Then
+        fechaHoy = "Now()"
+   #End If
+
+    
+    QU1 = "INSERT INTO Tracking_MovDocumento"
+    QU1 = QU1 & "       (IdMovDoc,IdEmpresa,Ano,IdDoc,IdCompCent,IdCompPago,Orden,IdCuenta,Debe,Haber,Glosa"
+    QU1 = QU1 & "       ,IdTipoValLib,EsTotalDoc,IdCCosto,IdAreaNeg,Tasa,EsRecuperable,CodSIIDTE,CodCuentaOld, Origen, Query, Vigente, FechaHora, FormaIngreso, Ajuste)"
+    QU1 = QU1 & " SELECT IdMovDoc,IdEmpresa,Ano,IdDoc,IdCompCent,IdCompPago,Orden,IdCuenta,Debe,Haber,Glosa"
+    QU1 = QU1 & "      ,IdTipoValLib,EsTotalDoc,IdCCosto,IdAreaNeg,Tasa,EsRecuperable,CodSIIDTE,CodCuentaOld, '" & Origen & "' AS Origen, '" & Replace(Query, Chr(39), "") & "' AS Query," & Vigente & " AS Vigente, " & fechaHoy & " AS FechaHora, " & FIngreso & " AS FormaIngreso, " & Ajuste & " AS Ajuste"
+    QU1 = QU1 & " FROM MovDocumento"
+    'QU1 = QU1 & " WHERE IdMovDoc = " & IdDoc
+    If Where <> "" Then
+        QU1 = QU1 & Where
+    Else
+        QU1 = QU1 & " WHERE IdDoc = " & IdDoc & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
+    End If
+    Call ExecSQL(DbMain, QU1)
+   
+End Function
+
+'Public Function SeguimientoComprobantes(idcomp As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Optional ByVal Query As String = "", Optional ByVal Vigente As Integer = 0, Optional ByVal Where As String = "", Optional ByVal Usuario As String = "", Optional ByVal FIngreso As Integer = 1, Optional ByVal Ajuste As Integer = 1) As Boolean
+Public Function SeguimientoComprobantes(idcomp As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Query As String, Vigente As Integer, Where As String, Usuario As Integer, FIngreso As Integer, Ajuste As Integer) As Boolean
+   Dim QU1 As String, Rs As Recordset, bIns As Boolean, Pid As Long, oPid As Long, nConected As Integer
+   Dim Frm As FrmDesbloquear
+   
+   Dim fechaHoy As String
+   fechaHoy = "GetDate()"
+   #If DATACON = 1 Then
+        fechaHoy = "Now()"
+   #End If
+  
+    QU1 = "INSERT INTO Tracking_Comprobante"
+    QU1 = QU1 & "       (IdComp,FechaHora,IdEmpresa,Ano,Correlativo,Fecha,Tipo,Estado,Glosa,TotalDebe,TotalHaber,IdUsuario"
+    QU1 = QU1 & "       ,FechaCreacion,ImpResumido,EsCCMM,FechaImport,TipoAjuste,OtrosIngEg14TER,Origen,Query,Vigente, FormaIngreso, Ajuste)"
+    QU1 = QU1 & " SELECT IdComp," & fechaHoy & " AS FechaHora,IdEmpresa,Ano,Correlativo,Fecha,Tipo,Estado,Glosa,TotalDebe,TotalHaber, " & Usuario
+    QU1 = QU1 & "       ,FechaCreacion,ImpResumido,EsCCMM,FechaImport,TipoAjuste,OtrosIngEg14TER, '" & Origen & "' AS Origen, '" & Query & "' AS Query," & Vigente & " AS Vigente, " & FIngreso & " AS FormaIngreso, " & Ajuste & " AS Ajuste"
+    QU1 = QU1 & "       FROM Comprobante"
+    
+    
+    If Where <> "" Then
+        QU1 = QU1 & Where & ""
+    Else
+        QU1 = QU1 & "     WHERE IdComp =  " & idcomp & ""
+    End If
+    Call ExecSQL(DbMain, QU1)
+    
+  
+End Function
+
+'Public Function SeguimientoMovComprobante(idMov As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Optional ByVal Query As String = "", Optional ByVal Vigente As Integer = 0, Optional ByVal Where As String = "", Optional ByVal FIngreso As Integer = 1, Optional ByVal Ajuste As Integer = 1) As Boolean
+Public Function SeguimientoMovComprobante(idMov As Long, IdEmpresa As Long, Ano As Integer, Origen As String, Query As String, Vigente As Integer, Where As String, FIngreso As Integer, Ajuste As Integer) As Boolean
+   Dim QU1 As String, Rs As Recordset, bIns As Boolean, Pid As Long, oPid As Long, nConected As Integer
+   Dim Frm As FrmDesbloquear
+   
+   Dim fechaHoy As String
+   fechaHoy = "GetDate()"
+   #If DATACON = 1 Then
+        fechaHoy = "Now()"
+   #End If
+
+    
+    QU1 = "INSERT INTO Tracking_MovComprobante"
+    QU1 = QU1 & "       (IdMov,FechaHora,IdEmpresa,Ano,IdComp,IdDoc,Orden,IdCuenta,Debe,Haber,Glosa,idCCosto"
+    QU1 = QU1 & "       ,idAreaNeg,IdCartola,DeCentraliz,DePago,DeRemu,Nota,IdDocCuota,Origen,Query,Vigente, FormaIngreso, Ajuste)"
+    QU1 = QU1 & " SELECT IdMov," & fechaHoy & " AS FechaHora,IdEmpresa,Ano,IdComp,IdDoc,Orden,IdCuenta,Debe,Haber,Glosa,idCCosto"
+    QU1 = QU1 & "       ,idAreaNeg,IdCartola,DeCentraliz,DePago,DeRemu,Nota,IdDocCuota, '" & Origen & "' AS Origen, '" & Query & "' AS Query," & Vigente & " AS Vigente, " & FIngreso & " AS FormaIngreso, " & Ajuste & " AS Ajuste"
+    QU1 = QU1 & " From MovComprobante"
+    
+    If Where <> "" Then
+        QU1 = QU1 & Where
+    Else
+        QU1 = QU1 & " WHERE IdComp = " & idMov & " IdEmpresa = " & IdEmpresa & " Ano = " & Ano
+    End If
+    Call ExecSQL(DbMain, QU1)
+   
 End Function
 
 Public Function ContRegisterPc(Optional ByVal Msg As String = "", Optional ByVal MaxLic As Integer = -1) As Boolean
@@ -3174,7 +3303,7 @@ Public Function CreateDir(ByVal Ano As String) As Boolean
    On Error Resume Next
    Call MkDir(gDbPath & "\Empresas\" & Ano)
    'Err=75 ya existe directorio
-   CreateDir = (Err.Number = 0 Or Err.Number = 75)
+   CreateDir = (ERR.Number = 0 Or ERR.Number = 75)
    
 End Function
 
@@ -3278,11 +3407,11 @@ Function OpenMsSqlRemu() As Boolean
 '   lDbRemu.ConnectionString = ConnStr & UsrPsw
 '   lDbRemu.Open
 
-   If Err Then
-      If Err <> 3059 Then
-         MsgBox1 "Error " & Err & ", " & Error & vbLf & ConnStr, vbCritical
+   If ERR Then
+      If ERR <> 3059 Then
+         MsgBox1 "Error " & ERR & ", " & Error & vbLf & ConnStr, vbCritical
       End If
-      Call AddLog("OpenMsSqlRemu: Error " & Err & ", " & Error & ", " & ConnStr)
+      Call AddLog("OpenMsSqlRemu: Error " & ERR & ", " & Error & ", " & ConnStr)
 
       Set lDbRemu = Nothing
 
@@ -3290,9 +3419,9 @@ Function OpenMsSqlRemu() As Boolean
       Exit Function
    End If
 
-   If Err Then
-      sErr1 = Err.Number
-      sError1 = Err.Description
+   If ERR Then
+      sErr1 = ERR.Number
+      sError1 = ERR.Description
       MsgErr "Verifique que esté bien definido el servidor de la base de datos y que tenga los privilegios necesarios."
       Call AddLog("Error " & sErr1 & ", " & sError1 & ", [" & ConnStr & "]")
    Else
@@ -3322,7 +3451,7 @@ End Sub
 '2861570
 Public Function Export_SendEmail(Grid As Control, Optional GridTotal0 As Control = Nothing, Optional GridTotal1 As Control = Nothing, Optional GridTotal2 As Control = Nothing, Optional ByVal vnombre As String = "", Optional ByVal Title As String = "", Optional ByVal ColOblig As Integer = -1) As String
    Dim Fd As Long
-   Dim SFName As String, FName As String
+   Dim SFName As String, fname As String
    Dim Sep As String
    Dim r As Integer
    Dim Buf As String
@@ -3371,15 +3500,15 @@ Public Function Export_SendEmail(Grid As Control, Optional GridTotal0 As Control
 '   FPath = gExportPath & "\HRDJ\" & gEmpresa.Rut
    SFName = vnombre & ".xls"
    
-   FName = FPath & "\" & SFName
+   fname = FPath & "\" & SFName
 
    
    Fd = FreeFile
-   Err.Clear
+   ERR.Clear
    
-   Open FName For Output As #Fd
-   If Err Then
-      MsgErr FName
+   Open fname For Output As #Fd
+   If ERR Then
+      MsgErr fname
       Exit Function
    End If
 
@@ -3393,7 +3522,7 @@ Public Function Export_SendEmail(Grid As Control, Optional GridTotal0 As Control
  
 
    End If
-   Export_SendEmail = FName
+   Export_SendEmail = fname
 End Function
  
 

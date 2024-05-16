@@ -793,17 +793,17 @@ Private Sub Bt_ConvMoneda_Click()
    Dim Frm As FrmConverMoneda
    Dim Col As Integer
    Dim Row As Integer
-   Dim Valor As Double
+   Dim valor As Double
    
    Col = Grid.Col
    Row = Grid.Row
    
    If Col = C_VALOR Then
-      Valor = vFmt(Grid.TextMatrix(Row, Col))
+      valor = vFmt(Grid.TextMatrix(Row, Col))
    End If
    
    Set Frm = New FrmConverMoneda
-   Frm.FSelect (Valor)
+   Frm.FSelect (valor)
    Set Frm = Nothing
 
 End Sub
@@ -861,6 +861,11 @@ Private Sub Bt_DelDoc_Click()
 '   Call ExecSQL(DbMain, "DELETE * FROM Documento WHERE IdDoc = " & IdDoc)
    Q1 = " WHERE IdDoc = " & IdDoc
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+   
+    'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmLstDoc.Click", "", 0, "", gUsuario.IdUsuario, 1, 2)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmLstDoc.Click", "", 0, "", 1, 2)
+    ' fin 3227543
                                                                   
    
    'If Val(Grid.TextMatrix(Grid.Row, C_IDTIPOLIB)) <> LIB_OTROFULL Then

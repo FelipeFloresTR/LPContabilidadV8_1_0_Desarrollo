@@ -1254,6 +1254,11 @@ Private Function ImpFactMes() As Boolean
    End If
    
    Call UnLockAction(DbMain, LK_IMPLIBROS, Mes)
+   
+       'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmImpFacturacion.ImpFactMes", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmImpFacturacion.ImpFactMes", "", 1, "", 1, 2)
+    ' fin 3227543
 
 '   MsgBox1 "Importación finalizada. Resultado:" & vbNewLine & vbNewLine & "- Se agregaron " & NIns & " documentos." & vbNewLine & vbNewLine & "- Se actualizaron " & NUpd & " documentos en estado Pendiente.", vbInformation + vbOKOnly
    MsgBox1 "Importación finalizada. Resultado:" & vbNewLine & vbNewLine & "- Se agregaron " & NIns & " documentos.", vbInformation + vbOKOnly

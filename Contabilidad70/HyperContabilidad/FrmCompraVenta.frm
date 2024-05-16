@@ -1232,7 +1232,7 @@ Private Sub Bt_Centralizar_Click()
 
    Dim i As Integer
    Dim StrIdDoc As String
-   Dim idcomp As Long
+   Dim IdComp As Long
    Dim Rc As Integer
    Dim HayPropIVA As Boolean
    
@@ -1313,11 +1313,11 @@ Private Sub Bt_Centralizar_Click()
 
    Me.MousePointer = vbHourglass
    '3217885
-   idcomp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano))
+   IdComp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano))
    
-   If idcomp > 0 Then
+   If IdComp > 0 Then
    
-      If FrmComprobante.FEditCentraliz(idcomp, CbItemData(Cb_Mes), Val(Cb_Ano)) = vbOK Then
+      If FrmComprobante.FEditCentraliz(IdComp, CbItemData(Cb_Mes), Val(Cb_Ano)) = vbOK Then
       
          'limpiamos los check
          For i = Grid.FixedRows To Grid.rows - 1
@@ -1337,7 +1337,7 @@ Private Sub Bt_Centralizar_Click()
                      Grid.TextMatrix(i, C_CHECK) = "C"
                   End If
                End If
-               Grid.TextMatrix(i, C_IDCOMPCENT) = idcomp
+               Grid.TextMatrix(i, C_IDCOMPCENT) = IdComp
             End If
             
          Next i
@@ -3559,10 +3559,10 @@ End Sub
 
 Private Sub Bt_ConvMoneda_Click()
    Dim Frm As FrmConverMoneda
-   Dim Valor As Double
+   Dim valor As Double
       
    Set Frm = New FrmConverMoneda
-   Frm.FView (Valor)
+   Frm.FView (valor)
       
    Set Frm = Nothing
    
@@ -5610,6 +5610,9 @@ Private Sub SaveGrid()
          
       
          IdDoc = AdvTbAddNewMult(DbMain, "Documento", "IdDoc", FldArray)
+         'Tracking 3227543
+         Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.SaveGrid1", "", 1, "", gUsuario.IdUsuario, 1, 2)
+         ' fin 3227543
          
          'Tracking 3217833
          
@@ -5625,6 +5628,11 @@ Private Sub SaveGrid()
       If Grid.TextMatrix(i, C_UPDATE) = FGR_D Then  'Delete
 '         Q1 = "DELETE FROM Documento WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
 '         Call ExecSQL(DbMain, Q1)
+
+         'Tracking 3227543
+         Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.SaveGrid2", "", 0, "", gUsuario.IdUsuario, 1, 3)
+         Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.SaveGrid2", "", 0, "", 1, 3)
+         ' fin 3227543
          Call DeleteSQL(DbMain, "Documento", " WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC)))
 
 '         Q1 = "DELETE FROM MovDocumento WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
@@ -5768,12 +5776,18 @@ Private Sub SaveGrid()
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
 
          Call ExecSQL(DbMain, Q1)
+         
+         'Tracking 3227543
+         Call SeguimientoDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.SaveGrid3", "", 1, "", gUsuario.IdUsuario, 1, 2)
+         ' fin 3227543
 
          If Val(Grid.TextMatrix(i, C_MOVEDITED)) = 0 Then
          
 '            Q1 = "DELETE FROM MovDocumento WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
 '            Call ExecSQL(DbMain, Q1)
-
+            'Tracking 3227543
+            Call SeguimientoMovDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.SaveGrid4", "", 0, "", 1, 3)
+            ' fin 3227543
             Call DeleteSQL(DbMain, "MovDocumento", " WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC)))
 
             Call GenMovDocumento(i)
@@ -5783,7 +5797,9 @@ Private Sub SaveGrid()
          
 '            Q1 = "DELETE FROM MovDocumento WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
 '            Call ExecSQL(DbMain, Q1)
-
+            'Tracking 3227543
+            Call SeguimientoMovDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.SaveGrid5", "", 0, "", 1, 3)
+            ' fin 3227543
             Call DeleteSQL(DbMain, "MovDocumento", " WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC)))
 
          End If
@@ -7051,6 +7067,10 @@ Private Sub GenMovDocumento(ByVal Row As Integer)
 
    End If
    
+   'Tracking 3227543
+    Call SeguimientoMovDocumento(Grid.TextMatrix(Row, C_IDDOC), gEmpresa.id, gEmpresa.Ano, "FrmCompraVenta.GenMovDocumento", Q1, 1, "", 1, 1)
+    ' fin 3227543
+   
 End Sub
 
 Private Sub Tm_ColWi_Timer()
@@ -7862,15 +7882,15 @@ Private Function PrtResumenIVA(PrtObj As Object, ByVal Pag As Integer, ByVal Lef
       'buscamos el IVA irrecuperable, IVA Ret Parcual e IVA Ret Total
       For i = 0 To UBound(ResOImp)
          If ResOImp(i).TipoLib = LIB_COMPRAS And (ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC1 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC2 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC3 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC4 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC9) Then
-            IVAIrrec = ResOImp(i).Valor
+            IVAIrrec = ResOImp(i).valor
          End If
          
          If ResOImp(i).TipoLib = LIB_VENTAS And ResOImp(i).TipoIVARetenido = IVARET_PARCIAL Then
-            IVARetParcial = ResOImp(i).Valor
+            IVARetParcial = ResOImp(i).valor
          End If
          
          If ResOImp(i).TipoLib = LIB_VENTAS And ResOImp(i).TipoIVARetenido = IVARET_TOTAL Then
-            IVARetTotal = ResOImp(i).Valor
+            IVARetTotal = ResOImp(i).valor
          End If
 
       Next i
@@ -7912,7 +7932,8 @@ Private Function PrtResumenIVA(PrtObj As Object, ByVal Pag As Integer, ByVal Lef
    'If GetRemIVAUTM(CbItemData(Cb_Mes), Val(Cb_Ano), RemMesAntUTM) < 0 Then
    
    '3389677 FPR se creo para que no traspase si es un saldo a pagar al mes siguiente, ya que no es remanente
-   If i = Mes Then
+   'If i = Mes Then
+   If Not Mes = 1 And RemIVAAnoAnt = True Then
         If Not remMesAnt Then
             'Tx_RemMesAnt.Text = 0
             TotRemMesAnt = 0
@@ -8124,10 +8145,10 @@ Private Function PrtResumenIVA(PrtObj As Object, ByVal Pag As Integer, ByVal Lef
 '         If i = UBound(ResOImp) Then   'es el último
 '            PrtPage.FontUnderline = True
 '         End If
-         Call gPrtReportes.PrtAlign_(PrtPage, Format(ResOImp(i).Valor, NEGNUMFMT), LeftX + TabX, 1200, vbRightJustify)
+         Call gPrtReportes.PrtAlign_(PrtPage, Format(ResOImp(i).valor, NEGNUMFMT), LeftX + TabX, 1200, vbRightJustify)
          PrtPage.FontUnderline = False
          
-         TotOImp = TotOImp + ResOImp(i).Valor
+         TotOImp = TotOImp + ResOImp(i).valor
       
       End If
    Next i
@@ -9130,7 +9151,7 @@ Private Function FillDetOtroImp(ByVal Row As Integer, ByVal TipoLib As Integer, 
    Dim PrimerDetalle As Long
    Dim TotOtrosImp As Double
    Dim Col As Integer
-   Dim Valor As Double
+   Dim valor As Double
    
    FillDetOtroImp = 0
    IVAActFijo = 0
@@ -9196,13 +9217,13 @@ Private Function FillDetOtroImp(ByVal Row As Integer, ByVal TipoLib As Integer, 
 '      Grid.TextMatrix(Row, Col) = Format(Valor, NEGNUMFMT)
                      
       If TipoLib = LIB_COMPRAS Then
-         Valor = vFld(Rs("SumDebe")) - vFld(Rs("SumHaber"))             'FCA 4 sep 2018
+         valor = vFld(Rs("SumDebe")) - vFld(Rs("SumHaber"))             'FCA 4 sep 2018
          
          If EsRebaja Then
-            Grid.TextMatrix(Row, Col) = Format(Valor * -1, NEGNUMFMT)
+            Grid.TextMatrix(Row, Col) = Format(valor * -1, NEGNUMFMT)
          End If
          
-         Grid.TextMatrix(Row, Col) = Format(Valor, NEGNUMFMT)
+         Grid.TextMatrix(Row, Col) = Format(valor, NEGNUMFMT)
          
          If vFld(Rs("IdTipoValLib")) = LIBCOMPRAS_IVAACTFIJO Then
             IVAActFijo = IVAActFijo + vFmt(Grid.TextMatrix(Row, Col))
@@ -9216,13 +9237,13 @@ Private Function FillDetOtroImp(ByVal Row As Integer, ByVal TipoLib As Integer, 
          End If
      
       Else    'LIB_VENTAS
-         Valor = vFld(Rs("SumHaber")) - vFld(Rs("SumDebe"))             'FCA 4 sep 2018
+         valor = vFld(Rs("SumHaber")) - vFld(Rs("SumDebe"))             'FCA 4 sep 2018
          
          If EsRebaja Then
-            Grid.TextMatrix(Row, Col) = Format(Valor * -1, NEGNUMFMT)
+            Grid.TextMatrix(Row, Col) = Format(valor * -1, NEGNUMFMT)
          End If
         
-         Grid.TextMatrix(Row, Col) = Format(Valor, NEGNUMFMT)
+         Grid.TextMatrix(Row, Col) = Format(valor, NEGNUMFMT)
          
          TotOtrosImp = TotOtrosImp + vFmt(Grid.TextMatrix(Row, Col))
          
@@ -9394,7 +9415,7 @@ Private Sub CentralizarFull()
    Dim IVAActFijo As Double
    Dim IVAIrrecuperable As Double
     Dim StrIdDoc As String
-   Dim idcomp As Long
+   Dim IdComp As Long
    
    TotOtrosImp = 0
    IVAActFijo = 0
@@ -9523,11 +9544,11 @@ Private Sub CentralizarFull()
   Call CloseRs(Rs)
    
     StrIdDoc = Mid(StrIdDoc, 2)
-     idcomp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano), 0, 1) 'se asigna el valor 1 al final de la funcion para indentificar que es un comprobante full
+     IdComp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano), 0, 1) 'se asigna el valor 1 al final de la funcion para indentificar que es un comprobante full
    
-   If idcomp > 0 Then
+   If IdComp > 0 Then
    
-      If FrmComprobante.FEditCentraliz(idcomp, CbItemData(Cb_Mes), Val(Cb_Ano), 1) = vbOK Then
+      If FrmComprobante.FEditCentraliz(IdComp, CbItemData(Cb_Mes), Val(Cb_Ano), 1) = vbOK Then
        Call LoadGrid
       End If
       

@@ -228,7 +228,7 @@ Private Sub Form_Load()
    lDesglozarCCosto = False
       
 End Sub
-Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal idcomp As Long = 0) As Long
+Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal IdComp As Long = 0) As Long
    Dim Q1 As String, Q2 As String
    Dim Rs As dao.Recordset, RsAux As Recordset
    Dim TotDebe As Double
@@ -370,7 +370,7 @@ Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optiona
    Me.MousePointer = vbHourglass
    
    'creamos el comprobante
-   If idcomp = 0 Then
+   If IdComp = 0 Then
 
       FldArray(0).FldName = "IdUsuario"
       FldArray(0).FldValue = gUsuario.IdUsuario
@@ -389,6 +389,11 @@ Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optiona
       FldArray(3).FldIsNum = True
       
       IdCompNew = AdvTbAddNewMult(DbMain, "Comprobante", "IdComp", FldArray)
+      
+      '3376884
+      Call SeguimientoComprobantes(IdCompNew, gEmpresa.id, gEmpresa.Ano, "FrmImportRemu.GenCompRemu", "", 1, "", gUsuario.IdUsuario, 1, 1)
+      'Fin '3376884
+      
    End If
    
       
@@ -1202,9 +1207,17 @@ Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optiona
 
    Call ExecSQL(DbMain, Q1, False)
    
+   '3376884
+   Call SeguimientoMovComprobante(IdCompNew, gEmpresa.id, gEmpresa.Ano, "FrmImportRemu.GenCompRemu1", Q1, 1, "", 1, 1)
+   'fin '3376884
+   
    Q1 = "UPDATE MovComprobante SET Orden = 0 WHERE IdComp= " & IdCompNew
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1, False)
+   
+   '3376884
+   Call SeguimientoMovComprobante(IdCompNew, gEmpresa.id, gEmpresa.Ano, "FrmImportRemu.GenCompRemu2", Q1, 1, "", 1, 2)
+   'fin '3376884
    
    'actualizamos el encabezado
 '   Fecha = CLng(Int(DateSerial(gEmpresa.Ano, CbItemData(Cb_Mes), 15)))
@@ -1254,9 +1267,13 @@ Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optiona
 
    Call ExecSQL(DbMain, Q1, False)
    
+   '3376884
+   Call SeguimientoComprobantes(IdCompNew, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+   'fin '3376884
+   
    Call ExecSQL(DbMain, "DROP TABLE " & TmpTblComp)
 
-   idcomp = IdCompNew
+   IdComp = IdCompNew
    
    If gDbType = SQL_SERVER Then
       Call ExecSQL(DbMain, "SET ANSI_WARNINGS OFF")
@@ -1267,17 +1284,17 @@ Private Function GenCompRemu(ByVal Mes As Integer, ByVal Ano As Integer, Optiona
    
    MsgBox1 "ATENCIÓN: si le falta algún desglose de cuentas en el comprobante, verifique que la cuenta esté definida en la opción de menú " & vbCrLf & vbCrLf & "Configuración >> Configuración para Traspaso a Remuneraciones", vbInformation
 
-   If idcomp > 0 Then
+   If IdComp > 0 Then
       If RemAnual Then
-         Call FrmComprobante.FEditCentraliz(idcomp, 0, Ano)
+         Call FrmComprobante.FEditCentraliz(IdComp, 0, Ano)
       Else
-         Call FrmComprobante.FEditCentraliz(idcomp, Mes, Ano)
+         Call FrmComprobante.FEditCentraliz(IdComp, Mes, Ano)
       End If
    Else
       MsgBox1 "Problemas al generar el comprobante.", vbExclamation + vbOKOnly
    End If
    
-   GenCompRemu = idcomp
+   GenCompRemu = IdComp
 End Function
 Private Sub LoadCuentas()
    Dim i As Integer

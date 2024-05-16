@@ -15,7 +15,7 @@ Dim lRegComp() As RegComp_t
 
 Dim lFNameLogImp As String
 
-Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByVal Ano As Integer, ByVal Mes As Integer, ByVal SoloRevisar As Boolean) As Integer
+Public Function ImportComprobantes(Frm As FrmImpComp, ByVal fname As String, ByVal Ano As Integer, ByVal Mes As Integer, ByVal SoloRevisar As Boolean) As Integer
    Dim Buf As String
    Dim Q1 As String
    Dim Rs As Recordset
@@ -70,14 +70,14 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
    
    lFNameLogImp = gImportPath & "\Log\ImpComprob-" & Format(Now, "yyyymmdd") & ".log"
    
-   LargoArchivo = FileSize(FName)
+   LargoArchivo = FileSize(fname)
 
          
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       ImportComprobantes = -ERR
       Exit Function
    End If
@@ -129,10 +129,10 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          
             'vemos si hay error en los totales y si el comprobante cuadra
             If TotDebe <> TotHaber Then
-               Call AddLogImp(lFNameLogImp, FName, l, "Comprobante no cuadra.")
+               Call AddLogImp(lFNameLogImp, fname, l, "Comprobante no cuadra.")
                CompErr = True
             ElseIf TotDebe <> TotComp Then
-               Call AddLogImp(lFNameLogImp, FName, l, "Total comprobante no cuadra con totales Debe y Haber.")
+               Call AddLogImp(lFNameLogImp, fname, l, "Total comprobante no cuadra con totales Debe y Haber.")
                CompErr = True
             End If
             
@@ -171,7 +171,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          IdTipoComp = FindTipoComp(TipoComp)
          If IdTipoComp < 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Tipo de comprobante inválido. Valores permitidos. Egreso, Ingreso o Traspaso")
+            Call AddLogImp(lFNameLogImp, fname, l, "Tipo de comprobante inválido. Valores permitidos. Egreso, Ingreso o Traspaso")
          Else
             ImpTipoComp(IdTipoComp) = ImpTipoComp(IdTipoComp) + 1
          End If
@@ -188,7 +188,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          DtComp = ValFmtDate(Aux, False)
          If DtComp = 0 Or DtComp < Dt1 Or DtComp > Dt2 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha ingreso inválida o fuera del último mes abierto. Formato permitido dd/mm/aaaa")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha ingreso inválida o fuera del último mes abierto. Formato permitido dd/mm/aaaa")
          End If
       End If
       
@@ -198,7 +198,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          TotComp = AuxTotComp
          If TotComp < 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Total comprobante inválido.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Total comprobante inválido.")
          End If
       End If
       
@@ -209,7 +209,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          IdEstado = FindEstadoComp(Estado)
          If IdEstado <= 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Estado inválido. Valores permitidos: Aprobado, Pendiente o Anulado")
+            Call AddLogImp(lFNameLogImp, fname, l, "Estado inválido. Valores permitidos: Aprobado, Pendiente o Anulado")
          End If
       End If
       
@@ -219,7 +219,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          Glosa = Aux
          If Glosa = "" Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Falta glosa del comprobante.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Falta glosa del comprobante.")
          End If
       End If
       
@@ -228,16 +228,16 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
       CodCuenta = VFmtCodigoCta(CodCuenta)
       If CodCuenta = "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta código de cuenta.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta código de cuenta.")
       Else
          NombCta = ""
          IdCuenta = GetIdCuenta(NombCta, CodCuenta, DescCuenta, UltimoNivel)
          If IdCuenta = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de cuenta inválido.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de cuenta inválido.")
          ElseIf Not UltimoNivel Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de cuenta no es de {ultimo nivel.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de cuenta no es de {ultimo nivel.")
          End If
       End If
       
@@ -247,14 +247,14 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
       
       If Debe < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Debe inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Debe inválido.")
       Else
          TotDebe = TotDebe + Debe
       End If
                      
       If Haber < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Haber inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Haber inválido.")
       Else
          TotHaber = TotHaber + Haber
       End If
@@ -273,12 +273,12 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
       
       If CodANeg <> "" And IdAreaNeg = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Código Área de Negocio inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Código Área de Negocio inválido.")
       End If
       
       If CodCCosto <> "" And IdCCosto = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Código Centro de Gestión inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Código Centro de Gestión inválido.")
       End If
       
       TipoLib = 0
@@ -316,7 +316,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
             
          Case Else
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Tipo de libro inválido.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Tipo de libro inválido.")
             
       End Select
          
@@ -325,7 +325,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          TipoDoc = FindTipoDoc(TipoLib, Aux)
          If TipoDoc = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Tipo de documento inválido o no corresponde al libro de " & gTipoLib(TipoLib) & ".")
+            Call AddLogImp(lFNameLogImp, fname, l, "Tipo de documento inválido o no corresponde al libro de " & gTipoLib(TipoLib) & ".")
          End If
 '      ElseIf Aux <> "" Then
 '         CampoInvalido = CampoInvalido & "," & p
@@ -341,7 +341,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          If DiminutivoDoc <> "NCC" And DiminutivoDoc <> "NCF" Then
             If IdTipoComp <> TC_EGRESO And IdTipoComp <> TC_TRASPASO Then
                CampoInvalido = CampoInvalido & "," & p
-               Call AddLogImp(lFNameLogImp, FName, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
+               Call AddLogImp(lFNameLogImp, fname, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
             End If
             
          ElseIf IdTipoComp <> TC_INGRESO And IdTipoComp <> TC_TRASPASO Then
@@ -349,7 +349,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
             '2879479 se agrega condicion que solo de error de libro cuando monto este en debe
             If Not Debe = 0 And Haber > 0 Then
                 CampoInvalido = CampoInvalido & "," & p
-                Call AddLogImp(lFNameLogImp, FName, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
+                Call AddLogImp(lFNameLogImp, fname, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
             End If
             'fin 2879479
          End If
@@ -358,12 +358,12 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          If DiminutivoDoc <> "NCV" And DiminutivoDoc <> "NCE" And DiminutivoDoc <> "DVB" Then
             If IdTipoComp <> TC_INGRESO And IdTipoComp <> TC_TRASPASO Then
                CampoInvalido = CampoInvalido & "," & p
-               Call AddLogImp(lFNameLogImp, FName, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
+               Call AddLogImp(lFNameLogImp, fname, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
             End If
             
          ElseIf IdTipoComp <> TC_EGRESO And IdTipoComp <> TC_TRASPASO Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Tipo de libro-documento inválido.  No corresponde al tipo de comprobante ingresado.")
          
          End If
       End If
@@ -378,7 +378,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
       NumDoc = Trim(NextField2(Buf, p))
       If TipoLib <> 0 And TipoDoc <> 0 And NumDoc = "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "N° de documento inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "N° de documento inválido.")
       End If
            
       'Entidad
@@ -392,13 +392,13 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          If RutEnt = "0" Or RutEnt = "" Then    'es inválido
             NotValidRut = True
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "RUT inválido")
+            Call AddLogImp(lFNameLogImp, fname, l, "RUT inválido")
          Else
             RutEnt = FmtCID(RutEnt)
             IdEnt = GetIdEntidad(RutEnt, NombEnt, NotValidRut)
             If IdEnt = 0 Then
                CampoInvalido = CampoInvalido & "," & p
-               Call AddLogImp(lFNameLogImp, FName, l, "RUT entidad no ha sido ingresado al sistema.")
+               Call AddLogImp(lFNameLogImp, fname, l, "RUT entidad no ha sido ingresado al sistema.")
             End If
          End If
       End If
@@ -430,7 +430,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          If Rs.EOF Then       'documento no existe
             IdDoc = 0
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Documento no ha sido ingresado al sistema.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Documento no ha sido ingresado al sistema.")
          Else
             IdDoc = vFld(Rs("IdDoc"))
          End If
@@ -438,7 +438,7 @@ Public Function ImportComprobantes(Frm As FrmImpComp, ByVal FName As String, ByV
          Call CloseRs(Rs)
       ElseIf TipoLib <> 0 Or TipoDoc <> 0 Or NumDoc <> "" Or IdEnt <> 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Información del documento incompleta.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Información del documento incompleta.")
          
       End If
       
@@ -469,10 +469,10 @@ NextRec:
    If IdTipoComp <> 0 Then     'hay uno por guardar
    
       If TotDebe <> TotHaber Then
-         Call AddLogImp(lFNameLogImp, FName, l, "Comprobante no cuadra.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Comprobante no cuadra.")
          CompErr = True
       ElseIf TotDebe <> TotComp Then
-         Call AddLogImp(lFNameLogImp, FName, l, "Total comprobante no cuadra con totales Debe y Haber.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Total comprobante no cuadra con totales Debe y Haber.")
          CompErr = True
       End If
       
@@ -643,6 +643,10 @@ Private Function SaveComp(ByVal IdTipoComp As Integer, ByVal FechaComp As Long, 
    FldArray(7).FldIsNum = True
       
    idcomp = AdvTbAddNewMult(DbMain, "Comprobante", "IdComp", FldArray)
+   
+   '3376884
+    Call SeguimientoComprobantes(idcomp, gEmpresa.id, gEmpresa.Ano, "ImpExpFnc.SaveComp", "", 1, "", gUsuario.IdUsuario, 1, 1)
+    'fin 3376884
     
    If idcomp = 0 Then
       SaveComp = False
@@ -706,6 +710,10 @@ Private Function SaveComp(ByVal IdTipoComp As Integer, ByVal FechaComp As Long, 
       Q1 = "UPDATE Comprobante SET Correlativo=" & Correlativo
       Q1 = Q1 & " WHERE IdComp=" & idcomp & WhEmp
       Rc = ExecSQL(DbMain, Q1)
+      
+      '3376884
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "ImpExpFnc.SaveComp1", "", 1, "WHERE IdComp=" & idcomp & WhEmp, gUsuario.IdUsuario, 1, 2)
+      'fin 3376884
    
       DoEvents    'produce cosas raras
       
@@ -729,6 +737,11 @@ Private Function SaveComp(ByVal IdTipoComp As Integer, ByVal FechaComp As Long, 
             Q1 = "UPDATE Comprobante SET Correlativo=-1"
             Q1 = Q1 & " WHERE IdComp=" & idcomp & WhEmp
             Rc = ExecSQL(DbMain, Q1)
+            
+            '3376884
+            Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", "", 1, " WHERE IdComp=" & idcomp & WhEmp, gUsuario.IdUsuario, 1, 2)
+            'fin 3376884
+            
          Else
             Exit Do ' tenemos el correlativo
          End If
@@ -756,6 +769,10 @@ Private Function SaveComp(ByVal IdTipoComp As Integer, ByVal FechaComp As Long, 
       Q1 = Q1 & "  WHERE IdComp = " & idcomp & WhEmp
       
       Call ExecSQL(DbMain, Q1, False)
+      
+      '3376884
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", "", 1, "WHERE IdComp = " & idcomp & WhEmp, gUsuario.IdUsuario, 1, 2)
+      'fin 3376884
       
       Call AddLogComprobantes(idcomp, gUsuario.IdUsuario, O_IMPORT, Now, Estado, Correlativo, FechaComp, IdTipoComp, Estado, TipoAjuste)
       
@@ -822,6 +839,10 @@ Private Sub SaveMovsComp(ByVal idcomp As Long, ByVal Total As Double)
       Q1 = Q1 & " AND IdComp = " & idcomp
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Call ExecSQL(DbMain, Q1)
+      
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", Q1, 1, " WHERE IdMov = " & idMov & " AND IdComp = " & idcomp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+      'fin 3376884
             
       Lin = Lin + 1
       
@@ -830,7 +851,7 @@ Private Sub SaveMovsComp(ByVal idcomp As Long, ByVal Total As Double)
 End Sub
 
 
-Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As String, ByVal SoloRevisar As Boolean) As Integer
+Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal fname As String, ByVal SoloRevisar As Boolean) As Integer
    Dim Buf As String
    Dim Q1 As String
    Dim Rs As Recordset
@@ -891,14 +912,14 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
 
    lFNameLogImp = gImportPath & "\Log\ImpActFijo-" & Format(Now, "yyyymmdd") & ".log"
 
-   LargoArchivo = FileSize(FName)
+   LargoArchivo = FileSize(fname)
 
 
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       ImportActFijoFile = -ERR
       Exit Function
    End If
@@ -942,7 +963,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       End If
       If Abs(AFTotDepreciado) <> VAL_SI And Abs(AFTotDepreciado) <> VAL_NO Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Campo AF Totalmente Depreciado inválido. Valores permitidos S/N/blanco")
+         Call AddLogImp(lFNameLogImp, fname, l, "Campo AF Totalmente Depreciado inválido. Valores permitidos S/N/blanco")
       End If
 
       'AF no depreciable
@@ -954,7 +975,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       End If
       If Abs(AFNoDepreciable) <> VAL_SI And Abs(AFNoDepreciable) <> VAL_NO Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Campo AF no Depreciable inválido. Valores permitidos S/N/blanco")
+         Call AddLogImp(lFNameLogImp, fname, l, "Campo AF no Depreciable inválido. Valores permitidos S/N/blanco")
       End If
 
       EsDepreciable = False
@@ -969,7 +990,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       DtCompra = ValFmtDate(Aux, False)
       If DtCompra = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha compra inválida. Formato permitido dd/mm/aaaa")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha compra inválida. Formato permitido dd/mm/aaaa")
       End If
 
       'Fecha utilización
@@ -978,11 +999,11 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       If EsDepreciable Then
          If DtUtilizacion = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha utilización inválida. Formato permitido dd/mm/aaaa")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha utilización inválida. Formato permitido dd/mm/aaaa")
 
          ElseIf DtUtilizacion < DtCompra Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "La fecha de utilización debe ser posterior a la fecha de compra.")
+            Call AddLogImp(lFNameLogImp, fname, l, "La fecha de utilización debe ser posterior a la fecha de compra.")
          End If
 
       End If
@@ -991,7 +1012,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       Cantidad = Int(vFmt(Trim(NextField2(Buf, p))))
       If Cantidad <= 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta Cantidad del Activo Fijo.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta Cantidad del Activo Fijo.")
       End If
 
 
@@ -999,7 +1020,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       Descrip = Trim(NextField2(Buf, p))
       If Descrip = "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta Descripción del Activo Fijo.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta Descripción del Activo Fijo.")
       End If
 
 
@@ -1009,17 +1030,17 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
 
       If Neto < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Neto inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Neto inválido.")
       End If
 
       If IVA < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de IVA inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de IVA inválido.")
       End If
 
       If IVA <> 0 And Abs(Neto * gIVA - IVA) > 2 Then    'IVA puede ser cero de acuerdo a lo indicado por Victor 15/9/2016
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de IVA no calza con el valor neto.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de IVA no calza con el valor neto.")
       End If
 
 
@@ -1032,7 +1053,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       End If
       If Cred33bis <> VAL_SI And Cred33bis <> VAL_NO Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Campo Cred. 33 bis inválido. Valores permitidos S/N/blanco")
+         Call AddLogImp(lFNameLogImp, fname, l, "Campo Cred. 33 bis inválido. Valores permitidos S/N/blanco")
       End If
 
 
@@ -1043,14 +1064,14 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          ValCredito = -1    'para indicar que el campo viene en blanco
       ElseIf ValCredito < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Crédito inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Crédito inválido.")
       End If
 
       'Vida Util
       VidaUtil = Int(vFmt(Trim(NextField2(Buf, p))))
       If EsDepreciable And VidaUtil <= 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar la vida útil del Activo Fijo")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar la vida útil del Activo Fijo")
       End If
 
       'Meses Dep Normal  y Meses Dep Acelerada
@@ -1086,18 +1107,18 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       'Dep. Ley 21210, Inst. e Inmed o Araucanía
       If (MesesDepInstantanea > 0 Or MesesDepDecimaParte > 0) And DtUtilizacion < gFechaInicioDepInstantanea Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "La depreciación Instantánea o Décima Parte sólo se puede aplicar" & vbCrLf & "para activos fijos cuya fecha de utilización es posterior al " & FmtDate(gFechaInicioDepInstantanea, "dd mmm yyyy"))
+         Call AddLogImp(lFNameLogImp, fname, l, "La depreciación Instantánea o Décima Parte sólo se puede aplicar" & vbCrLf & "para activos fijos cuya fecha de utilización es posterior al " & FmtDate(gFechaInicioDepInstantanea, "dd mmm yyyy"))
       End If
       
       'Dep. Ley 21256, Inst. e Inmed
       If (MesesDepInstantanea > 0 Or MesesDepDecimaParte > 0) And DtUtilizacion < gFechaInicioDepInstantanea Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "La depreciación Instantánea e Inmediata sólo se puede aplicar" & vbCrLf & "para activos fijos cuya fecha de utilización es posterior al " & FmtDate(gFechaInicioDepInstantanea, "dd mmm yyyy"))
+         Call AddLogImp(lFNameLogImp, fname, l, "La depreciación Instantánea e Inmediata sólo se puede aplicar" & vbCrLf & "para activos fijos cuya fecha de utilización es posterior al " & FmtDate(gFechaInicioDepInstantanea, "dd mmm yyyy"))
       End If
       
       If (MesesDepDecimaParte2 > 0) And DtCompra < gFechaInicioDepDecimaParte2 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "La depreciación Décima Parte MT sólo se puede aplicar" & vbCrLf & "para activos fijos cuya fecha de compra es posterior al " & FmtDate(gFechaInicioDepDecimaParte2, "dd mmm yyyy"))
+         Call AddLogImp(lFNameLogImp, fname, l, "La depreciación Décima Parte MT sólo se puede aplicar" & vbCrLf & "para activos fijos cuya fecha de compra es posterior al " & FmtDate(gFechaInicioDepDecimaParte2, "dd mmm yyyy"))
       End If
       
       Aux = Left(Trim(NextField2(Buf, p)), 1)
@@ -1108,7 +1129,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       End If
       If Abs(Ley21210DepInsteInmed) <> VAL_SI And Abs(Ley21210DepInsteInmed) <> VAL_NO Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Campo Ley 21.210 - Dep. Inst. e Inmed. inválido. Valores permitidos S/N/blanco")
+         Call AddLogImp(lFNameLogImp, fname, l, "Campo Ley 21.210 - Dep. Inst. e Inmed. inválido. Valores permitidos S/N/blanco")
       End If
 
       Aux = Left(Trim(NextField2(Buf, p)), 1)
@@ -1119,22 +1140,22 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       End If
       If Abs(Ley21210DepAraucania) <> VAL_SI And Abs(Ley21210DepAraucania) <> VAL_NO Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Campo Ley 21.210 - Dep. Araucanía inválido. Valores permitidos S/N/blanco")
+         Call AddLogImp(lFNameLogImp, fname, l, "Campo Ley 21.210 - Dep. Araucanía inválido. Valores permitidos S/N/blanco")
       End If
       
       If Ley21210DepInsteInmed And Ley21210DepAraucania Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "No es posible aplicar Depreciación Intantánea e Inmediata junto con Depreciación de la Araucanía. Debe elegir una de las dos si aplica.")
+         Call AddLogImp(lFNameLogImp, fname, l, "No es posible aplicar Depreciación Intantánea e Inmediata junto con Depreciación de la Araucanía. Debe elegir una de las dos si aplica.")
       End If
 
       If Ley21210DepAraucania And gEmpresa.Region <> 9 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "La Depreciación de la Araucanía sólo se puede aplicar a empresas cuya dirección corresponde a la región de la Araucanía.")
+         Call AddLogImp(lFNameLogImp, fname, l, "La Depreciación de la Araucanía sólo se puede aplicar a empresas cuya dirección corresponde a la región de la Araucanía.")
       End If
 
       If (Ley21210DepInsteInmed Or Ley21210DepAraucania) And (DtCompra < gFechaInicioDepLey21210 Or DtCompra > gFechaTerminoDepLey21210) Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "La depreciación Ley 21.210 sólo se puede aplicar para activos fijos cuya fecha de compra es está entre el " & vbCrLf & vbCrLf & FmtDate(gFechaInicioDepLey21210, "dd mmm yyyy") & " y el " & FmtDate(gFechaTerminoDepLey21210, "dd mmm yyyy"))
+         Call AddLogImp(lFNameLogImp, fname, l, "La depreciación Ley 21.210 sólo se puede aplicar para activos fijos cuya fecha de compra es está entre el " & vbCrLf & vbCrLf & FmtDate(gFechaInicioDepLey21210, "dd mmm yyyy") & " y el " & FmtDate(gFechaTerminoDepLey21210, "dd mmm yyyy"))
       End If
       
       Aux = Left(Trim(NextField2(Buf, p)), 1)
@@ -1145,32 +1166,32 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       End If
       If Abs(Ley21256DepInsteInmed) <> VAL_SI And Abs(Ley21256DepInsteInmed) <> VAL_NO Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Campo Ley 21.256 - Dep. Inst. e Inmed. inválido. Valores permitidos S/N/blanco")
+         Call AddLogImp(lFNameLogImp, fname, l, "Campo Ley 21.256 - Dep. Inst. e Inmed. inválido. Valores permitidos S/N/blanco")
       End If
       
       If (Ley21210DepInsteInmed Or Ley21210DepAraucania) And Ley21256DepInsteInmed Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "No es posible aplicar Depreciación Ley 21210 junto con Depreciación Ley 21.256. Debe elegir una de las dos si aplica.")
+         Call AddLogImp(lFNameLogImp, fname, l, "No es posible aplicar Depreciación Ley 21210 junto con Depreciación Ley 21.256. Debe elegir una de las dos si aplica.")
       End If
       
       If Ley21256DepInsteInmed And (DtCompra < gFechaInicioDepLey21256 Or DtCompra > gFechaTerminoDepLey21256) Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "La depreciación Ley 21.256 sólo se puede aplicar para activos fijos cuya fecha de compra es está entre el " & vbCrLf & vbCrLf & FmtDate(gFechaInicioDepLey21210, "dd mmm yyyy") & " y el " & FmtDate(gFechaTerminoDepLey21210, "dd mmm yyyy"))
+         Call AddLogImp(lFNameLogImp, fname, l, "La depreciación Ley 21.256 sólo se puede aplicar para activos fijos cuya fecha de compra es está entre el " & vbCrLf & vbCrLf & FmtDate(gFechaInicioDepLey21210, "dd mmm yyyy") & " y el " & FmtDate(gFechaTerminoDepLey21210, "dd mmm yyyy"))
       End If
       
       If EsDepreciable Then
       
          If NDepSel = 0 And Not Ley21210DepAraucania And Not Ley21256DepInsteInmed Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar los meses a depreciar este año (normal, acelerada, instantánea o décima parte)")
+            Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar los meses a depreciar este año (normal, acelerada, instantánea o décima parte)")
          ElseIf NDepSel > 1 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Debe ingresar meses a depreciar sólo en uno de los dos campos: Meses Dep. Normal, Meses Dep. Acelerada, Meses Dep. Instantánea o Meses Dep. Décima Parte")
+            Call AddLogImp(lFNameLogImp, fname, l, "Debe ingresar meses a depreciar sólo en uno de los dos campos: Meses Dep. Normal, Meses Dep. Acelerada, Meses Dep. Instantánea o Meses Dep. Décima Parte")
          End If
 
       ElseIf NDepSel > 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Si el Activo Fijo no es depreciable o está totalmente depreciado no aplica campo Meses Dep. Normal o Meses Dep. Acelerada")
+         Call AddLogImp(lFNameLogImp, fname, l, "Si el Activo Fijo no es depreciable o está totalmente depreciado no aplica campo Meses Dep. Normal o Meses Dep. Acelerada")
 
       End If
       
@@ -1210,21 +1231,21 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
 
             If AuxDep = 0 Then
                CampoInvalido = CampoInvalido & "," & p
-               Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar los meses ya depreciados (dep. normal, acelerada, instantánea, deécima parte o décima parte MT histórica)")
+               Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar los meses ya depreciados (dep. normal, acelerada, instantánea, deécima parte o décima parte MT histórica)")
             ElseIf AuxDep > 1 Then
                CampoInvalido = CampoInvalido & "," & p
-               Call AddLogImp(lFNameLogImp, FName, l, "Debe ingresar meses depreciados sólo en uno de los dos campos: Meses Dep. Normal Hist., Meses Dep. Acelerada Hist., Meses Dep. Instantánea Hist., Meses Dep. Décima Parte Hist. o Meses Dep. Décima Parte MT Hist.")
+               Call AddLogImp(lFNameLogImp, fname, l, "Debe ingresar meses depreciados sólo en uno de los dos campos: Meses Dep. Normal Hist., Meses Dep. Acelerada Hist., Meses Dep. Instantánea Hist., Meses Dep. Décima Parte Hist. o Meses Dep. Décima Parte MT Hist.")
             End If
 
          ElseIf AuxDep > 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Si el Activo Fijo tiene fecha de utilización de este año, no corresponde depreciación histórica.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Si el Activo Fijo tiene fecha de utilización de este año, no corresponde depreciación histórica.")
 
          End If
 
       ElseIf AuxDep > 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Si el Activo Fijo no es depreciable o está totalmente depreciado no aplica Depreciación Histórica")
+         Call AddLogImp(lFNameLogImp, fname, l, "Si el Activo Fijo no es depreciable o está totalmente depreciado no aplica Depreciación Histórica")
 
       End If
 
@@ -1235,11 +1256,11 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          If DtUtilizacion < DateSerial(gEmpresa.Ano - 1, 12, 31) Then
             If DepHistorica <= 0 Then
                CampoInvalido = CampoInvalido & "," & p
-               Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar la depreciación acumulada histórica")
+               Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar la depreciación acumulada histórica")
             End If
          ElseIf DepHistorica > 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "No corresponde ingresar depreciación acumulada histórica")
+            Call AddLogImp(lFNameLogImp, fname, l, "No corresponde ingresar depreciación acumulada histórica")
          End If
 
       End If
@@ -1255,7 +1276,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
             VentaBaja = MOVAF_COMPRA
          Case Else
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Campo Venta o Baja inválido, Valores permitidos: 'V', 'B' o blanco")
+            Call AddLogImp(lFNameLogImp, fname, l, "Campo Venta o Baja inválido, Valores permitidos: 'V', 'B' o blanco")
       End Select
 
       'Fecha venta o baja
@@ -1265,32 +1286,32 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       If Aux = "" Then
          If VentaBaja <> MOVAF_COMPRA Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Falta indicar la fecha de venta o baja. Formato permitido dd/mm/aaaa")
+            Call AddLogImp(lFNameLogImp, fname, l, "Falta indicar la fecha de venta o baja. Formato permitido dd/mm/aaaa")
          End If
          
       ElseIf DtVentaBaja = 0 Then
          If VentaBaja <> MOVAF_COMPRA Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha venta o baja inválida. Formato permitido dd/mm/aaaa")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha venta o baja inválida. Formato permitido dd/mm/aaaa")
          End If
          
       ElseIf DtVentaBaja < DtCompra Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha venta o baja inválida. Debe ser posterior a la fecha de compra.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha venta o baja inválida. Debe ser posterior a la fecha de compra.")
       End If
       
       'Neto Venta
       NetoVenta = Int(vFmt(Trim(NextField2(Buf, p))))
       If NetoVenta < 0 Or (NetoVenta > 0 And VentaBaja <> MOVAF_VENTA) Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de venta inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de venta inválido.")
       End If
 
       'IVA Venta
       IVAVenta = Int(vFmt(Trim(NextField2(Buf, p))))
       If IVAVenta < 0 Or (IVAVenta > 0 And VentaBaja <> MOVAF_VENTA) Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de IVA venta inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de IVA venta inválido.")
       End If
 
       'Cuenta contable
@@ -1302,10 +1323,10 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          IdCuenta = GetIdCuenta(NomCuenta, CodCuenta, DescCuenta, UltNivel)
          If IdCuenta <= 0 Or Not UltNivel Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de cuenta inválido")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de cuenta inválido")
          ElseIf GetAtribCuenta(IdCuenta, ATRIB_ACTIVOFIJO) = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Cuenta no tiene atributo Activo Fijo")
+            Call AddLogImp(lFNameLogImp, fname, l, "Cuenta no tiene atributo Activo Fijo")
          End If
       Else
          IdCuenta = 0
@@ -1335,7 +1356,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       
       If Aux <> "" And IdGrupo = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Nombre Grupo inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Nombre Grupo inválido.")
       End If
 
       'Fecha incorporación
@@ -1344,7 +1365,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          DtIncorporacion = ValFmtDate(Aux, False)
          If DtIncorporacion = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha Incorporación inválida. Formato permitido dd/mm/aaaa")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha Incorporación inválida. Formato permitido dd/mm/aaaa")
          End If
       End If
 
@@ -1355,7 +1376,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          DtDisponible = ValFmtDate(Aux, False)
          If DtDisponible = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha Disponible inválida. Formato permitido dd/mm/aaaa")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha Disponible inválida. Formato permitido dd/mm/aaaa")
          End If
       End If
 
@@ -1363,56 +1384,56 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
       DerechosInternacion = Int(vFmt(Trim(NextField2(Buf, p))))
       If DerechosInternacion < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Derechos de Internación inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Derechos de Internación inválido.")
       End If
 
       'Transporte
       Transporte = Int(vFmt(Trim(NextField2(Buf, p))))
       If Transporte < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Transporte inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Transporte inválido.")
       End If
 
       'Adaptación
       Adaptacion = Int(vFmt(Trim(NextField2(Buf, p))))
       If Adaptacion < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Adaptación inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Adaptación inválido.")
       End If
 
       'Otros Adquisición
       OtrosAdquisicion = Int(vFmt(Trim(NextField2(Buf, p))))
       If OtrosAdquisicion < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Otros Adquisición inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Otros Adquisición inválido.")
       End If
 
       'IVA Rec
       IVARec = Int(vFmt(Trim(NextField2(Buf, p))))
       If IVARec < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de IVA Recuperable inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de IVA Recuperable inválido.")
       End If
 
       'Formación Personal
       FormacionPersonal = Int(vFmt(Trim(NextField2(Buf, p))))
       If FormacionPersonal < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Formación Personal inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Formación Personal inválido.")
       End If
 
       'Reubicacion
       Reubicacion = Int(vFmt(Trim(NextField2(Buf, p))))
       If Reubicacion < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Reubicación inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Reubicación inválido.")
       End If
 
       'Otros gastos no reconocidos
       OtrosGastos = Int(vFmt(Trim(NextField2(Buf, p))))
       If OtrosGastos < 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Otros Gastos no Reconocidos inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Otros Gastos no Reconocidos inválido.")
       End If
       
       '2861733 tema 2
@@ -1425,7 +1446,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          vIdAreaNegocio = GetAreaNegocio(vCodAreaNegocio)
          If vIdAreaNegocio <= 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de Area de Negocio Invalido")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de Area de Negocio Invalido")
          End If
       Else
          vIdAreaNegocio = 0
@@ -1440,7 +1461,7 @@ Public Function ImportActFijoFile(Frm As FrmImpActFijoFile, ByVal FName As Strin
          vIdCentroGestion = GetCentroCosto(vCodCentroGestion)
          If vIdCentroGestion <= 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de Centro de Gestion Invalido")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de Centro de Gestion Invalido")
          End If
       Else
          vIdCentroGestion = 0
@@ -1647,7 +1668,7 @@ Function GetIdGrupo(ByVal NombGrupo As String) As Long
    End If
    
 End Function
-Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
+Public Function ImportOtrosDocs(Frm As Form, ByVal fname As String) As Boolean
    Dim Buf As String
    Dim Q1 As String
    Dim Rs As Recordset
@@ -1686,9 +1707,9 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
 
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       ImportOtrosDocs = -ERR
       Exit Function
    End If
@@ -1729,7 +1750,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
       DtEmision = ValFmtDate(Aux, False)
       If DtEmision = 0 Or Year(DtEmision) < gEmpresa.Ano - 1 Or Year(DtEmision) > gEmpresa.Ano Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha emisión inválida. Debe corresponder al año anterior o al año actual.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha emisión inválida. Debe corresponder al año anterior o al año actual.")
       End If
       
       'Tipo Doc
@@ -1743,7 +1764,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
       IdTipoDoc = FindTipoDoc(TipoLib, TipoDoc)
       If IdTipoDoc = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Tipo de documento inválido o no corresponde a Otros Documentos.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Tipo de documento inválido o no corresponde a Otros Documentos.")
       End If
                
       'DTE
@@ -1754,7 +1775,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
       NumDoc = Trim(NextField2(Buf, p))
       If NumDoc = "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "N° de documento inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "N° de documento inválido.")
       End If
                
       'Entidad
@@ -1768,7 +1789,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
          If RutEnt = "0" Or RutEnt = "" Then    'es inválido
             NotValidRut = True
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "RUT inválido")
+            Call AddLogImp(lFNameLogImp, fname, l, "RUT inválido")
          End If
       End If
       
@@ -1778,7 +1799,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
       NombEnt = Trim(NextField2(Buf, p))
       If NombEnt = "" And RutEnt <> "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar nombre o razón social entidad.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar nombre o razón social entidad.")
       End If
       
       If CampoInvalido = "" Then
@@ -1794,7 +1815,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
       
       If Valor <= 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor documento inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor documento inválido.")
       End If
       
       'código cuenta Banco
@@ -1803,7 +1824,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
          IdCuenta = GetIdCuenta(NombreCta, CodCta, DescCta, UltNivelCta)
          If UltNivelCta = False Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de cuenta inválido.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de cuenta inválido.")
          End If
       Else
          IdCuenta = 0
@@ -1816,7 +1837,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
          DtVenc = ValFmtDate(Aux, False)
          If DtVenc = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha vencimiento inválida.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha vencimiento inválida.")
          End If
 '      Else
 '         CampoInvalido = CampoInvalido & "," & p
@@ -1825,7 +1846,7 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
             
       If DtVenc > 0 And DtEmision > DtVenc Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha de emisión mayor a la fecha de vencimiento.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha de emisión mayor a la fecha de vencimiento.")
       End If
       
       NumInterno = vFmt(Trim(NextField2(Buf, p)))
@@ -1949,6 +1970,10 @@ Public Function ImportOtrosDocs(Frm As Form, ByVal FName As String) As Boolean
             Call ExecSQL(DbMain, Q1)
             
             r = r + 1
+            
+            'Tracking 3227543
+            Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpFnc.ImportOtrosDocs", Q1, 1, "", gUsuario.IdUsuario, 2, 1)
+            ' fin 3227543
       
          End If
          
@@ -1994,7 +2019,7 @@ NextRec:
 
 End Function
 
-Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolean
+Public Function ImportOtrosDocFull(Frm As Form, ByVal fname As String) As Boolean
    Dim Buf As String
    Dim Q1 As String
    Dim Rs As Recordset
@@ -2034,9 +2059,9 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
 
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       ImportOtrosDocFull = -ERR
       Exit Function
    End If
@@ -2077,7 +2102,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
       DtEmision = ValFmtDate(Aux, False)
       If DtEmision = 0 Or Year(DtEmision) < gEmpresa.Ano - 1 Or Year(DtEmision) > gEmpresa.Ano Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha emisión inválida. Debe corresponder al año anterior o al año actual.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha emisión inválida. Debe corresponder al año anterior o al año actual.")
       End If
       
       'Tipo Doc
@@ -2092,7 +2117,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
       IdTipoDoc = 1 'FindTipoDoc(TipoLib, TipoDoc)
       If IdTipoDoc = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Tipo de documento inválido o no corresponde a Otros Documentos.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Tipo de documento inválido o no corresponde a Otros Documentos.")
       End If
                
       'DTE
@@ -2103,7 +2128,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
       NumDoc = Trim(NextField2(Buf, p))
       If NumDoc = "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "N° de documento inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "N° de documento inválido.")
       End If
                
       'Entidad
@@ -2117,7 +2142,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
          If RutEnt = "0" Or RutEnt = "" Then    'es inválido
             NotValidRut = True
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "RUT inválido")
+            Call AddLogImp(lFNameLogImp, fname, l, "RUT inválido")
          End If
       End If
       
@@ -2127,7 +2152,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
       NombEnt = Trim(NextField2(Buf, p))
       If NombEnt = "" And RutEnt <> "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar nombre o razón social entidad.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar nombre o razón social entidad.")
       End If
       
       If CampoInvalido = "" Then
@@ -2143,7 +2168,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
       
       If Valor <= 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor documento inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor documento inválido.")
       End If
       
       'código cuenta Banco
@@ -2153,7 +2178,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
          IdCuenta = GetIdCuenta(NombreCta, CodCta, DescCta, UltNivelCta)
          If UltNivelCta = False Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Código de cuenta inválido.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Código de cuenta inválido.")
          End If
       Else
          IdCuenta = 0
@@ -2166,7 +2191,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
          DtVenc = ValFmtDate(Aux, False)
          If DtVenc = 0 Then
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "Fecha vencimiento inválida.")
+            Call AddLogImp(lFNameLogImp, fname, l, "Fecha vencimiento inválida.")
          End If
 '      Else
 '         CampoInvalido = CampoInvalido & "," & p
@@ -2175,7 +2200,7 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
             
       If DtVenc > 0 And DtEmision > DtVenc Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha de emisión mayor a la fecha de vencimiento.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha de emisión mayor a la fecha de vencimiento.")
       End If
       
       NumInterno = vFmt(Trim(NextField2(Buf, p)))
@@ -2304,6 +2329,10 @@ Public Function ImportOtrosDocFull(Frm As Form, ByVal FName As String) As Boolea
             Call ExecSQL(DbMain, Q1)
             
             r = r + 1
+            
+            'Tracking 3227543
+            Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpFnc.ImportOtrosDocFull", Q1, 1, "", gUsuario.IdUsuario, 2, 1)
+            ' fin 3227543
       
          End If
          
@@ -2479,7 +2508,7 @@ Public Sub FillCuentasUtilizadasAnoAnt(ByVal TipoLib As Integer, ByVal IdTipoVal
    Dim Q1 As String
    Dim Rs As Recordset
    Dim IdEntidad As Long
-   Dim FName As String
+   Dim fname As String
    
    
    If Not gEmpresa.TieneAnoAnt Then
@@ -2492,17 +2521,17 @@ Public Sub FillCuentasUtilizadasAnoAnt(ByVal TipoLib As Integer, ByVal IdTipoVal
    
       'linkeamos las tablas de Documento y MovDocumento del año anterior
       
-      FName = gDbPath & "\Empresas\" & gEmpresa.Ano - 1 & "\" & gEmpresa.Rut & ".mdb"
+      fname = gDbPath & "\Empresas\" & gEmpresa.Ano - 1 & "\" & gEmpresa.Rut & ".mdb"
       
-      If Not ExistFile(FName) Then
+      If Not ExistFile(fname) Then
          Exit Sub
       End If
       
-      Call LinkMdbTable(DbMain, FName, "Documento", "DocumentoAnt", , , gEmpresa.ConnStr)
-      Call LinkMdbTable(DbMain, FName, "MovDocumento", "MovDocumentoAnt", , , gEmpresa.ConnStr)
-      Call LinkMdbTable(DbMain, FName, "Cuentas", "CuentasAnt", , , gEmpresa.ConnStr)
-      Call LinkMdbTable(DbMain, FName, "AreaNegocio", "AreaNegocioAnt", , , gEmpresa.ConnStr)
-      Call LinkMdbTable(DbMain, FName, "CentroCosto", "CentroCostoAnt", , , gEmpresa.ConnStr)
+      Call LinkMdbTable(DbMain, fname, "Documento", "DocumentoAnt", , , gEmpresa.ConnStr)
+      Call LinkMdbTable(DbMain, fname, "MovDocumento", "MovDocumentoAnt", , , gEmpresa.ConnStr)
+      Call LinkMdbTable(DbMain, fname, "Cuentas", "CuentasAnt", , , gEmpresa.ConnStr)
+      Call LinkMdbTable(DbMain, fname, "AreaNegocio", "AreaNegocioAnt", , , gEmpresa.ConnStr)
+      Call LinkMdbTable(DbMain, fname, "CentroCosto", "CentroCostoAnt", , , gEmpresa.ConnStr)
             
 #End If
 

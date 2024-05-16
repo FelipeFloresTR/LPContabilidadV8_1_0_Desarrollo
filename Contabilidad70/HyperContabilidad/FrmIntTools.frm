@@ -62,6 +62,10 @@ Private Sub Command1_Click()
       Q1 = "UPDATE MovComprobante SET Glosa = '" & Txt & "' WHERE IdMov = " & vFld(Rs("IdMov"))
       Call ExecSQL(DbMain, Q1)
       
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmIntTools.Command1_Click", Q1, 1, "WHERE IdMov = " & vFld(Rs("IdMov")), 1, 2)
+      'fin 3376884
+      
       Rs.MoveNext
    Loop
    

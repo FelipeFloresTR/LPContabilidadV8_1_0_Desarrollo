@@ -307,13 +307,13 @@ Private Function RenumCompr(ByVal FMes1 As Long, ConNewCorr As Boolean, ByVal Ti
          
        'AQUI SE BUSCA DE DONDE PARTE LOS NUMEROS DE COMPROBANTES
       If gPerCorrComp = TCC_ANUAL Or Day(FMes1) <> 1 Then
-         Mes = DateSerial(Year(FMes1), Month(FMes1), 1)
+         Mes = DateSerial(Year(FMes1), month(FMes1), 1)
    
          If gTipoCorrComp = TCC_UNICO Then
             Q1 = "SELECT Max(Correlativo) as M FROM Comprobante WHERE Fecha <" & FMes1 & WhTAjuste
             If gPerCorrComp = TCC_MENSUAL Then
                Q1 = Q1 & " AND Fecha >=" & Mes
-               LastMes1 = Year(Mes) * 100 + Month(Mes)
+               LastMes1 = Year(Mes) * 100 + month(Mes)
             End If
             
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
@@ -330,7 +330,7 @@ Private Function RenumCompr(ByVal FMes1 As Long, ConNewCorr As Boolean, ByVal Ti
             Q1 = "SELECT Tipo, Max(Correlativo) as M FROM Comprobante WHERE Fecha <" & FMes1 & WhTAjuste
             If gPerCorrComp = TCC_MENSUAL Then
                Q1 = Q1 & " AND Fecha >=" & Mes
-               LastMes1 = Year(Mes) * 100 + Month(Mes)
+               LastMes1 = Year(Mes) * 100 + month(Mes)
             End If
             
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
@@ -399,7 +399,7 @@ Private Function RenumCompr(ByVal FMes1 As Long, ConNewCorr As Boolean, ByVal Ti
    
       If gPerCorrComp = TCC_MENSUAL Then
          Mes = vFld(Rs("Fecha"))
-         Mes = Year(Mes) * 100 + Month(Mes)
+         Mes = Year(Mes) * 100 + month(Mes)
          
          If LastMes <> Mes Then 'Si cambia de mes el correlativo vuelve a 1
             LastMes = Mes
@@ -426,6 +426,11 @@ Private Function RenumCompr(ByVal FMes1 As Long, ConNewCorr As Boolean, ByVal Ti
       Q1 = Q1 & " WHERE idComp=" & vFld(Rs("idComp")) & " AND Correlativo<>" & NCorr
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Rc = ExecSQL(DbMain, Q1)
+      
+      Dim Where As String
+      Where = " WHERE idComp=" & vFld(Rs("idComp")) & " AND Correlativo<>" & NCorr & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", "", 1, Where, gUsuario.IdUsuario, 1, 2)
+
    
       Pb_Reg.Value = Pb_Reg.Value + 1
    

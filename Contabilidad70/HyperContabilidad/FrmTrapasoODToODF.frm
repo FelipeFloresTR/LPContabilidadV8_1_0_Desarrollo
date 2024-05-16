@@ -205,6 +205,11 @@ Cant = 0
             Q1 = Q1 & " WHERE TIPOLIB = 5 "
             Q1 = Q1 & " AND IDDOC = " & Grid.TextMatrix(i, C_IDDOC)
             Call ExecSQL(DbMain, Q1)
+            
+            'Tracking 3227543
+            Call SeguimientoDocumento(Grid.TextMatrix(i, C_IDDOC), gEmpresa.id, gEmpresa.Ano, "FrmTraspasoODToODF.SaveAll", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+            ' fin 3227543
+            
             Cant = Cant + 1
         End If
     Next i

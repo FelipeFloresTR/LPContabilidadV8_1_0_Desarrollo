@@ -1229,6 +1229,10 @@ Public Function ImportLibF29(ByVal Mes As Integer, ByVal TipoLib As Integer) As 
    DelWhere = DelWhere & " AND FImporF29 <> 0 "
    DelWhere = DelWhere & " AND Documento.IdEmpresa = " & gEmpresa.id & " AND Documento.Ano = " & gEmpresa.Ano
    
+   'Tracking 3227543
+    Call SeguimientoMovDocumento("", gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportLibF29", "", 0, DelWhere, 2, 1)
+    ' fin 3227543
+   
    Call DeleteJSQL(DbMain, "MovDocumento", DelFrom, DelWhere)
    
    Q1 = " WHERE FEmision BETWEEN " & F1 & " AND " & F2
@@ -1498,6 +1502,11 @@ Private Function ImportF29Compras(ByVal Mes As Integer) As Long
       End If
       Call CloseRs(RsOldDoc)
       
+      'Tracking 3227543
+        Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29Compras", "", 1, "", gUsuario.IdUsuario, 2, 1)
+        Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29Compras", "", 1, "", 2, 1)
+        ' fin 3227543
+      
       Rs.MoveNext
    Loop
 
@@ -1706,6 +1715,11 @@ Private Function ImportF29VentasNac(ByVal Mes As Integer) As Long
 
    Call CloseRs(Rs)
    
+   'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasNac", "", 1, "", gUsuario.IdUsuario, 2, 1)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasNac", "", 1, "", 2, 1)
+    ' fin 3227543
+   
    ImportF29VentasNac = NDocsImp
 
 End Function
@@ -1885,6 +1899,11 @@ Private Function ImportF29VentasExp(ByVal Mes As Integer) As Long
    Loop
 
    Call CloseRs(Rs)
+   
+    'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasExp", "", 1, "", gUsuario.IdUsuario, 2, 1)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasExp", "", 1, "", 2, 1)
+    ' fin 3227543
    
    ImportF29VentasExp = NDocsImp
 
@@ -2100,6 +2119,11 @@ Private Function ImportF29VentasBoleta(ByVal Mes As Integer) As Long
 
    Call CloseRs(Rs)
    
+    'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasBoleta", "", 1, "", gUsuario.IdUsuario, 2, 1)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasBoleta", "", 1, "", 2, 1)
+    ' fin 3227543
+   
    ImportF29VentasBoleta = NDocsImp
 
 End Function
@@ -2301,6 +2325,11 @@ Private Function ImportF29VentasDevBoleta(ByVal Mes As Integer) As Long
    Loop
 
    Call CloseRs(Rs)
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasDevBoleta", "", 1, "", gUsuario.IdUsuario, 2, 1)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasDevBoleta", "", 1, "", 2, 1)
+    ' fin 3227543
    
    ImportF29VentasDevBoleta = NDocsImp
 
@@ -2536,6 +2565,11 @@ Private Function ImportF29Retenciones(ByVal Mes As Integer) As Long
 
    Call CloseRs(Rs)
    
+    'Tracking 3227543
+    Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasDevBoleta", "", 1, "", gUsuario.IdUsuario, 2, 1)
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.ImportF29VentasDevBoleta", "", 1, "", 2, 1)
+    ' fin 3227543
+   
    ImportF29Retenciones = NDocsImp
 
 End Function
@@ -2757,6 +2791,10 @@ Private Sub InsertMovDocumento(ByVal IdDoc As Long, ByVal TipoLib As Long, ByVal
       orden = orden + 1
          
    End If
+   
+      'Tracking 3227543
+    Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImpExpF29.InsertMovDocumento", Q1, 1, "", 1, 1)
+    ' fin 3227543
 
 End Sub
 Private Sub GetCtaIVAIrrec()
@@ -3676,6 +3714,10 @@ Public Function GenDB_F29(ByVal Mes As Integer, Optional ByVal Msg As Boolean = 
       Q1 = Q1 & " , " & vFld(Rs("ValRet3Porc"))
       Q1 = Q1 & " , '" & vFld(Rs("IVAInmueble")) & "')"
       Call ExecSQLDao(DbF29, Q1, False)
+      
+      'Tracking 3227543
+      Call SeguimientoDocumento(vFld(Rs("IdDoc")), gEmpresa.id, gEmpresa.Ano, "ImpExpF29.GenDB_F29", Q1, 1, "", gUsuario.IdUsuario, 1, 1)
+      ' fin 3227543
             
       Rs.MoveNext
    Loop

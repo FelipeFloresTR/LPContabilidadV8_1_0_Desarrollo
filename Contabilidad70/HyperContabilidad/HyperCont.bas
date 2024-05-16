@@ -424,7 +424,7 @@ End Type
 
 Type DetMovim_t
    idDetMov As Long
-   idcomp   As Long
+   IdComp   As Long
    idMov    As Long
    idLib    As Byte
    NDoc     As Long
@@ -439,7 +439,7 @@ Type CompTipo_t
    TDebe    As Double
    THaber   As Double
    idTipo   As Integer
-   idcomp   As Long
+   IdComp   As Long
 End Type
 
 Type Foliacion_t
@@ -522,7 +522,7 @@ End Type
 
 Type ResLibCod_t
    CodF29 As Integer
-   Valor As Double
+   valor As Double
 End Type
 
 Type ResOImp_t
@@ -534,7 +534,7 @@ Type ResOImp_t
    CodF29 As Integer
    CodF29_Adic As Integer
    TipoIVARetenido As Integer
-   Valor As Double
+   valor As Double
 End Type
 
 
@@ -1405,6 +1405,8 @@ Public Function IniEmpresa() As Boolean
     If ERR = 0 Then
       Tbl.Fields.Refresh
     End If
+    
+    Call RegistrosTracking
 
     '************ FINNNNNN ********************
    
@@ -1470,6 +1472,241 @@ Public Function IniEmpresa() As Boolean
    Call AddDebug("IniEmpresa: nos vamos OK", 1)
 
 End Function
+Public Sub RegistrosTracking()
+Dim Tbl As TableDef
+Dim Fld As Field
+Dim DbName As String
+
+      Set Tbl = DbMain.TableDefs("Tracking_Documento")
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FechaHora", dbDate)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+     
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Origen", dbText, 250)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Query", dbText, 255)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Vigente", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FormaIngreso", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Ajuste", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      Set Tbl = Nothing
+      
+      
+      Set Tbl = DbMain.TableDefs("Tracking_MovDocumento")
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FechaHora", dbDate)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+     
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Origen", dbText, 250)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Query", dbText, 255)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Vigente", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FormaIngreso", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Ajuste", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      Set Tbl = Nothing
+      
+      Set Tbl = DbMain.TableDefs("Tracking_Comprobante")
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FechaHora", dbDate)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+     
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Origen", dbText, 250)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Query", dbText, 255)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Vigente", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FormaIngreso", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Ajuste", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      Set Tbl = Nothing
+      
+      Set Tbl = DbMain.TableDefs("Tracking_MovComprobante")
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FechaHora", dbDate)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+     
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Origen", dbText, 250)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Query", dbText, 255)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Vigente", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("FormaIngreso", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      ERR.Clear
+      Tbl.Fields.Append Tbl.CreateField("Ajuste", dbLong)
+
+      If ERR = 0 Then
+         Tbl.Fields.Refresh
+      End If
+      
+      Set Tbl = Nothing
+      
+'          DbMain.TableDefs.Append Tbl
+'   Set Tbl = Nothing
+
+   DbMain.TableDefs.Refresh
+
+Dim Q1 As String
+
+'Q1 = "ALTER TABLE Tracking_Documento "
+'Q1 = Q1 & " DROP CONSTRAINT IdDoc"
+'Call ExecSQL(DbMain, Q1)
+
+Q1 = "ALTER TABLE Tracking_Documento "
+Q1 = Q1 & " ADD CONSTRAINT IdDoc PRIMARY KEY"
+Q1 = Q1 & " (IdDoc,fechahora)"
+Call ExecSQL(DbMain, Q1)
+
+'Q1 = "ALTER TABLE Tracking_Comprobante"
+'Q1 = Q1 & " DROP CONSTRAINT IdComp"
+'Call ExecSQL(DbMain, Q1)
+
+Q1 = "ALTER TABLE Tracking_Comprobante"
+Q1 = Q1 & " ADD CONSTRAINT IdComp PRIMARY KEY"
+Q1 = Q1 & " (IdComp,fechahora)"
+Call ExecSQL(DbMain, Q1)
+
+'Q1 = "ALTER TABLE Tracking_MovComprobante"
+'Q1 = Q1 & " DROP CONSTRAINT IdMov"
+'Call ExecSQL(DbMain, Q1)
+
+Q1 = "ALTER TABLE Tracking_MovComprobante"
+Q1 = Q1 & " ADD CONSTRAINT IdMov PRIMARY KEY"
+Q1 = Q1 & " (IdMov,fechahora)"
+Call ExecSQL(DbMain, Q1)
+
+'Q1 = "ALTER TABLE Tracking_MovDocumento"
+'Q1 = Q1 & " DROP CONSTRAINT IdMovDoc"
+'Call ExecSQL(DbMain, Q1)
+
+Q1 = "ALTER TABLE Tracking_MovDocumento"
+Q1 = Q1 & " ADD CONSTRAINT IdMovDoc PRIMARY KEY"
+Q1 = Q1 & " (IdMovDoc,fechahora)"
+Call ExecSQL(DbMain, Q1)
+
+End Sub
+
 Public Sub ReadEmpresa()
    Dim Q1 As String
    Dim Rs As Recordset
@@ -2626,7 +2863,7 @@ Public Function GetDiminutivoDoc(ByVal TipoLib As Integer, ByVal TipoDoc As Inte
    
 End Function
 'Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal idcomp As Long = 0) As Long
-Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal idcomp As Long = 0, Optional ByVal CentrFull As Long = 0) As Long
+Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal IdComp As Long = 0, Optional ByVal CentrFull As Long = 0) As Long
    Dim Q1 As String
    Dim Rs As Recordset
    Dim Tipo As Integer
@@ -2692,7 +2929,7 @@ Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, 
    
    Call CloseRs(Rs)
 
-   If idcomp = 0 Then    'viene en cero desde centralización en FrmCompraVenta
+   If IdComp = 0 Then    'viene en cero desde centralización en FrmCompraVenta
                          
 '      Set Rs = DbMain.OpenRecordset("Comprobante")
 '      Rs.AddNew
@@ -2723,6 +2960,10 @@ Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, 
       FldArray(3).FldIsNum = True
                
       IdCompNew = AdvTbAddNewMult(DbMain, "Comprobante", "IdComp", FldArray)
+      
+      '3376884
+      Call SeguimientoComprobantes(IdCompNew, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenComprobante", "", 1, "", gUsuario.IdUsuario, 1, 1)
+      'fin 3376884
       
    End If
    
@@ -2781,7 +3022,7 @@ Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, 
    Call CloseRs(Rs)
    
    
-   If idcomp = 0 Then
+   If IdComp = 0 Then
       
       If MesActual = month(Now) Then
          Fecha = CLng(Int(DateSerial(gEmpresa.Ano, month(Now), Day(Now))))
@@ -2812,13 +3053,17 @@ Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, 
       Q1 = Q1 & "  AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    
       Call ExecSQL(DbMain, Q1)
+      
+      '3376884
+      Call SeguimientoComprobantes(IdCompNew, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenComprobante1", "", 1, "", gUsuario.IdUsuario, 1, 2)
+      'fin 3376884
    
-      idcomp = IdCompNew
+      IdComp = IdCompNew
    End If
    
    
    Q1 = "INSERT INTO MovComprobante (DeCentraliz, IdComp, IdDoc, Orden, IdCuenta, Debe, Haber, Glosa, IdCCosto, IdAreaNeg, IdEmpresa, Ano )"
-   Q1 = Q1 & " SELECT 1 as DeCentraliz, " & idcomp & " as IdComp, IIf(EsTotalDoc <> 0, MovDocumento.IdDoc ,0) As IdDoc, "
+   Q1 = Q1 & " SELECT 1 as DeCentraliz, " & IdComp & " as IdComp, IIf(EsTotalDoc <> 0, MovDocumento.IdDoc ,0) As IdDoc, "
    Q1 = Q1 & " (MovDocumento.IdDoc * 100 +  MovDocumento.Orden) as Orden, IdCuenta, Debe, Haber, Glosa, IdCCosto, IdAreaNeg "
    Q1 = Q1 & "," & gEmpresa.id & " As IdEmpresa, " & gEmpresa.Ano & " As Ano "
    Q1 = Q1 & " FROM MovDocumento "
@@ -2827,15 +3072,19 @@ Public Function GenComprobante(ByVal StrIdDoc As String, ByVal TipoLib As Long, 
    Q1 = Q1 & " ORDER BY MovDocumento.IdDoc, MovDocumento.Orden"
    Call ExecSQL(DbMain, Q1)
    
-   Q1 = "UPDATE Documento SET IdCompCent = " & idcomp & ", Estado = " & ED_CENTRALIZADO & ", SaldoDoc = NULL WHERE IdDoc IN(" & StrIdDoc & ")"
+   '3376884
+    Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", Q1, 1, "WHERE IdDoc IN(" & StrIdDoc & ") AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 1)
+    'fin 3376884
+   
+   Q1 = "UPDATE Documento SET IdCompCent = " & IdComp & ", Estado = " & ED_CENTRALIZADO & ", SaldoDoc = NULL WHERE IdDoc IN(" & StrIdDoc & ")"
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
-   Q1 = "UPDATE MovDocumento SET IdCompCent = " & idcomp & " WHERE IdDoc IN(" & StrIdDoc & ")"
+   Q1 = "UPDATE MovDocumento SET IdCompCent = " & IdComp & " WHERE IdDoc IN(" & StrIdDoc & ")"
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
-   GenComprobante = idcomp
+   GenComprobante = IdComp
    
 End Function
 
@@ -3337,11 +3586,11 @@ Public Function AddEntidad(ByVal Rut As String, ByVal RazonSocial As String, IdE
 End Function
 
 
-Public Function GetCorrelativoComp(ByVal idcomp As Long) As Long
+Public Function GetCorrelativoComp(ByVal IdComp As Long) As Long
    Dim Rs As Recordset
    Dim Q1 As String
    
-   Q1 = "SELECT Correlativo FROM Comprobante WHERE IdComp = " & idcomp
+   Q1 = "SELECT Correlativo FROM Comprobante WHERE IdComp = " & IdComp
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Set Rs = OpenRs(DbMain, Q1)
    
@@ -3884,7 +4133,7 @@ End Function
 Public Function CompAperturaTribTieneMovs() As Boolean
    Dim Q1 As String
    Dim Rs As Recordset
-   Dim idcomp As Long, NMov As Long
+   Dim IdComp As Long, NMov As Long
    
 
    CompAperturaTribTieneMovs = False
@@ -3893,18 +4142,18 @@ Public Function CompAperturaTribTieneMovs() As Boolean
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Set Rs = OpenRs(DbMain, Q1)
    
-   idcomp = 0
+   IdComp = 0
    If Rs.EOF = False Then
-      idcomp = vFld(Rs(0))
+      IdComp = vFld(Rs(0))
    End If
    
    Call CloseRs(Rs)
    
-   If idcomp = 0 Then
+   If IdComp = 0 Then
       Exit Function
    End If
    
-   Q1 = "SELECT Count(*) FROM MovComprobante WHERE IdComp = " & idcomp
+   Q1 = "SELECT Count(*) FROM MovComprobante WHERE IdComp = " & IdComp
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Set Rs = OpenRs(DbMain, Q1)
    
@@ -4770,10 +5019,20 @@ Public Function GenCompApertura(ByVal IdEmpresa As Long, ByVal Rut As String, By
    If IdCompAper > 0 And IdCompAperTrib > 0 Then
       Q1 = "  WHERE IdComp = " & IdCompAper
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+      
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompApertura", Q1, 0, "  WHERE IdComp = " & IdCompAper & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 3)
+      'fin 3376884
+      
       Call DeleteSQL(DbMain, "MovComprobante", Q1)
       
       Q1 = " WHERE IdComp = " & IdCompAperTrib
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+      
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompApertura1", Q1, 0, "  WHERE IdComp = " & IdCompAperTrib & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 3)
+      'fin 3376884
+      
       Call DeleteSQL(DbMain, "MovComprobante", Q1)
    
    Else           'nuevo comprobante, lo agregamos
@@ -4797,6 +5056,10 @@ Public Function GenCompApertura(ByVal IdEmpresa As Long, ByVal Rut As String, By
    Q1 = Q1 & "  ORDER BY Cuentas.Codigo "
    
    Call ExecSQL(DbMain, Q1)
+   
+   '3376884
+    Call SeguimientoMovComprobante(IdCompAper, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompApertura", Q1, 1, "", 1, 1)
+    'fin 3376884
    
    'actualizamos totales comprobante de apertura
    Q1 = "SELECT Sum(Debe) as TotDebe, Sum(Haber) as TotHaber FROM MovComprobante "
@@ -4827,6 +5090,10 @@ Public Function GenCompApertura(ByVal IdEmpresa As Long, ByVal Rut As String, By
    Q1 = Q1 & " WHERE idComp=" & IdCompAper
    Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
    Call ExecSQL(DbMain, Q1)
+   
+   '3376884
+    Call SeguimientoComprobantes(IdCompAper, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompApertura3", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    'fin 3376884
 
    If Saldo <> 0 Then      'esto no debiera ocurrir nunca, ya que ya se hizo el ajuste en la tabla de cuentas
       MsgBox1 "Error al generar comprobante de apertura. Saldo de Debe y Haber no son iguales.", vbExclamation + vbOKOnly
@@ -4903,6 +5170,10 @@ Public Function GenCompApertura(ByVal IdEmpresa As Long, ByVal Rut As String, By
    
    Call ExecSQL(DbMain, Q1)
    
+   '3376884
+    Call SeguimientoMovComprobante(IdCompAperTrib, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompApertura4", Q1, 1, "", 1, 2)
+    'fin 3376884
+   
    'actualizamos totales comprobante de apertura
    Q1 = "SELECT Sum(Debe) as TotDebe, Sum(Haber) as TotHaber FROM MovComprobante "
    Q1 = Q1 & " WHERE IdComp = " & IdCompAperTrib
@@ -4932,6 +5203,10 @@ Public Function GenCompApertura(ByVal IdEmpresa As Long, ByVal Rut As String, By
    Q1 = Q1 & " WHERE idComp=" & IdCompAperTrib
    Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
    Call ExecSQL(DbMain, Q1)
+   
+   '3376884
+    Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmConfigCorrComp.Bt_MarcarRes_Click", "", 1, " WHERE idComp=" & IdCompAperTrib & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano, gUsuario.IdUsuario, 1, 2)
+    'fin 3376884
 
    If Saldo <> 0 Then      'esto no debiera ocurrir nunca, ya que ya se hizo el ajuste en la tabla de cuentas
       MsgBox1 "Error al generar comprobante de apertura. Saldo de Debe y Haber no son iguales.", vbExclamation + vbOKOnly
@@ -5287,13 +5562,13 @@ Public Function RecalcSaldos(ByVal IdEmpresa As Long, ByVal Ano As Integer, Opti
                
             Else
             '633824
-'            If vFld(Rs("TipoLib")) = LIB_REMU Then
-'                If Saldo < 0 Then
-'                     DocOtroEsCargo = True
-'                  Else
-'                     DocOtroEsCargo = False
-'                  End If
-'            End If
+            If vFld(Rs("TipoLib")) = LIB_REMU Then
+                If Saldo < 0 Then
+                     DocOtroEsCargo = True
+                  Else
+                     DocOtroEsCargo = False
+                  End If
+            End If
             '633824
                Q1 = Q1 & ", DocOtroEsCargo = " & Abs(DocOtroEsCargo)
                                       
@@ -6342,8 +6617,8 @@ Public Function GenDocsPendientes(ByVal IdEmpresa As Long, ByVal Rut As String, 
 
    Q1 = "SELECT Count(*) FROM Documento "
    '616437 ffv odf
-   'Q1 = Q1 & " WHERE (FExported = 0 OR FExported Is NULL  ) AND TipoLib IN ( " & LIB_REMU & "," & LIB_OTROS & "," & LIB_OTROFULL & ") AND Estado IN(" & ED_APROBADO & "," & ED_CENTRALIZADO & "," & ED_PAGADO & ")"
-   Q1 = Q1 & " WHERE (FExported = 0 OR FExported Is NULL  ) AND TipoLib IN ( " & LIB_REMU & "," & LIB_OTROS & "," & LIB_OTROFULL & ") AND Estado IN(" & ED_APROBADO & ")"
+   Q1 = Q1 & " WHERE (FExported = 0 OR FExported Is NULL  ) AND TipoLib IN ( " & LIB_REMU & "," & LIB_OTROS & "," & LIB_OTROFULL & ") AND Estado IN(" & ED_APROBADO & "," & ED_CENTRALIZADO & "," & ED_PAGADO & ")"
+   'Q1 = Q1 & " WHERE (FExported = 0 OR FExported Is NULL  ) AND TipoLib IN ( " & LIB_REMU & "," & LIB_OTROS & "," & LIB_OTROFULL & ") AND Estado IN(" & ED_APROBADO & ")"
    '616437 ffv odf
    
    Set Rs = OpenRs(DbMain, Q1)
@@ -6688,6 +6963,7 @@ Public Function GenDocsPendientes(ByVal IdEmpresa As Long, ByVal Rut As String, 
    
    Call CloseRs(Rs)
    
+   
    'Mensaje con cantidad Otros Documentos
    Q1 = "SELECT Count(*) As N "
    Q1 = Q1 & " FROM Documento "
@@ -6720,6 +6996,11 @@ Public Function GenDocsPendientes(ByVal IdEmpresa As Long, ByVal Rut As String, 
    End If
    
    Call CloseRs(Rs)
+   
+    'Tracking 3227543
+    Call SeguimientoDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenDocsPendientes", "", 1, Where, gUsuario.IdUsuario, 1, 1)
+    Call SeguimientoMovDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenDocsPendientes", "", 1, Where, 1, 1)
+    ' fin 3227543
       
    'actualizamos marca de exportación en tabla año anterior con fecha actual
    Q1 = "UPDATE Documento "
@@ -7750,6 +8031,11 @@ Public Function GenDocsPendientesEmpJuntas(ByVal IdEmpresa As Long, ByVal Rut As
    End If
    
    Call CloseRs(Rs)
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenDocsPendientesEmpJuntas", "", 1, Where, gUsuario.IdUsuario, 1, 1)
+    Call SeguimientoMovDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenDocsPendientesEmpJuntas", "", 1, Where, 1, 1)
+    ' fin 3227543
       
    
    'actualizamos marca de exportación en tabla año anterior con fecha actual
@@ -7931,6 +8217,11 @@ Public Function TraerOtrosDocsAprobados(ByVal IdEmpresa As Long, ByVal Rut As St
    End If
    
    Call CloseRs(Rs)
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.TraerOtrosDocsAprobados", "", 1, Where & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano, gUsuario.IdUsuario, 1, 1)
+    Call SeguimientoMovDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.TraerOtrosDocsAprobados", "", 1, Where & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano, 1, 1)
+    ' fin 3227543
       
    'actualizamos marca de exportación en tabla año anterior con fecha actual
    Q1 = "UPDATE Documento "
@@ -9319,7 +9610,7 @@ Public Function UpdateUltUsado(PapelFoliado As Boolean, nFolio As Integer) As Bo
    End If
       
 End Function
-Public Function DeleteComprobante(ByVal idcomp As Long, Optional ByVal MsgPregunta As Boolean = True, Optional ByVal DocFull As Boolean = False) As Boolean
+Public Function DeleteComprobante(ByVal IdComp As Long, Optional ByVal MsgPregunta As Boolean = True, Optional ByVal DocFull As Boolean = False) As Boolean
    Dim Q1 As String
    Dim Rs As Recordset
    Dim Fecha As Long
@@ -9341,7 +9632,7 @@ Public Function DeleteComprobante(ByVal idcomp As Long, Optional ByVal MsgPregun
     tblCom = "Comprobante"
     tblMovCom = "MovComprobante"
 '   End If
-   If idcomp = 0 Then
+   If IdComp = 0 Then
       Exit Function
    End If
       
@@ -9349,7 +9640,7 @@ Public Function DeleteComprobante(ByVal idcomp As Long, Optional ByVal MsgPregun
       Exit Function
    End If
    
-   Q1 = "SELECT Fecha, Tipo, Correlativo FROM " & tblCom & " WHERE IdComp=" & idcomp
+   Q1 = "SELECT Fecha, Tipo, Correlativo FROM " & tblCom & " WHERE IdComp=" & IdComp
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Set Rs = OpenRs(DbMain, Q1)
    If Rs.EOF = False Then
@@ -9391,7 +9682,7 @@ Public Function DeleteComprobante(ByVal idcomp As Long, Optional ByVal MsgPregun
    sFrom = " DetCartola INNER JOIN MovComprobante ON DetCartola.IdMov = MovComprobante.IdMov "
    sFrom = sFrom & " AND DetCartola.IdEmpresa = MovComprobante.IdEmpresa AND DetCartola.Ano = MovComprobante.Ano"
    sSet = " DetCartola.IdMov = 0 "
-   sWhere = " WHERE MovComprobante.IdComp = " & idcomp
+   sWhere = " WHERE MovComprobante.IdComp = " & IdComp
    sWhere = sWhere & " AND DetCartola.IdEmpresa = " & gEmpresa.id & " AND DetCartola.Ano = " & gEmpresa.Ano
    'feña
 '   sFrom = Replace(sFrom, "MovComprobante", tblMovCom)
@@ -9401,34 +9692,46 @@ Public Function DeleteComprobante(ByVal idcomp As Long, Optional ByVal MsgPregun
 
    'soltamos cuotas de pago si corresponde
    Q1 = "UPDATE DocCuotas SET Estado = " & ED_PENDIENTE & ", IdCompPago = 0"
-   Q1 = Q1 & " WHERE IdCompPago = " & idcomp & " AND Estado = " & ED_PAGADO
+   Q1 = Q1 & " WHERE IdCompPago = " & IdComp & " AND Estado = " & ED_PAGADO
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
          
    'los docs. que vienen de centralización los dejamos pendientes
-   Q1 = "UPDATE " & tblDoc & " SET IdCompCent = 0, Estado = " & ED_PENDIENTE & ", SaldoDoc = NULL WHERE IdCompCent = " & idcomp
+   Q1 = "UPDATE " & tblDoc & " SET IdCompCent = 0, Estado = " & ED_PENDIENTE & ", SaldoDoc = NULL WHERE IdCompCent = " & IdComp
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
    'los docs. que vienen de pago autom.: dejamos en estado ED_CENTRALIZADO si tiene IdCompCent <> 0
-   Q1 = "UPDATE " & tblDoc & " SET IdCompPago = 0, Estado = " & ED_CENTRALIZADO & ", SaldoDoc = NULL WHERE IdCompPago = " & idcomp & " AND IdCompCent <> 0 "
+   Q1 = "UPDATE " & tblDoc & " SET IdCompPago = 0, Estado = " & ED_CENTRALIZADO & ", SaldoDoc = NULL WHERE IdCompPago = " & IdComp & " AND IdCompCent <> 0 "
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
    'los docs. que vienen de pago autom.: dejamos pendientes si tiene IdCompCent = 0 (esto no debiera ocurrir nunca, pero por si las moscas)
-   Q1 = "UPDATE " & tblDoc & " SET IdCompPago = 0, Estado = " & ED_PENDIENTE & ", SaldoDoc = NULL WHERE IdCompPago = " & idcomp & " AND IdCompCent = 0 "
+   Q1 = "UPDATE " & tblDoc & " SET IdCompPago = 0, Estado = " & ED_PENDIENTE & ", SaldoDoc = NULL WHERE IdCompPago = " & IdComp & " AND IdCompCent = 0 "
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
+   
+   'Tracking 3227543
+   Dim whereSegui As String
+   whereSegui = " WHERE IdCompPago = " & IdComp & " AND IdCompCent = 0 "
+   Call SeguimientoDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.DeleteComprobante", "", 1, whereSegui, gUsuario.IdUsuario, 1, 2)
+   ' fin 3227543
          
    If Not DocFull Then
-    Q1 = "UPDATE MovDocumento SET IdCompCent = 0, IdCompPago = 0 WHERE IdCompCent = " & idcomp & " OR IdCompPago = " & idcomp
+    Q1 = "UPDATE MovDocumento SET IdCompCent = 0, IdCompPago = 0 WHERE IdCompCent = " & IdComp & " OR IdCompPago = " & IdComp
     Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
     Call ExecSQL(DbMain, Q1)
+    
+    'Tracking 3227543
+    whereSegui = " WHERE IdCompCent = " & IdComp & " OR IdCompPago = " & IdComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+    Call SeguimientoMovDocumento(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.DeleteComprobante", "", 1, whereSegui, 1, 2)
+    ' fin 3227543
+    
    End If
    'eliminamos el comprobante
 '   Q1 = "DELETE * FROM MovComprobante WHERE IdComp = " & IdComp
 '   Call ExecSQL(DbMain, Q1)
-   Q1 = " WHERE IdComp = " & idcomp
+   Q1 = " WHERE IdComp = " & IdComp
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    'Call DeleteSQL(DbMain, "MovComprobante", Q1)
    'FEÑA
@@ -9436,7 +9739,7 @@ Public Function DeleteComprobante(ByVal idcomp As Long, Optional ByVal MsgPregun
    'FIN FEÑA
 '   Q1 = "DELETE * FROM Comprobante WHERE IdComp = " & IdComp
 '   Call ExecSQL(DbMain, Q1)
-   Q1 = " WHERE IdComp = " & idcomp
+   Q1 = " WHERE IdComp = " & IdComp
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    'Call DeleteSQL(DbMain, "Comprobante", Q1)
    'feña
@@ -9720,7 +10023,7 @@ Public Function GetIVAIrrec(ByVal Mes As Integer, ByVal Ano As Integer, Optional
       If ResOImp(i).TipoLib = LIB_COMPRAS And ResOImp(i).CodValLib <> 0 Then
                                     
          If ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC1 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC2 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC3 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC4 Or ResOImp(i).CodValLib = LIBCOMPRAS_IVAIRREC9 Then
-            GetIVAIrrec = ResOImp(i).Valor
+            GetIVAIrrec = ResOImp(i).valor
          End If
          
       Else
@@ -9759,11 +10062,11 @@ Public Function GetIVARet(ByVal Mes As Integer, ByVal Ano As Integer, IVARetParc
       If ResOImp(i).CodValLib <> 0 Then
                                     
          If ResOImp(i).TipoLib = LIB_VENTAS And ResOImp(i).TipoIVARetenido = IVARET_PARCIAL Then
-            IVARetParcial = ResOImp(i).Valor
+            IVARetParcial = ResOImp(i).valor
          End If
          
          If ResOImp(i).TipoLib = LIB_VENTAS And ResOImp(i).TipoIVARetenido = IVARET_TOTAL Then
-            IVARetTotal = ResOImp(i).Valor
+            IVARetTotal = ResOImp(i).valor
          End If
          
       Else
@@ -9861,7 +10164,7 @@ Public Function GetRemIVAAnoAnt(RemUTMAnoAnt As Double) As Integer
    
    
 End Function
-Public Sub UpdParamEmpresa(ByVal Tipo As String, ByVal Codigo As Integer, ByVal Valor As String)
+Public Sub UpdParamEmpresa(ByVal Tipo As String, ByVal Codigo As Integer, ByVal valor As String)
    Dim Rs As Recordset, Q1 As String, oValor As String, Rc As Long
    
    Tipo = UCase(Tipo)
@@ -9873,15 +10176,15 @@ Public Sub UpdParamEmpresa(ByVal Tipo As String, ByVal Codigo As Integer, ByVal 
    If Rs.EOF = False Then
       oValor = vFld(Rs("Valor"))
       Call CloseRs(Rs)
-      If oValor <> Valor Then
-         Q1 = "UPDATE ParamEmpresa SET Valor='" & ParaSQL(Left(Valor, 30)) & "' WHERE Tipo='" & Tipo & "' AND Codigo=" & Codigo
+      If oValor <> valor Then
+         Q1 = "UPDATE ParamEmpresa SET Valor='" & ParaSQL(Left(valor, 30)) & "' WHERE Tipo='" & Tipo & "' AND Codigo=" & Codigo
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Rc = ExecSQL(DbMain, Q1)
       End If
    Else
       Call CloseRs(Rs)
       
-      Q1 = "INSERT INTO ParamEmpresa (Tipo, Codigo, Valor, IdEmpresa, Ano) VALUES ('" & Tipo & "'," & Codigo & ",'" & ParaSQL(Left(Valor, 30)) & "'," & gEmpresa.id & "," & gEmpresa.Ano & ")"
+      Q1 = "INSERT INTO ParamEmpresa (Tipo, Codigo, Valor, IdEmpresa, Ano) VALUES ('" & Tipo & "'," & Codigo & ",'" & ParaSQL(Left(valor, 30)) & "'," & gEmpresa.id & "," & gEmpresa.Ano & ")"
       Rc = ExecSQL(DbMain, Q1)
    
    End If
@@ -10073,11 +10376,20 @@ Private Sub VerificaMultiCompApertura()
       DelFrom = DelFrom & JoinEmpAno(gDbType, "Comprobante", "MovComprobante")
       DelWhere = " WHERE Comprobante.Tipo =" & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_FINANCIERO
       DelWhere = DelWhere & " AND MovComprobante.IdEmpresa = " & gEmpresa.id & " AND MovComprobante.Ano = " & gEmpresa.Ano
-
+        
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.VerificaMultiCompApertura", Q1, 0, " WHERE Comprobante.Tipo =" & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_FINANCIERO & " AND MovComprobante.IdEmpresa = " & gEmpresa.id & " AND MovComprobante.Ano = " & gEmpresa.Ano, 1, 3)
+      'fin 3376884
+      
       Call DeleteJSQL(DbMain, "MovComprobante", DelFrom, DelWhere)
                        
       Q1 = " WHERE Tipo =" & TC_APERTURA & " AND TipoAjuste IN (" & TAJUSTE_FINANCIERO & "," & TAJUSTE_AMBOS & ")"
       Q1 = Q1 & " AND Comprobante.IdEmpresa = " & gEmpresa.id & " AND Comprobante.Ano = " & gEmpresa.Ano
+      
+      '3376884
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.VerificaMultiCompApertura", "", 0, " WHERE Tipo =" & TC_APERTURA & " AND TipoAjuste IN (" & TAJUSTE_FINANCIERO & "," & TAJUSTE_AMBOS & ") AND Comprobante.IdEmpresa = " & gEmpresa.id & " AND Comprobante.Ano = " & gEmpresa.Ano, gUsuario.IdUsuario, 1, 3)
+      'fin 3376884
+      
       Call DeleteSQL(DbMain, "Comprobante", Q1)
    
    End If
@@ -10102,10 +10414,19 @@ Private Sub VerificaMultiCompApertura()
       DelWhere = " WHERE Comprobante.Tipo =" & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_TRIBUTARIO
       DelWhere = DelWhere & " AND MovComprobante.IdEmpresa = " & gEmpresa.id & " AND MovComprobante.Ano = " & gEmpresa.Ano
 
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.VerificaMultiCompApertura", Q1, 0, " WHERE Comprobante.Tipo =" & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_TRIBUTARIO & " AND MovComprobante.IdEmpresa = " & gEmpresa.id & " AND MovComprobante.Ano = " & gEmpresa.Ano, 1, 3)
+      'fin 3376884
+
       Call DeleteJSQL(DbMain, "MovComprobante", DelFrom, DelWhere)
          
       Q1 = " WHERE Tipo =" & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_TRIBUTARIO
       Q1 = Q1 & " AND Comprobante.IdEmpresa = " & gEmpresa.id & " AND Comprobante.Ano = " & gEmpresa.Ano
+      
+      '3376884
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.VerificaMultiCompApertura", "", 0, " WHERE Tipo =" & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_TRIBUTARIO & " AND Comprobante.IdEmpresa = " & gEmpresa.id & " AND Comprobante.Ano = " & gEmpresa.Ano, gUsuario.IdUsuario, 1, 3)
+      'fin 3376884
+      
       Call DeleteSQL(DbMain, "Comprobante", Q1)
    
    
@@ -10257,6 +10578,10 @@ Public Sub DesConciliarMov(ByVal idMov As Long)
    Q1 = "UPDATE MovComprobante SET idCartola=0 WHERE IdMov = " & idMov
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
+   
+    '3376884
+    Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.DesConciliarMov", Q1, 1, " WHERE IdMov = " & idMov & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+    'fin 3376884
 
 End Sub
 
@@ -10325,11 +10650,11 @@ Public Function GetNumDocVSDLibCaja(ByVal TipoLib As Integer, ByVal TipoDoc As I
 End Function
 
 
-Public Sub AddLogComprobantes(ByVal idcomp As Long, ByVal IdUsuario As Long, ByVal IdOper As Integer, ByVal Fecha As Double, ByVal Estado As Integer, Optional ByVal DCorrelativoComp As Long = 0, Optional ByVal DFechaComp As Long = 0, Optional ByVal DTipoComp As Integer = 0, Optional ByVal DEstadoComp As Integer = 0, Optional ByVal DTipoAjuste As Integer = 0)
+Public Sub AddLogComprobantes(ByVal IdComp As Long, ByVal IdUsuario As Long, ByVal IdOper As Integer, ByVal Fecha As Double, ByVal Estado As Integer, Optional ByVal DCorrelativoComp As Long = 0, Optional ByVal DFechaComp As Long = 0, Optional ByVal DTipoComp As Integer = 0, Optional ByVal DEstadoComp As Integer = 0, Optional ByVal DTipoAjuste As Integer = 0)
    Dim Q1 As String
       
    Q1 = "INSERT INTO LogComprobantes( IdComp, IdUsuario, IdOper, Fecha, Estado, CorrComp, FechaComp, TipoComp, EstadoComp, TipoAjusteComp, IdEmpresa, Ano ) "
-   Q1 = Q1 & " VALUES( " & idcomp & "," & IdUsuario & "," & IdOper & "," & str(CDbl(Fecha)) & "," & Estado & "," & DCorrelativoComp & "," & DFechaComp & "," & DTipoComp & "," & DEstadoComp & "," & DTipoAjuste & "," & gEmpresa.id & "," & gEmpresa.Ano & ")"
+   Q1 = Q1 & " VALUES( " & IdComp & "," & IdUsuario & "," & IdOper & "," & str(CDbl(Fecha)) & "," & Estado & "," & DCorrelativoComp & "," & DFechaComp & "," & DTipoComp & "," & DEstadoComp & "," & DTipoAjuste & "," & gEmpresa.id & "," & gEmpresa.Ano & ")"
    
    Call ExecSQL(DbMain, Q1)
 
@@ -11673,6 +11998,11 @@ Call CloseRs(Rs)
                       Q3 = Q3 & ", IdCompCent = " & vFld(Rs2("IDCOMP"))
                       Q3 = Q3 & " where iddoc = " & vFld(Rs2("iddoc"))
                       Call ExecSQL(DbMain, Q3)
+                      
+                      'Tracking 3227543
+                       Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados1", "", 1, "", gUsuario.IdUsuario, 1, 2)
+                      ' fin 3227543
+                      
                     End If
                     
                   End If
@@ -11680,6 +12010,12 @@ Call CloseRs(Rs)
                   Call CloseRs(Rs3)
               
            Else
+           
+                  'Tracking 3227543
+                  Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados2", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                  Call SeguimientoMovDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados2", "", 0, "", 1, 2)
+                  ' fin 3227543
+                  
                   Q3 = ""
                   Q3 = "delete from movDocumento "
                   Q3 = Q3 & " where iddoc = " & vFld(Rs2("iddoc"))
@@ -11702,6 +12038,11 @@ Call CloseRs(Rs)
         
               If Not Rs4.EOF Then
                   If vFld(Rs4("Cant")) > 0 Then
+                  
+                      'Tracking 3227543
+                      Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados3", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                      Call SeguimientoMovDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados3", "", 0, "", 1, 2)
+                      ' fin 3227543
                     
                       Q3 = ""
                       Q3 = "delete from movDocumento "
@@ -11729,6 +12070,11 @@ Call CloseRs(Rs)
         
                  If Not Rs5.EOF Then
                       If vFld(Rs5("Cant")) > 0 Then
+                      
+                        'Tracking 3227543
+                        Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados4", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                        Call SeguimientoMovDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados4", "", 0, "", 1, 2)
+                        ' fin 3227543
                     
                         Q3 = ""
                         Q3 = "delete from movDocumento "
@@ -11785,6 +12131,11 @@ Call CloseRs(Rs)
                         Set Rs7 = OpenRs(DbMain, Q1)
                         
                           If Not Rs7.EOF Then
+                          
+                              'Tracking 3227543
+                              Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados5", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                              Call SeguimientoMovDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDuplicados5", "", 0, "", 1, 2)
+                              ' fin 3227543
                            
                               Q3 = ""
                               Q3 = "delete from movDocumento "
@@ -11940,6 +12291,11 @@ Public Sub CorrigePagadosAñoAnteriores(ByVal vMsj As Boolean)
                                  Set Rs3 = OpenRs(DbAnoAnt, Q1)
                                  
                                  If Rs3.EOF = False Then
+                                 
+                                      'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterior", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterior", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -12006,6 +12362,11 @@ Public Sub CorrigePagadosAñoAnteriores(ByVal vMsj As Boolean)
                                  Set Rs3 = OpenRs(DbAnoAnt, Q1)
                                  
                                  If Rs3.EOF = False Then
+                                 
+                                      'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterior2", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterior2", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -12044,6 +12405,11 @@ Public Sub CorrigePagadosAñoAnteriores(ByVal vMsj As Boolean)
                                  Set Rs3 = OpenRs(DbAnoAnt, Q1)
                                  
                                  If Rs3.EOF = False Then
+                                 
+                                      'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterior3", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterior3", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -12172,6 +12538,11 @@ Public Sub CorrigePagadosAñoAnteriores2(ByVal vMsj As Boolean)
                                  Set Rs3 = OpenRs(DbMain, Q1)
                                  
                                  If Rs3.EOF = False Then
+                                 
+                                      'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnteriores21", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnteriores21", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -12266,6 +12637,11 @@ Public Sub CorrigePagadosAñoAnteriores2(ByVal vMsj As Boolean)
                                  Set Rs3 = OpenRs(DbAnoAnt, Q1)
                                  
                                  If Rs3.EOF = False Then
+                                 
+                                      'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnteriores22", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs3("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnteriores22", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -12703,10 +13079,20 @@ Public Function GenCompAperturaDuplicados(ByVal IdEmpresa As Long, ByVal Rut As 
    If IdCompAper > 0 And IdCompAperTrib > 0 Then
       Q1 = "  WHERE IdComp = " & IdCompAper
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+      
+      '3376884
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompAaperturaDuplicados", Q1, 0, "  WHERE IdComp = " & IdCompAper & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 3)
+      'fin 3376884
+      
       Call DeleteSQL(DbMain, "MovComprobante", Q1)
       
       Q1 = " WHERE IdComp = " & IdCompAperTrib
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+      
+      '3376884
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompAaperturaDuplicados", "", 0, " WHERE IdComp = " & IdCompAperTrib & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, gUsuario.IdUsuario, 1, 3)
+      'fin 3376884
+      
       Call DeleteSQL(DbMain, "MovComprobante", Q1)
    
    Else           'nuevo comprobante, lo agregamos
@@ -12730,6 +13116,10 @@ Public Function GenCompAperturaDuplicados(ByVal IdEmpresa As Long, ByVal Rut As 
    Q1 = Q1 & "  ORDER BY Cuentas.Codigo "
    
    Call ExecSQL(DbMain, Q1)
+   
+   '3376884
+    Call SeguimientoMovComprobante(IdCompAper, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompAperturaDuplicados1", Q1, 1, "", 1, 1)
+    'fin 3376884
    
    'actualizamos totales comprobante de apertura
    Q1 = "SELECT Sum(Debe) as TotDebe, Sum(Haber) as TotHaber FROM MovComprobante "
@@ -12760,6 +13150,10 @@ Public Function GenCompAperturaDuplicados(ByVal IdEmpresa As Long, ByVal Rut As 
    Q1 = Q1 & " WHERE idComp=" & IdCompAper
    Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
    Call ExecSQL(DbMain, Q1)
+   
+   '3376884
+    Call SeguimientoComprobantes(IdCompAper, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompAperturaDuplicados", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    'fin 3376884
 
    If Saldo <> 0 Then      'esto no debiera ocurrir nunca, ya que ya se hizo el ajuste en la tabla de cuentas
       'MsgBox1 "Error al generar comprobante de apertura. Saldo de Debe y Haber no son iguales.", vbExclamation + vbOKOnly
@@ -12836,6 +13230,10 @@ Public Function GenCompAperturaDuplicados(ByVal IdEmpresa As Long, ByVal Rut As 
    
    Call ExecSQL(DbMain, Q1)
    
+    '3376884
+    Call SeguimientoMovComprobante(IdCompAperTrib, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompAperturaDuplicados4", Q1, 1, "", 1, 1)
+    'fin 3376884
+   
    'actualizamos totales comprobante de apertura
    Q1 = "SELECT Sum(Debe) as TotDebe, Sum(Haber) as TotHaber FROM MovComprobante "
    Q1 = Q1 & " WHERE IdComp = " & IdCompAperTrib
@@ -12865,6 +13263,10 @@ Public Function GenCompAperturaDuplicados(ByVal IdEmpresa As Long, ByVal Rut As 
    Q1 = Q1 & " WHERE idComp=" & IdCompAperTrib
    Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
    Call ExecSQL(DbMain, Q1)
+   
+   '3376884
+    Call SeguimientoComprobantes(IdCompAperTrib, gEmpresa.id, gEmpresa.Ano, "HyperCont.GenCompAperturaDuplicados5", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    'fin 3376884
 
    If Saldo <> 0 Then      'esto no debiera ocurrir nunca, ya que ya se hizo el ajuste en la tabla de cuentas
      ' MsgBox1 "Error al generar comprobante de apertura. Saldo de Debe y Haber no son iguales.", vbExclamation + vbOKOnly
@@ -12945,6 +13347,11 @@ Public Sub CorrigePagadosAñoAnterioresPrueba(ByVal vMsj As Boolean)
                                  Set Rs2 = OpenRs(DbMain, Q1)
                                  
                                  If Rs2.EOF = False Then
+                                 
+                                      'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterioresPrueba1", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterioresPrueba1", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -12998,6 +13405,11 @@ Public Sub CorrigePagadosAñoAnterioresPrueba(ByVal vMsj As Boolean)
                                  Set Rs2 = OpenRs(DbMain, Q1)
                                  
                                  If Rs2.EOF = False Then
+                                 
+                                     'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterioresPrueba2", "", 0, "", gUsuario.IdUsuario, 1, 2)
+                                      Call SeguimientoMovDocumento(vFld(Rs2("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigePagadoAnoAnterioresPrueba2", "", 0, "", 1, 2)
+                                      ' fin 3227543
             
                                       Q3 = ""
                                       Q3 = "delete from movDocumento "
@@ -13135,12 +13547,20 @@ Public Sub CorrigeDocEliminados()
    
                                     Call ExecSQL(DbMain, Q1)
                                     
+                                    'Tracking 3227543
+                                      Call SeguimientoDocumento(vFld(Rs("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDocEliminados1", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+                                      ' fin 3227543
+                                    
                                     Q1 = " INSERT INTO MovDocumento  Select IdMovDoc,IdEmpresa,Ano,IdDoc,IdCompCent,IdCompPago,Orden,IdCuenta,Debe,Haber "
                                     Q1 = Q1 & " ,Glosa,IdTipoValLib,EsTotalDoc,IdCCosto,IdAreaNeg,Tasa,EsRecuperable,CodSIIDTE,CodCuentaOld"
                                     Q1 = Q1 & " From MovDocumentoRespaldo "
                                     Q1 = Q1 & " Where IdDoc = " & vFld(Rs("iddoc"))
                                     
                                     Call ExecSQL(DbMain, Q1)
+                                    
+                                    'Tracking 3227543
+                                      Call SeguimientoMovDocumento(vFld(Rs("iddoc")), gEmpresa.id, gEmpresa.Ano, "HyperCont.CorrigeDocEliminados1", Q1, 1, "", 1, 2)
+                                      ' fin 3227543
                                     
                                  End If
                                  Call CloseRs(Rs2)

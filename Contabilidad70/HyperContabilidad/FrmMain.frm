@@ -1803,11 +1803,17 @@ Private Sub M_AFImportFile_Click()
 End Sub
 
 Private Sub M_Auditoria_Click()
-   Dim Frm As FrmAuditoria
-   
-   Set Frm = New FrmAuditoria
-   Call Frm.FView
-   Set Frm = Nothing
+'   Dim Frm As FrmAuditoria
+'
+'   Set Frm = New FrmAuditoria
+'   Call Frm.FView
+'   Set Frm = Nothing
+
+    Dim Frm As FrmSelSeguimiento
+    
+    Set Frm = New FrmSelSeguimiento
+    Frm.Show vbModal
+    Set Frm = Nothing
    
 End Sub
 
@@ -1991,7 +1997,7 @@ Private Sub M_EditCompApFin_Click()
    Dim Frm As FrmComprobante
    Dim Q1 As String
    Dim Rs As Recordset
-   Dim idcomp As Long
+   Dim IdComp As Long
    
    Q1 = "SELECT IdComp FROM Comprobante WHERE Tipo = " & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_FINANCIERO
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
@@ -1999,12 +2005,12 @@ Private Sub M_EditCompApFin_Click()
    
    If Rs.EOF = False Then
       
-      idcomp = Rs(0)
+      IdComp = Rs(0)
       
       MsgBox1 "Recuerde que para modificar el Comprobante, este debe llevarse a estado Pendiente.", vbInformation
       
       Set Frm = New FrmComprobante
-      Call Frm.FEdit(idcomp, False)
+      Call Frm.FEdit(IdComp, False)
       Set Frm = Nothing
       
    Else     'esto no debiera ocurrir nunca
@@ -2020,7 +2026,7 @@ Private Sub M_EditCompApTrib_Click()
    Dim Frm As FrmComprobante
    Dim Q1 As String
    Dim Rs As Recordset
-   Dim idcomp As Long
+   Dim IdComp As Long
    
    Q1 = "SELECT IdComp FROM Comprobante WHERE Tipo = " & TC_APERTURA & " AND TipoAjuste = " & TAJUSTE_TRIBUTARIO
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
@@ -2028,12 +2034,12 @@ Private Sub M_EditCompApTrib_Click()
    
    If Rs.EOF = False Then
       
-      idcomp = Rs(0)
+      IdComp = Rs(0)
       
       MsgBox1 "Recuerde que para modificar el Comprobante, este debe llevarse a estado Pendiente.", vbInformation
       
       Set Frm = New FrmComprobante
-      Call Frm.FEdit(idcomp, False)
+      Call Frm.FEdit(IdComp, False)
       Set Frm = Nothing
       
    Else     'esto no debiera ocurrir nunca

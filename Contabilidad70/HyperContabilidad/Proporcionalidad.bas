@@ -681,6 +681,11 @@ Public Function PropIVA_UpdateMovDoc(Optional ByVal Mes As Integer = 0, Optional
          ProgBar.Value = n / nDocs * 100
       End If
       
+      'Tracking 3227543
+      Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "Proporcionalidad.PropIVA_UpdateMovDoc", "", 1, "", gUsuario.IdUsuario, 1, 2)
+      Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "Proporcionalidad.PropIVA_UpdateMovDoc", "", 1, "", 1, 2)
+      ' fin 3227543
+      
       
       Rs.MoveNext
       

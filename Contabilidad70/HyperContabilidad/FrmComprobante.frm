@@ -1242,7 +1242,7 @@ Private Sub Bt_ConvMoneda_Click()
    Dim Frm As FrmConverMoneda
    Dim Col As Integer
    Dim Row As Integer
-   Dim Valor As Double
+   Dim valor As Double
    
    Col = Grid.Col
    Row = Grid.Row
@@ -1257,15 +1257,15 @@ Private Sub Bt_ConvMoneda_Click()
    'End If
    
    If Col = C_DEBE Or Col = C_HABER Then
-      Valor = vFmt(Grid.TextMatrix(Row, Col))
+      valor = vFmt(Grid.TextMatrix(Row, Col))
    End If
    
    Set Frm = New FrmConverMoneda
-   If Frm.FSelect(Valor) = vbOK Then
+   If Frm.FSelect(valor) = vbOK Then
       
       If Tx_Glosa.Enabled And (Col = C_DEBE Or Col = C_HABER) Then
          
-         Grid.TextMatrix(Row, Col) = Format(Valor, BL_NUMFMT)
+         Grid.TextMatrix(Row, Col) = Format(valor, BL_NUMFMT)
          
          If Col = C_DEBE And Trim(Grid.TextMatrix(Row, C_HABER)) <> "" Then
             Grid.TextMatrix(Row, C_HABER) = ""
@@ -1616,7 +1616,7 @@ Private Sub Bt_NewDoc_Click()
    Dim Frm As Form
    Dim IdDoc As Long
    Dim Rc As Integer
-   Dim Valor As Double
+   Dim valor As Double
    Dim i As Integer
    Dim Rs As Recordset
    Dim Q1 As String
@@ -1917,7 +1917,7 @@ Private Sub Bt_PrtCheque_Click()
    Dim NumCheque As Long
    Dim Nombre As String
    Dim Banco As String
-   Dim Valor As String
+   Dim valor As String
    Dim IdCuenta As Long, IdCuentaCheque As Long
    Dim NombCuenta As String
    Dim ColWi(NCOLS) As Integer
@@ -1987,7 +1987,7 @@ Private Sub Bt_PrtCheque_Click()
       Nombre = vFld(Rs("Nombre"))
       Banco = vFld(Rs("Descripcion"))
       IdCuentaCheque = vFld(Rs("IdCtaBanco"))
-      Valor = vFld(Rs("Total"))
+      valor = vFld(Rs("Total"))
    End If
    
    Call CloseRs(Rs)
@@ -2018,7 +2018,7 @@ Private Sub Bt_PrtCheque_Click()
    Call SetUpPrtGrid(False)
       
    Set Frm = New FrmPrtCheque
-   Call Frm.FPrint(False, gPrtReportes, NumCheque, FechaCheque, Nombre, Ref, NombCuenta, Valor, NumEgreso)
+   Call Frm.FPrint(False, gPrtReportes, NumCheque, FechaCheque, Nombre, Ref, NombCuenta, valor, NumEgreso)
    Set Frm = Nothing
    
 End Sub
@@ -2715,22 +2715,22 @@ Public Function FNew(CompTipo As Boolean) As Integer
    
    FNew = lRc
 End Function
-Public Function FEdit(idcomp As Long, CompTipo As Boolean) As Integer
+Public Function FEdit(IdComp As Long, CompTipo As Boolean) As Integer
    
    lOper = O_EDIT
    Call SetTblName(CompTipo)
    
    lCompTipo = CompTipo
-   lidComp = idcomp
+   lidComp = IdComp
    
    Me.Show vbModal
    
    FEdit = lRc
 End Function
-Public Function FEditCentraliz(ByVal idcomp As Long, ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal vCentrFull As Integer = 0) As Integer
+Public Function FEditCentraliz(ByVal IdComp As Long, ByVal Mes As Integer, ByVal Ano As Integer, Optional ByVal vCentrFull As Integer = 0) As Integer
    
    lOper = O_EDIT
-   lidComp = idcomp
+   lidComp = IdComp
    
    Call SetTblName(False)
    lFromCentraliz = True
@@ -2748,9 +2748,9 @@ Public Function FEditCentraliz(ByVal idcomp As Long, ByVal Mes As Integer, ByVal
    FEditCentraliz = lRc
 End Function
 
-Public Function FView(idcomp As Long, CompTipo As Boolean) As Integer
+Public Function FView(IdComp As Long, CompTipo As Boolean) As Integer
    lOper = O_VIEW
-   lidComp = idcomp
+   lidComp = IdComp
    'lCorrelativo = GetCorrelativoComp(idComp)
    
    Call SetTblName(CompTipo)
@@ -3248,7 +3248,7 @@ Private Sub Grid_AcceptValue(ByVal Row As Integer, ByVal Col As Integer, Value A
                     Frm.GIdPerc = 0
                     Frm.Fecha = Tx_Fecha
                     Frm.orden = Grid.TextMatrix(Row, C_ORDEN)
-                    Frm.idcomp = lidComp
+                    Frm.IdComp = lidComp
                     Frm.Show vbModal
                     Set Frm = Nothing
                 End If
@@ -3706,6 +3706,11 @@ Private Sub SaveAll()
          FldArray(7).FldIsNum = True
             
          lidComp = AdvTbAddNewMult(DbMain, lTblComprobante, "IdComp", FldArray)
+         
+         '3376884
+         Call SeguimientoComprobantes(lidComp, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveAll6", "", 1, "", gUsuario.IdUsuario, 1, 1)
+         'fin 3376884
+         
       End If
       
          
@@ -3725,6 +3730,10 @@ Private Sub SaveAll()
          Q1 = Q1 & " WHERE IdComp=" & lidComp
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id
          Rc = ExecSQL(DbMain, Q1)
+         
+         '3376884
+         Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveAll2", "", 1, " WHERE IdComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id, gUsuario.IdUsuario, 1, 2)
+         'fin 3376884
          
       Else
       
@@ -3780,6 +3789,10 @@ Private Sub SaveAll()
             Q1 = Q1 & " WHERE IdComp=" & lidComp
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
             Rc = ExecSQL(DbMain, Q1)
+            
+            '3376884
+            Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveAll3", "", 1, " WHERE IdComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, gUsuario.IdUsuario, 1, 2)
+            'fin 3376884
          
             DoEvents    'produce cosas raras
             
@@ -3805,6 +3818,11 @@ Private Sub SaveAll()
                   Q1 = Q1 & " WHERE IdComp=" & lidComp
                   Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
                   Rc = ExecSQL(DbMain, Q1)
+                  
+                  '3376884
+                  Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveAll4", "", 1, " WHERE IdComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, gUsuario.IdUsuario, 1, 2)
+                  'fin 3376884
+                  
                Else
                   Exit Do ' tenemos el correlativo
                End If
@@ -3883,6 +3901,12 @@ Private Sub SaveAll()
       
       Call ExecSQL(DbMain, Q1)
       
+      '3376884
+        If lCompTipo = False Then
+            Call SeguimientoComprobantes(lidComp, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveAll5", "", 1, "", gUsuario.IdUsuario, 1, 2)
+        End If
+      'fin 3376884
+      
       'Modificamos el IdComp en percepciones
       Q1 = "UPDATE  percepciones "
       Q1 = Q1 & " SET idcomp = " & lidComp
@@ -3947,6 +3971,9 @@ Private Sub SaveMovs()
          If Grid.TextMatrix(i, C_IDMOV) <> "" Then
 '            Q1 = "DELETE FROM " & lTblMovComprobante & " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV)
 '            Call ExecSQL(DbMain, Q1)
+            '3376884
+            Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs", "", 0, " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 3)
+            'fin 3376884
             Call DeleteSQL(DbMain, lTblMovComprobante, " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano)
          End If
       
@@ -3983,6 +4010,10 @@ Private Sub SaveMovs()
       
             idMov = AdvTbAddNewMult(DbMain, lTblMovComprobante, "IdMov", FldArray)
             
+            '3376884
+            Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs.Insert", "", 1, " WHERE IdMov = " & idMov & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 1)
+            'fin 3376884
+            
             Grid.TextMatrix(i, C_IDMOV) = idMov
             Grid.TextMatrix(i, C_UPDATE) = FGR_U       'para que ahora pase por el update
             
@@ -4008,6 +4039,9 @@ Private Sub SaveMovs()
             If lCompTipo Then
                Call DeleteSQL(DbMain, lTblMovComprobante, " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV) & " AND IdEmpresa = " & gEmpresa.id)
             Else
+               '3376884
+                Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs.Delete", "", 0, " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 3)
+                'fin 3376884
                Call DeleteSQL(DbMain, lTblMovComprobante, " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano)
             End If
             
@@ -4054,6 +4088,12 @@ Private Sub SaveMovs()
             
             Call ExecSQL(DbMain, Q1)
             
+            '3376884
+            If lCompTipo = False Then
+                Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs.Update", "", 1, " WHERE IdMov = " & Grid.TextMatrix(i, C_IDMOV) & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+            End If
+            'fin 3376884
+            
             If vFmt(Grid.TextMatrix(i, C_IDDOCCUOTA)) > 0 Then
                Q1 = "UPDATE DocCuotas SET Estado = " & ED_PAGADO & ", IdCompPago = " & lidComp
                Q1 = Q1 & " WHERE IdDocCuota = " & vFmt(Grid.TextMatrix(i, C_IDDOCCUOTA))
@@ -4085,82 +4125,85 @@ Private Sub SaveMovs()
                     Q1 = Q1 & " Set IdCtaBanco = " & Grid.TextMatrix(i, C_IDCUENTA)
                     Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
                     Rc = ExecSQL(DbMain, Q1)
+                    'Tracking 3227543
+                    Call SeguimientoDocumento(Grid.TextMatrix(i, C_IDDOC), gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs1", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+                    ' fin 3227543
                 
                 End If
             
             End If
             
             '616437 ffv
-'            If Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_TRASPASO Then
-'
-'                    'lTieneMovCentraliz = True
-'
-'                    Q1 = "Update Documento "
-'                    Q1 = Q1 & " Set estado = " & ED_CENTRALIZADO
-'                    Q1 = Q1 & " ,IdCompCent = " & lidComp
-'                    Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
-'                    Q1 = Q1 & " And ano =" & gEmpresa.Ano
-'                    Q1 = Q1 & " and idempresa = " & gEmpresa.id
-'                    Rc = ExecSQL(DbMain, Q1)
-'
-'                    Q1 = "UPDATE " & lTblMovComprobante & " SET DeCentraliz = 1"
-'                    Q1 = Q1 & " ,DePago = 0"
-'                    Q1 = Q1 & " WHERE IdComp = " & lidComp & " AND DeCentraliz is null"
-'                    Q1 = Q1 & " AND DePago = 1 "
-'                    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
-'                    Q1 = Q1 & " AND idDoc = " & Grid.TextMatrix(i, C_IDDOC)
-'                    Call ExecSQL(DbMain, Q1)
-'
-'             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_INGRESO And vFld(Rs("tratamiento")) = 1) Then
-'
-'                    'lTieneMovPago = True
-'
-'                    If Val(Grid.TextMatrix(i, C_HABER)) > 0 Then
-'
-'                        Q1 = "Update Documento "
-'                        Q1 = Q1 & " Set estado = " & ED_PAGADO
-'                        Q1 = Q1 & " ,IdCompPago = " & lidComp
-'                        Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
-'                        Q1 = Q1 & " And ano =" & gEmpresa.Ano
-'                        Q1 = Q1 & " and idempresa = " & gEmpresa.id
-'                        Rc = ExecSQL(DbMain, Q1)
-'
-'                        Q1 = "UPDATE " & lTblMovComprobante & " SET DePago = 1, IdDoc =" & Grid.TextMatrix(i, C_IDDOC) & " , IdCartola = 0 "
-'                        Q1 = Q1 & " WHERE IdComp = " & lidComp
-'                        Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
-'                        Call ExecSQL(DbMain, Q1)
-'                    Else
-'                       ' MsgBox1 "Documento ODF tiene Tratamiento Activo, monto Haber debe ser mayor a 0 para realizar pago", vbExclamation
-'                        'Grid.TextMatrix(i, C_DEBE) = 0
-'                        'Exit Sub
-'                    End If
-'
-'             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_EGRESO And vFld(Rs("tratamiento")) = 2) Then
-'
-'                    'lTieneMovPago = True
-'
-'                    If Val(Grid.TextMatrix(i, C_DEBE)) > 0 Then
-'
-'                        Q1 = "Update Documento "
-'                        Q1 = Q1 & " Set estado = " & ED_PAGADO
-'                        Q1 = Q1 & " ,IdCompPago = " & lidComp
-'                        Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
-'                        Q1 = Q1 & " And ano =" & gEmpresa.Ano
-'                        Q1 = Q1 & " and idempresa = " & gEmpresa.id
-'                        Rc = ExecSQL(DbMain, Q1)
-'
-'                        Q1 = "UPDATE " & lTblMovComprobante & " SET DePago = 1, IdDoc =" & Grid.TextMatrix(i, C_IDDOC) & " , IdCartola = 0 "
-'                        Q1 = Q1 & " WHERE IdComp = " & lidComp & " AND DePago = 0"
-'                        Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
-'                        Call ExecSQL(DbMain, Q1)
-'                    Else
-'                       ' MsgBox1 "Documento ODF tiene Tratamiento Activo, monto Haber debe ser mayor a 0 para realizar pago", vbExclamation
-'                        'Grid.TextMatrix(i, C_Haber) = 0
-'                        'Exit Sub
-'                    End If
+            If Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_TRASPASO Then
+
+                    'lTieneMovCentraliz = True
+
+                    Q1 = "Update Documento "
+                    Q1 = Q1 & " Set estado = " & ED_CENTRALIZADO
+                    Q1 = Q1 & " ,IdCompCent = " & lidComp
+                    Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
+                    Q1 = Q1 & " And ano =" & gEmpresa.Ano
+                    Q1 = Q1 & " and idempresa = " & gEmpresa.id
+                    Rc = ExecSQL(DbMain, Q1)
+
+                    Q1 = "UPDATE " & lTblMovComprobante & " SET DeCentraliz = 1"
+                    Q1 = Q1 & " ,DePago = 0"
+                    Q1 = Q1 & " WHERE IdComp = " & lidComp & " AND DeCentraliz is null"
+                    Q1 = Q1 & " AND DePago = 1 "
+                    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+                    Q1 = Q1 & " AND idDoc = " & Grid.TextMatrix(i, C_IDDOC)
+                    Call ExecSQL(DbMain, Q1)
+
+             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_INGRESO And vFld(Rs("tratamiento")) = 1) Then
+
+                    'lTieneMovPago = True
+
+                    If Val(Grid.TextMatrix(i, C_HABER)) > 0 Then
+
+                        Q1 = "Update Documento "
+                        Q1 = Q1 & " Set estado = " & ED_PAGADO
+                        Q1 = Q1 & " ,IdCompPago = " & lidComp
+                        Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
+                        Q1 = Q1 & " And ano =" & gEmpresa.Ano
+                        Q1 = Q1 & " and idempresa = " & gEmpresa.id
+                        Rc = ExecSQL(DbMain, Q1)
+
+                        Q1 = "UPDATE " & lTblMovComprobante & " SET DePago = 1, IdDoc =" & Grid.TextMatrix(i, C_IDDOC) & " , IdCartola = 0 "
+                        Q1 = Q1 & " WHERE IdComp = " & lidComp
+                        Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+                        Call ExecSQL(DbMain, Q1)
+                    Else
+                       ' MsgBox1 "Documento ODF tiene Tratamiento Activo, monto Haber debe ser mayor a 0 para realizar pago", vbExclamation
+                        'Grid.TextMatrix(i, C_DEBE) = 0
+                        'Exit Sub
+                    End If
+
+             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_EGRESO And vFld(Rs("tratamiento")) = 2) Then
+
+                    'lTieneMovPago = True
+
+                    If Val(Grid.TextMatrix(i, C_DEBE)) > 0 Then
+
+                        Q1 = "Update Documento "
+                        Q1 = Q1 & " Set estado = " & ED_PAGADO
+                        Q1 = Q1 & " ,IdCompPago = " & lidComp
+                        Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
+                        Q1 = Q1 & " And ano =" & gEmpresa.Ano
+                        Q1 = Q1 & " and idempresa = " & gEmpresa.id
+                        Rc = ExecSQL(DbMain, Q1)
+
+                        Q1 = "UPDATE " & lTblMovComprobante & " SET DePago = 1, IdDoc =" & Grid.TextMatrix(i, C_IDDOC) & " , IdCartola = 0 "
+                        Q1 = Q1 & " WHERE IdComp = " & lidComp & " AND DePago = 0"
+                        Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+                        Call ExecSQL(DbMain, Q1)
+                    Else
+                       ' MsgBox1 "Documento ODF tiene Tratamiento Activo, monto Haber debe ser mayor a 0 para realizar pago", vbExclamation
+                        'Grid.TextMatrix(i, C_Haber) = 0
+                        'Exit Sub
+                    End If
 
              
-            'End If
+            End If
             '616437
            Call CloseRs(Rs)
            
@@ -4179,6 +4222,10 @@ Private Sub SaveMovs()
          Q1 = Q1 & " WHERE IdComp = " & lidComp & " AND (DeCentraliz <> 0 or DePago <> 0)"
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
+         
+         '3376884
+         Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs.Update1", Q1, 1, " WHERE IdComp = " & lidComp & " AND (DeCentraliz <> 0 or DePago <> 0) AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 2)
+         'fin 3376884
          
          'soltamos cuotas de pago si corresponde
          Q1 = "UPDATE DocCuotas SET Estado = " & ED_PENDIENTE & ", IdCompPago = 0"
@@ -4244,10 +4291,19 @@ Private Sub SaveMovs()
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
          
+         'Tracking 3227543
+        Call SeguimientoDocumento(CInt(StrIdDoc), gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs2", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+        ' fin 3227543
+         
          Q1 = "UPDATE MovDocumento SET IdCompPago = " & lidComp
          Q1 = Q1 & " WHERE IdDoc IN(" & StrIdDoc & ")"
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
+         
+         'Tracking 3227543
+        Call SeguimientoMovDocumento(CInt(StrIdDoc), gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SaveMovs3", Q1, 1, "", 1, 1)
+        ' fin 3227543
+        
       End If
       
       If Trim(StrIdDocSel) <> "" Then
@@ -4352,8 +4408,15 @@ Private Sub SoltarDocs(Optional ByVal IdDoc As Long = 0)
       Q1 = "UPDATE MovDocumento SET IdCompCent = 0, IdCompPago = 0 WHERE " & WhIdDoc & "(IdCompCent = " & lidComp & " OR IdCompPago = " & lidComp & ")"
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
       Call ExecSQL(DbMain, Q1)
-   
+      
+      'Tracking 3227543
+      Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SoltarDocs", "", 1, "", gUsuario.IdUsuario, 1, 2)
+      Call SeguimientoMovDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.SoltarDocs", Q1, 1, "", 1, 2)
+      'fin 3227543
+
+        
    End If
+
    
 End Sub
 
@@ -4624,58 +4687,58 @@ Private Function valida(Optional ByVal ValidaParaGenCompTipo As Boolean = False)
          End If
          
          '616437 ffv
-'          If InStr(Grid.TextMatrix(i, C_TIPODOC), "ODF") > 0 Then
-'
-'            Q1 = "Select Tratamiento From Documento "
-'            Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
-'            Q1 = Q1 & " And Idempresa= " & gEmpresa.id
-'            Q1 = Q1 & " And Ano = " & gEmpresa.Ano
-'            Set Rs = OpenRs(DbMain, Q1)
-'
-'            Dim TratamientoODF As Integer
-'
-'            If Rs.EOF = False Then
-'             TratamientoODF = vFld(Rs("tratamiento"))
-'            End If
-'
-'
-'             If (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_INGRESO And TratamientoODF = 1) Then
-'
-'                    'lTieneMovPago = True
-'
-'                    If Val(Grid.TextMatrix(i, C_DEBE)) > 0 Then
-'
-'                        MsgBox1 "Documento ODF tiene Tratamiento Activo, monto Haber debe ser mayor a 0 para realizar pago", vbExclamation
-'
-'                        Grid.TextMatrix(i, C_DEBE) = ""
-'                         Call CalcTot
-'
-'                        Exit Function
-'                    End If
-'
-'             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_EGRESO And TratamientoODF = 2) Then
-'
-'                    'lTieneMovPago = True
-'
-'                    If Val(Grid.TextMatrix(i, C_HABER)) > 0 Then
-'
-'                        MsgBox1 "Documento ODF tiene Tratamiento Pasivo, monto Debe debe ser mayor a 0 para realizar pago", vbExclamation
-'                        Grid.TextMatrix(i, C_HABER) = ""
-'                        Call CalcTot
-'                        Exit Function
-'                    End If
-'             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex)) = TC_TRASPASO Then
-'
-'             Else
-'               MsgBox1 "Tipo Comprobante no corresponde a Tratamiento de documento ODF, Valide Tipo Comprobante para realizar pago", vbExclamation
-'               Cb_Tipo.SetFocus
-'
-'               Exit Function
-'
-'             End If
-'
-'
-'          End If
+          If InStr(Grid.TextMatrix(i, C_TIPODOC), "ODF") > 0 Then
+
+            Q1 = "Select Tratamiento From Documento "
+            Q1 = Q1 & " Where TipoLib = " & LIB_OTROFULL & " And IdDoc = " & Grid.TextMatrix(i, C_IDDOC) & "  And NumDoc = '" & Grid.TextMatrix(i, C_NUMDOC) & "' "
+            Q1 = Q1 & " And Idempresa= " & gEmpresa.id
+            Q1 = Q1 & " And Ano = " & gEmpresa.Ano
+            Set Rs = OpenRs(DbMain, Q1)
+
+            Dim TratamientoODF As Integer
+
+            If Rs.EOF = False Then
+             TratamientoODF = vFld(Rs("tratamiento"))
+            End If
+
+
+             If (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_INGRESO And TratamientoODF = 1) Then
+
+                    'lTieneMovPago = True
+
+                    If Val(Grid.TextMatrix(i, C_DEBE)) > 0 Then
+
+                        MsgBox1 "Documento ODF tiene Tratamiento Activo, monto Haber debe ser mayor a 0 para realizar pago", vbExclamation
+
+                        Grid.TextMatrix(i, C_DEBE) = ""
+                         Call CalcTot
+
+                        Exit Function
+                    End If
+
+             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex) = TC_EGRESO And TratamientoODF = 2) Then
+
+                    'lTieneMovPago = True
+
+                    If Val(Grid.TextMatrix(i, C_HABER)) > 0 Then
+
+                        MsgBox1 "Documento ODF tiene Tratamiento Pasivo, monto Debe debe ser mayor a 0 para realizar pago", vbExclamation
+                        Grid.TextMatrix(i, C_HABER) = ""
+                        Call CalcTot
+                        Exit Function
+                    End If
+             ElseIf (Cb_Tipo.ItemData(Cb_Tipo.ListIndex)) = TC_TRASPASO Then
+
+             Else
+               MsgBox1 "Tipo Comprobante no corresponde a Tratamiento de documento ODF, Valide Tipo Comprobante para realizar pago", vbExclamation
+               Cb_Tipo.SetFocus
+
+               Exit Function
+
+             End If
+
+
+          End If
 '          '616437 ffv
 
       End If
@@ -5071,6 +5134,12 @@ Private Sub RemoveComprobante()
       Call DeleteSQL(DbMain, lTblMovComprobante, " WHERE idComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id)
    
    Else
+   
+      '3376884
+      Call SeguimientoComprobantes(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.RemoveComprobante", "", 0, " WHERE idComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, gUsuario.IdUsuario, 1, 3)
+      Call SeguimientoMovComprobante(0, gEmpresa.id, gEmpresa.Ano, "FrmComprobante.RemoveComprobante", "", 0, " WHERE idComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano, 1, 3)
+      'fin 3376884
+   
       Call DeleteSQL(DbMain, lTblComprobante, " WHERE idComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano)
       Call DeleteSQL(DbMain, lTblMovComprobante, " WHERE idComp=" & lidComp & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano)
    End If
@@ -6118,13 +6187,13 @@ Private Sub GridActivoFijo(ByVal IdCuenta As Long, ByVal Row As Integer, Col As 
    End If
 End Sub
 
-Public Function FPrtComp(ByVal idcomp As Long)
+Public Function FPrtComp(ByVal IdComp As Long)
    
    
    lEnImpresionMasiva = True
    
    lOper = O_VIEW
-   lidComp = idcomp
+   lidComp = IdComp
    lCompTipo = False
    If gFunciones.ComprobanteResumido Then
       lPrtResumido = True   'indica que si el comprobante tiene Ch_ImpRes en True, debe imprimir resumido, si no, extendido
@@ -6143,10 +6212,10 @@ Public Function FPrtComp(ByVal idcomp As Long)
    Unload Me
    
 End Function
-Public Function FViewResumido(ByVal idcomp As Long) As Integer
+Public Function FViewResumido(ByVal IdComp As Long) As Integer
    
    lOper = O_VIEW
-   lidComp = idcomp
+   lidComp = IdComp
    lCompTipo = False
    
    lViewResumido = True
@@ -6304,7 +6373,7 @@ Private Sub AsignaCuenta(ByVal Row As Integer, ByVal Col As Integer)
                     Frm.GIdPerc = 0
                     Frm.Fecha = Tx_Fecha
                     Frm.orden = Grid.TextMatrix(Grid.RowSel, C_ORDEN)
-                    Frm.idcomp = lidComp
+                    Frm.IdComp = lidComp
                     Frm.Show vbModal
                     Set Frm = Nothing
                 End If

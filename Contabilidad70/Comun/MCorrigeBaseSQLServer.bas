@@ -160,8 +160,12 @@ Public Sub CorrigeBaseSQLServer()
       Exit Sub
    End If
    '3269719
+   
+   If Not CorrigeBaseSQLServer_V740() Then     'agregada 17 OCT 2023 FPR ADO 3217833
+      Exit Sub
+   End If
                
-   If lDbVer > 740 Then
+   If lDbVer > 741 Then
       MsgBox1 "¡ ATENCION !" & vbCrLf & vbCrLf & "La base de datos corresponde a una versión posterior de este programa." & vbCrLf & "Debe actualizar el programa antes de continuar, de lo contrario podría dañar la información..", vbCritical
       Call CloseDb(DbMain)
       End
@@ -169,6 +173,238 @@ Public Sub CorrigeBaseSQLServer()
    
   
 End Sub
+
+'3217833
+Public Function CorrigeBaseSQLServer_V740() As Boolean   '3217833 FPR
+   Dim Q1 As String
+   Dim Rs As Recordset
+   Dim Tbl As TableDef
+   Dim Fld As Field
+   Dim QBase As String
+   Dim CapPropio As Double
+  
+
+   On Error Resume Next
+   
+   '--------------------- Versión 740-----------------------------------
+   If lDbVer = 740 And lUpdOK = True Then
+   
+      Q1 = "IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Tracking_Documento')"
+      Q1 = Q1 & "  BEGIN"
+      Q1 = Q1 & " CREATE TABLE [dbo].[Tracking_Documento]("
+      Q1 = Q1 & "       [IdDoc] [int] NOT NULL,"
+      Q1 = Q1 & "       [FechaHora] [DateTime] NOT NULL,"
+      Q1 = Q1 & "       [IdEmpresa] [int] NULL,"
+      Q1 = Q1 & "       [Ano] [smallint] NULL,"
+      Q1 = Q1 & "       [IdCompCent] [int] NULL,"
+      Q1 = Q1 & "       [IdCompPago] [int] NULL,"
+      Q1 = Q1 & "       [TipoLib] [tinyint] NULL,"
+      Q1 = Q1 & "       [TipoDoc] [tinyint] NULL,"
+      Q1 = Q1 & "       [NumDoc] [varchar](20) NULL,"
+      Q1 = Q1 & "       [NumDocHasta] [varchar](20) NULL,"
+      Q1 = Q1 & "       [IdEntidad] [int] NULL,"
+      Q1 = Q1 & "       [TipoEntidad] [smallint] NULL,"
+      Q1 = Q1 & "       [RutEntidad] [varchar](12) NULL,"
+      Q1 = Q1 & "       [NombreEntidad] [varchar](50) NULL,"
+      Q1 = Q1 & "       [FEmision] [int] NULL,"
+      Q1 = Q1 & "       [FVenc] [int] NULL,"
+      Q1 = Q1 & "       [Descrip] [varchar](100) NULL,"
+      Q1 = Q1 & "       [Estado] [smallint] NULL,"
+      Q1 = Q1 & "       [Exento] [float] NULL,"
+      Q1 = Q1 & "       [IdCuentaExento] [int] NULL,"
+      Q1 = Q1 & "       [Afecto] [float] NULL,"
+      Q1 = Q1 & "       [IdCuentaAfecto] [int] NULL,"
+      Q1 = Q1 & "       [IVA] [float] NULL,"
+      Q1 = Q1 & "       [IdCuentaIVA] [int] NULL,"
+      Q1 = Q1 & "       [OtroImp] [float] NULL,"
+      Q1 = Q1 & "       [IdCuentaOtroImp] [int] NULL,"
+      Q1 = Q1 & "       [Total] [float] NULL,"
+      Q1 = Q1 & "       [IdCuentaTotal] [int] NULL,"
+      Q1 = Q1 & "       [IdUsuario] [int] NULL,"
+      Q1 = Q1 & "       [FechaCreacion] [int] NULL,"
+      Q1 = Q1 & "       [FEmisionOri] [int] NULL,"
+      Q1 = Q1 & "       [CorrInterno] [int] NULL,"
+      Q1 = Q1 & "       [SaldoDoc] [float] NULL,"
+      Q1 = Q1 & "       [FExported] [int] NULL,"
+      Q1 = Q1 & "       [OldIdDoc] [int] NULL,"
+      Q1 = Q1 & "       [DTE] [bit] NULL,"
+      Q1 = Q1 & "       [PorcentRetencion] [tinyint] NULL,"
+      Q1 = Q1 & "       [TipoRetencion] [tinyint] NULL,"
+      Q1 = Q1 & "       [MovEdited] [bit] NULL,"
+      Q1 = Q1 & "       [OtrosVal] [float] NULL,"
+      Q1 = Q1 & "       [FImporF29] [int] NULL,"
+      Q1 = Q1 & "       [NumDocRef] [varchar](20) NULL,"
+      Q1 = Q1 & "       [IdCtaBanco] [int] NULL,"
+      Q1 = Q1 & "       [TipoRelEnt] [smallint] NULL,"
+      Q1 = Q1 & "       [IdSucursal] [int] NULL,"
+      Q1 = Q1 & "       [TotPagadoAnoAnt] [float] NULL,"
+      Q1 = Q1 & "       [FImportSuc] [int] NULL,"
+      Q1 = Q1 & "       [Giro] [bit] NULL,"
+      Q1 = Q1 & "       [FacCompraRetParcial] [bit] NULL,"
+      Q1 = Q1 & "       [IVAIrrecuperable] [smallint] NULL,"
+      Q1 = Q1 & "       [DocOtrosEnAnalitico] [bit] NULL,"
+      Q1 = Q1 & "       [OldIdDocTmp] [int] NULL,"
+      Q1 = Q1 & "       [NumFiscImpr] [varchar](20) NULL,"
+      Q1 = Q1 & "       [NumInformeZ] [varchar](20) NULL,"
+      Q1 = Q1 & "       [CantBoletas] [int] NULL,"
+      Q1 = Q1 & "       [VentasAcumInfZ] [float] NULL,"
+      Q1 = Q1 & "       [IdDocAsoc] [int] NULL,"
+      Q1 = Q1 & "       [PropIVA] [smallint] NULL,"
+      Q1 = Q1 & "       [ValIVAIrrec] [float] NULL,"
+      Q1 = Q1 & "       [IVAInmueble] [bit] NULL,"
+      Q1 = Q1 & "       [FImpFacturacion] [int] NULL,"
+      Q1 = Q1 & "       [CodSIIDTEIVAIrrec] [smallint] NULL,"
+      Q1 = Q1 & "       [TipoDocAsoc] [smallint] NULL,"
+      Q1 = Q1 & "       [IVAActFijo] [float] NULL,"
+      Q1 = Q1 & "       [EntRelacionada] [bit] NULL,"
+      Q1 = Q1 & "       [NumCuotas] [smallint] NULL,"
+      Q1 = Q1 & "       [CompraBienRaiz] [bit] NULL,"
+      Q1 = Q1 & "       [NumDocAsoc] [varchar](20) NULL,"
+      Q1 = Q1 & "       [DTEDocAsoc] [bit] NULL,"
+      Q1 = Q1 & "       [IdANegCCosto] [varchar](20) NULL,"
+      Q1 = Q1 & "       [UrlDTE] [varchar](250) NULL,"
+      Q1 = Q1 & "       [CodCtaAfectoOld] [varchar](15) NULL,"
+      Q1 = Q1 & "       [CodCtaExentoOld] [varchar](15) NULL,"
+      Q1 = Q1 & "       [CodCtaTotalOld] [varchar](15) NULL,"
+      Q1 = Q1 & "       [DocOtroEsCargo] [tinyint] NULL,"
+      Q1 = Q1 & "       [ValRet3Porc] [float] NULL,"
+      Q1 = Q1 & "       [IdCuentaRet3Porc] [int] NULL,"
+      Q1 = Q1 & "       [Tratamiento] [float] NULL,"
+      'Q1 = Q1 & "       [IdTras] [int] NULL,"
+      Q1 = Q1 & "       [Origen] [varchar](250) NULL,"
+      Q1 = Q1 & "       [Query] [varchar](MAX) NULL,"
+      Q1 = Q1 & "       [Vigente] [int] NULL," 'Para saber si el cambio lo hizo el cliente o el sistema
+      Q1 = Q1 & "       [FormaIngreso] [int] NULL,"
+      Q1 = Q1 & "       [Ajuste] [int] NULL,"
+      Q1 = Q1 & "    CONSTRAINT [Tracking_Documento_IdDoc_PK] PRIMARY KEY CLUSTERED"
+      Q1 = Q1 & "   ("
+      Q1 = Q1 & "       [IdDoc] ASC,"
+      Q1 = Q1 & "       [FechaHora]"
+      Q1 = Q1 & "   )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]"
+      Q1 = Q1 & "   ) ON [PRIMARY]"
+      Q1 = Q1 & "   End"
+      'Q1 = Q1 & "   GO"
+      Call ExecSQL(DbMain, Q1)
+      
+      Q1 = "IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Tracking_MovDocumento')"
+      Q1 = Q1 & "  BEGIN"
+      Q1 = Q1 & "  CREATE TABLE [dbo].[Tracking_MovDocumento]("
+      Q1 = Q1 & "      [IdMovDoc] [int] NOT NULL,"
+      Q1 = Q1 & "      [FechaHora] [DateTime] NOT NULL,"
+      Q1 = Q1 & "      [IdEmpresa] [int] NULL,"
+      Q1 = Q1 & "      [Ano] [smallint] NULL,"
+      Q1 = Q1 & "      [IdDoc] [int] NULL,"
+      Q1 = Q1 & "      [IdCompCent] [int] NULL,"
+      Q1 = Q1 & "      [IdCompPago] [int] NULL,"
+      Q1 = Q1 & "      [Orden] [tinyint] NULL,"
+      Q1 = Q1 & "      [IdCuenta] [int] NULL,"
+      Q1 = Q1 & "      [Debe] [float] NULL,"
+      Q1 = Q1 & "      [Haber] [float] NULL,"
+      Q1 = Q1 & "      [Glosa] [varchar](50) NULL,"
+      Q1 = Q1 & "      [IdTipoValLib] [smallint] NULL,"
+      Q1 = Q1 & "      [EsTotalDoc] [bit] NULL,"
+      Q1 = Q1 & "      [IdCCosto] [int] NULL,"
+      Q1 = Q1 & "      [IdAreaNeg] [int] NULL,"
+      Q1 = Q1 & "      [Tasa] [real] NULL,"
+      Q1 = Q1 & "      [EsRecuperable] [bit] NULL,"
+      Q1 = Q1 & "      [CodSIIDTE] [char](2) NULL,"
+      Q1 = Q1 & "      [CodCuentaOld] [varchar](15) NULL,"
+      'Q1 = Q1 & "      [IdTras] [int] NULL,"
+      Q1 = Q1 & "      [Origen] [varchar](250) NULL,"
+      Q1 = Q1 & "      [Query] [varchar](MAX) NULL,"
+      Q1 = Q1 & "      [Vigente] [int] NULL,"
+      Q1 = Q1 & "      [FormaIngreso] [int] NULL,"
+      Q1 = Q1 & "      [Ajuste] [int] NULL,"
+      Q1 = Q1 & "   CONSTRAINT [Tracking_MovDocumento_IdMovDoc_PK] PRIMARY KEY CLUSTERED"
+      Q1 = Q1 & "  ([IdMovDoc] ASC,[FechaHora]"
+      Q1 = Q1 & "  )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]"
+      Q1 = Q1 & "  ) ON [PRIMARY] END "
+      Call ExecSQL(DbMain, Q1)
+
+    
+      Q1 = "IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Tracking_Comprobante')"
+      Q1 = Q1 & "  BEGIN"
+      Q1 = Q1 & "  CREATE TABLE [dbo].[Tracking_Comprobante]("
+      Q1 = Q1 & "  [IdComp] [int] NOT NULL,"
+      Q1 = Q1 & "  [FechaHora] [datetime] NOT NULL,"
+      Q1 = Q1 & "  [IdEmpresa] [int] NULL,"
+      Q1 = Q1 & "  [Ano] [smallint] NULL,"
+      Q1 = Q1 & "  [Correlativo] [int] NULL,"
+      Q1 = Q1 & "  [Fecha] [int] NULL,"
+      Q1 = Q1 & "  [Tipo] [tinyint] NULL,"
+      Q1 = Q1 & "  [Estado] [tinyint] NULL,"
+      Q1 = Q1 & "  [Glosa] [varchar](100) NULL,"
+      Q1 = Q1 & "  [TotalDebe] [float] NULL,"
+      Q1 = Q1 & "  [TotalHaber] [float] NULL,"
+      Q1 = Q1 & "  [IdUsuario] [int] NULL,"
+      Q1 = Q1 & "  [FechaCreacion] [int] NULL,"
+      Q1 = Q1 & "  [ImpResumido] [bit] NULL,"
+      Q1 = Q1 & "  [EsCCMM] [bit] NULL,"
+      Q1 = Q1 & "  [FechaImport] [int] NULL,"
+      Q1 = Q1 & "  [TipoAjuste] [tinyint] NULL,"
+      Q1 = Q1 & "  [OtrosIngEg14TER] [bit] NULL,"
+      Q1 = Q1 & "  [Origen] [varchar](250) NULL,"
+      Q1 = Q1 & "  [Query] [varchar](MAX) NULL,"
+      Q1 = Q1 & "  [Vigente] [int] NULL,"
+      Q1 = Q1 & "  [FormaIngreso] [int] NULL,"
+      Q1 = Q1 & "  [Ajuste] [int] NULL,"
+      Q1 = Q1 & "  CONSTRAINT [Tracking_Comprobante_IdComp_PK] PRIMARY KEY CLUSTERED"
+      Q1 = Q1 & "  ("
+      Q1 = Q1 & "  [IdComp] ASC,"
+      Q1 = Q1 & "  [FechaHora] Asc"
+      Q1 = Q1 & "  )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]"
+      Q1 = Q1 & "  ) ON [PRIMARY]"
+      Q1 = Q1 & "   END"
+      'Q1 = Q1 & "   GO"
+      Call ExecSQL(DbMain, Q1)
+      
+      Q1 = "IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Tracking_MovComprobante')"
+      Q1 = Q1 & "  BEGIN"
+      Q1 = Q1 & "  CREATE TABLE [dbo].[Tracking_MovComprobante]("
+      Q1 = Q1 & "  [IdMov] [int] NOT NULL,"
+      Q1 = Q1 & "  [FechaHora] [datetime] NOT NULL,"
+      Q1 = Q1 & "  [IdEmpresa] [int] NULL,"
+      Q1 = Q1 & "  [Ano] [smallint] NULL,"
+      Q1 = Q1 & "  [IdComp] [int] NULL,"
+      Q1 = Q1 & "  [IdDoc] [int] NULL,"
+      Q1 = Q1 & "  [Orden] [int] NULL,"
+      Q1 = Q1 & "  [IdCuenta] [int] NULL,"
+      Q1 = Q1 & "  [Debe] [float] NULL,"
+      Q1 = Q1 & "  [Haber] [float] NULL,"
+      Q1 = Q1 & "  [Glosa] [varchar](50) NULL,"
+      Q1 = Q1 & "  [idCCosto] [int] NULL,"
+      Q1 = Q1 & "  [idAreaNeg] [int] NULL,"
+      Q1 = Q1 & "  [IdCartola] [int] NULL,"
+      Q1 = Q1 & "  [DeCentraliz] [bit] NULL,"
+      Q1 = Q1 & "  [DePago] [bit] NULL,"
+      Q1 = Q1 & "  [DeRemu] [bit] NULL,"
+      Q1 = Q1 & "  [Nota] [varchar](120) NULL,"
+      Q1 = Q1 & "  [IdDocCuota] [int] NULL,"
+      Q1 = Q1 & "  [Origen] [varchar](250) NULL,"
+      Q1 = Q1 & "  [Query] [varchar](MAX) NULL,"
+      Q1 = Q1 & "  [Vigente] [int] NULL,"
+      Q1 = Q1 & "  [FormaIngreso] [int] NULL,"
+      Q1 = Q1 & "  [Ajuste] [int] NULL,"
+      Q1 = Q1 & "  CONSTRAINT [Tracking_MovComprobante_IdMov_PK] PRIMARY KEY CLUSTERED"
+      Q1 = Q1 & "  ("
+      Q1 = Q1 & "  [IdMov] ASC,"
+      Q1 = Q1 & "  [FechaHora] Asc"
+      Q1 = Q1 & "  )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]"
+      Q1 = Q1 & "  ) ON [PRIMARY] END "
+      Call ExecSQL(DbMain, Q1)
+
+      If lUpdOK Then
+         lDbVer = 741
+         Q1 = "UPDATE ParamEmpresa SET Valor=" & lDbVer & " WHERE Tipo='DBVER'"
+         Call ExecSQL(DbMain, Q1)
+      End If
+   
+   End If
+   
+   CorrigeBaseSQLServer_V740 = lUpdOK
+
+End Function
+'fin 3217833
 
 '3269719
 Public Function CorrigeBaseSQLServer_V739() As Boolean   '2861570 FFV

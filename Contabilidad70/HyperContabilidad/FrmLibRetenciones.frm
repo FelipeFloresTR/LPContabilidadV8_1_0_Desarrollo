@@ -1635,7 +1635,7 @@ End Sub
 Private Sub Bt_Centralizar_Click()
    Dim i As Integer
    Dim StrIdDoc As String
-   Dim idcomp As Long
+   Dim IdComp As Long
    
    If GetMesActual() <= 0 Then
       MsgBox1 "No hay mes abierto. No es posible generar el comprobante.", vbExclamation
@@ -1693,12 +1693,12 @@ Private Sub Bt_Centralizar_Click()
    
    StrIdDoc = Mid(StrIdDoc, 2)
 
-   idcomp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano))
+   IdComp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano))
    
    
-   If idcomp > 0 Then
+   If IdComp > 0 Then
    
-      If FrmComprobante.FEditCentraliz(idcomp, CbItemData(Cb_Mes), Val(Cb_Ano)) = vbOK Then
+      If FrmComprobante.FEditCentraliz(IdComp, CbItemData(Cb_Mes), Val(Cb_Ano)) = vbOK Then
       
          'limpiamos los check
          For i = Grid.FixedRows To Grid.rows - 1
@@ -1719,7 +1719,7 @@ Private Sub Bt_Centralizar_Click()
                      Grid.TextMatrix(i, C_CHECK) = "C"
                   End If
                End If
-               Grid.TextMatrix(i, C_IDCOMPCENT) = idcomp
+               Grid.TextMatrix(i, C_IDCOMPCENT) = IdComp
             End If
             
          Next i
@@ -2210,10 +2210,10 @@ End Sub
 
 Private Sub Bt_ConvMoneda_Click()
    Dim Frm As FrmConverMoneda
-   Dim Valor As Double
+   Dim valor As Double
       
    Set Frm = New FrmConverMoneda
-   Frm.FView (Valor)
+   Frm.FView (valor)
       
    Set Frm = Nothing
    
@@ -3588,6 +3588,10 @@ Private Sub SaveGrid()
          
          IdDoc = AdvTbAddNewMult(DbMain, "Documento", "IdDoc", FldArray)
          
+         'Tracking 3227543
+         Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 1, "", gUsuario.IdUsuario, 1, 1)
+         ' fin 3227543
+         
          Grid.TextMatrix(i, C_IDDOC) = IdDoc
          Grid.TextMatrix(i, C_UPDATE) = FGR_U       'para que ahora pase por el update
          
@@ -3598,10 +3602,10 @@ Private Sub SaveGrid()
       End If
       
         '626924 opcion solo para cliente que no existe detalle de documentos
-     If Grid.TextMatrix(i, C_UPDATE) = "" Then
-     Grid.TextMatrix(i, C_UPDATE) = FGR_U
-     Grid.TextMatrix(i, C_MOVEDITED) = 0
-     End If
+'     If Grid.TextMatrix(i, C_UPDATE) = "" Then
+'     Grid.TextMatrix(i, C_UPDATE) = FGR_U
+'     Grid.TextMatrix(i, C_MOVEDITED) = 0
+'     End If
    '626924
       
       If Grid.TextMatrix(i, C_UPDATE) = FGR_D Then  'Delete
@@ -3609,12 +3613,22 @@ Private Sub SaveGrid()
 '         Call ExecSQL(DbMain, Q1)
          Q1 = " WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+         
+         'Tracking 3227543
+          Call SeguimientoDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 0, "", gUsuario.IdUsuario, 1, 3)
+          ' fin 3227543
+         
          Call DeleteSQL(DbMain, "Documento", Q1)
          
 '         Q1 = "DELETE FROM MovDocumento WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
 '         Call ExecSQL(DbMain, Q1)
          Q1 = " WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+         
+         'Tracking 3227543
+         Call SeguimientoMovDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 0, "", 1, 3)
+         ' fin 3227543
+         
          Call DeleteSQL(DbMain, "MovDocumento", Q1)
          
          '3133008
@@ -3650,6 +3664,10 @@ Private Sub SaveGrid()
     Q1 = Q1 & " And Total = " & Abs(vFmt(Grid.TextMatrix(i, C_NETO)))
 
     Call ExecSQL(DbAnoAnt, Q1)
+    
+    'Tracking 3227543
+      Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    ' fin 3227543
 
     If gDbType = SQL_ACCESS Then
     Call CloseDb(DbAnoAnt)
@@ -3720,12 +3738,21 @@ Private Sub SaveGrid()
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
          
+         'Tracking 3227543
+        Call SeguimientoDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 1, "", gUsuario.IdUsuario, 1, 2)
+        ' fin 3227543
+         
          If Val(Grid.TextMatrix(i, C_MOVEDITED)) = 0 Then
          
 '            Q1 = "DELETE FROM MovDocumento WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
 '            Call ExecSQL(DbMain, Q1)
             Q1 = " WHERE IdDoc = " & Val(Grid.TextMatrix(i, C_IDDOC))
             Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
+            
+            'Tracking 3227543
+            Call SeguimientoMovDocumento(Val(Grid.TextMatrix(i, C_IDDOC)), gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 1, "", 1, 3)
+            ' fin 3227543
+            
             Call DeleteSQL(DbMain, "MovDocumento", Q1)
             
             Call GenMovDocumento(i)
@@ -4389,6 +4416,10 @@ Private Sub GenMovDocumento(ByVal Row As Integer)
       
       Call ExecSQL(DbMain, Q1)
    End If
+   
+   'Tracking 3227543
+    Call SeguimientoMovDocumento(Grid.TextMatrix(Row, C_IDDOC), gEmpresa.id, gEmpresa.Ano, "FrmRetenciones.SaveGrid", "", 1, "", 1, 1)
+    ' fin 3227543
   
   
 End Sub
@@ -5855,7 +5886,7 @@ Private Sub CentralizarFull()
    Dim IVAActFijo As Double
    Dim IVAIrrecuperable As Double
     Dim StrIdDoc As String
-   Dim idcomp As Long
+   Dim IdComp As Long
    
    Grid.FlxGrid.Redraw = False
    
@@ -5942,11 +5973,11 @@ Private Sub CentralizarFull()
   Call CloseRs(Rs)
    
     StrIdDoc = Mid(StrIdDoc, 2)
-     idcomp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano), 0, 1) 'se asigna el valor 1 al final de la funcion para indentificar que es un comprobante full
+     IdComp = GenComprobante(StrIdDoc, lTipoLib, CbItemData(Cb_Mes), Val(Cb_Ano), 0, 1) 'se asigna el valor 1 al final de la funcion para indentificar que es un comprobante full
    
-   If idcomp > 0 Then
+   If IdComp > 0 Then
    
-      If FrmComprobante.FEditCentraliz(idcomp, CbItemData(Cb_Mes), Val(Cb_Ano), 1) = vbOK Then
+      If FrmComprobante.FEditCentraliz(IdComp, CbItemData(Cb_Mes), Val(Cb_Ano), 1) = vbOK Then
        Call LoadGrid
       End If
       

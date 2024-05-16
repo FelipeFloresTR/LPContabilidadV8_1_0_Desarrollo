@@ -115,7 +115,7 @@ Dim lIdCCostoTotalEntidad As Long
 Dim vError As Long ' indica si se prodruce el error de existencia de documento tema 1 2738156
 
 
-Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer) As Boolean
+Public Function Import_LibroComprasSII(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer) As Boolean
    Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
    Dim p As Long
    Dim FNameLogImp As String
@@ -151,7 +151,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
    
    '******************** ADO 2678537 Validación RC y RV (Victor Morales) 15-11-2021 *******************
    
-   Lineas = Split(FName, "_")
+   Lineas = Split(fname, "_")
 
    If UBound(Lineas) = 4 Then
       For i = LBound(Lineas) To UBound(Lineas)
@@ -188,9 +188,9 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
    
    '****************************************************************************************************
    
-   Rc = LineCount(FName, MaxRegLibComp)
+   Rc = LineCount(fname, MaxRegLibComp)
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Import_LibroComprasSII = -ERR
       Exit Function
    End If
@@ -208,22 +208,22 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
    
    
    'convertimos el archivo de Unix a DOS porque así lo entrega el SII
-   Rc = ConvUnix2DosFile(FName, FName & "_")
+   Rc = ConvUnix2DosFile(fname, fname & "_")
    
    If Rc < 0 Then    'hubo un error al leer el archivo
       Exit Function
    ElseIf Rc = 0 Then   ' no lo convirtió porque ya está en formato DOS, se usa archivo original
       FNameTmp = ""
    ElseIf Rc > 0 Then   'lo convirtió y generó arcgivo temporal con guión bajo al final. Leemos del archivo temporal y luego lo borramos
-      FName = FName & "_"
-      FNameTmp = FName
+      fname = fname & "_"
+      FNameTmp = fname
    End If
       
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Import_LibroComprasSII = -ERR
       If FNameTmp <> "" Then   'generamos uno temporal
          Kill FNameTmp            'lo borramos
@@ -264,7 +264,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
       n = vFmt(NextField2(Buf, p, Sep))         'número correlativo de registro. Viene en blanco si continúa documento anterior
       If n = 0 Then
          If CorrelativoDoc = 0 Then
-            Call AddLogImp(FNameLogImp, FName, l, "Falta número de registro.")
+            Call AddLogImp(FNameLogImp, fname, l, "Falta número de registro.")
             DocErr = True
          Else   'es continuación del documento anterior
             NewDoc = False
@@ -279,12 +279,12 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
                   If GenDocumento Then       'puede que no se agregue si ya existe
                      NDocsOK = NDocsOK + 1
                   Else
-                     Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Documento ya existe.")
+                     Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Documento ya existe.")
                   End If
                Else
                   DocErr = True
                   NDocsConError = NDocsConError + 1
-                  Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+                  Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
                                                          
                End If
             Else
@@ -351,7 +351,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
          For k = 0 To UBound(lOtrosImp)
             lOtrosImp(k).CodSIIDTE = ""
             lOtrosImp(k).Tasa = 0
-            lOtrosImp(k).Valor = 0
+            lOtrosImp(k).valor = 0
          Next k
          
 '         lIVANoRec = False
@@ -367,7 +367,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
       
          lCodDocDTESII = Trim(NextField2(Buf, p, Sep))
          If lCodDocDTESII = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el tipo de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el tipo de documento.")
             DocErr = True
          End If
          
@@ -380,7 +380,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
             ElseIf lCodDocDTESII = "32" Then
                lTipoDoc = FindTipoDoc(lTipoLib, "FCE")
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Tipo de documento inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Tipo de documento inválido.")
                DocErr = True
             End If
          End If
@@ -392,14 +392,14 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
          'RUT Proveedor
          lRUTEntidad = Trim(NextField2(Buf, p, Sep))
          If Not ValidRut(lRUTEntidad) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "RUT inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "RUT inválido.")
             DocErr = True
          End If
             
          'Razón Social
          lRazonSocialEntidad = Trim(NextField2(Buf, p, Sep))
          If lRazonSocialEntidad = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta razón social.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta razón social.")
             DocErr = True
          End If
          
@@ -410,14 +410,14 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
          'Folio
          lNumDoc = Trim(NextField2(Buf, p, Sep))
          If lNumDoc = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el número de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el número de documento.")
             DocErr = True
          End If
    
          'Fecha Docto (Fecha Emision)
          lFechaEmision = Int(GetDate(Trim(NextField2(Buf, p, Sep))))
          If lFechaEmision = 0 Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
             DocErr = True
          End If
          
@@ -443,7 +443,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
             '8 días para el acuse
             FechaAcuse8Dias = DateAdd("d", 8, lFechaRec)
             If month(FechaAcuse8Dias) <> Mes Or Year(FechaAcuse8Dias) <> Ano Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "El documento no puede ser contabilizado en el mes-año seleccionado, ya que la fecha de acuse de recibo debería corresponder a otro mes.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "El documento no puede ser contabilizado en el mes-año seleccionado, ya que la fecha de acuse de recibo debería corresponder a otro mes.")
                DocErr = True
             End If
             
@@ -451,7 +451,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
 
             
          ElseIf month(lFechaAcuse) <> Mes Or Year(lFechaAcuse) <> Ano Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "La fecha del acuse de recibo no corresponde al mes-año seleccionado.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "La fecha del acuse de recibo no corresponde al mes-año seleccionado.")
             DocErr = True
          End If
               
@@ -493,7 +493,7 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
       Else
       
          If lCodDocDTESII <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
             DocErr = True
          End If
          
@@ -502,25 +502,25 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
          
          'RUT Proveedor
          If lRUTEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza RUT con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza RUT con datos documento actual.")
             DocErr = True
          End If
             
          'Razón Social
          If lRazonSocialEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
             DocErr = True
          End If
          
          'Folio
          If lNumDoc <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
             DocErr = True
          End If
    
          'Fecha Docto
          If lFechaEmision <> Int(GetDate(Trim(NextField2(Buf, p, Sep)))) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
             DocErr = True
          End If
          
@@ -531,17 +531,17 @@ Public Function Import_LibroComprasSII(Frm As Form, ByVal FName As String, Ano A
       End If
       
       lOtrosImp(r).CodSIIDTE = Trim(NextField2(Buf, p, Sep))
-      lOtrosImp(r).Valor = vFmt(NextField2(Buf, p, Sep))
+      lOtrosImp(r).valor = vFmt(NextField2(Buf, p, Sep))
       lOtrosImp(r).Tasa = vFmt(NextField2(Buf, p, Sep))
       
       If lOtrosImp(r).CodSIIDTE <> "" And lOtrosImp(r).CodSIIDTE <> "0" Then
          IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lOtrosImp(r).CodSIIDTE)
          If IdTipoValLib <= 0 Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código otro impuesto inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código otro impuesto inválido.")
             DocErr = True
          
          ElseIf Not ValidaOtroImp(lOtrosImp(r).CodSIIDTE) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código de impuesto inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código de impuesto inválido.")
             DocErr = True
          End If
       End If
@@ -560,12 +560,12 @@ NextRec:
             If GenDocumento Then       'puede que no se agregue si ya existe
                NDocsOK = NDocsOK + 1
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Documento ya existe.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Documento ya existe.")
             End If
          Else
             DocErr = True
             NDocsConError = NDocsConError + 1
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
          End If
       Else
          NDocsConError = NDocsConError + 1
@@ -610,7 +610,7 @@ EndFnc:
 End Function
 '2862611
 'SIN DLL
-Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer, Info() As String) As Boolean
+Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer, Info() As String) As Boolean
    Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
    Dim p As Long
    Dim FNameLogImp As String
@@ -773,7 +773,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
       End If
       If n = 0 Then
          If CorrelativoDoc = 0 Then
-            Call AddLogImp(FNameLogImp, FName, l, "Falta número de registro.")
+            Call AddLogImp(FNameLogImp, fname, l, "Falta número de registro.")
             DocErr = True
          Else   'es continuación del documento anterior
             NewDoc = False
@@ -788,12 +788,12 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
                   If GenDocumento Then       'puede que no se agregue si ya existe
                      NDocsOK = NDocsOK + 1
                   Else
-                     Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Documento ya existe.")
+                     Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Documento ya existe.")
                   End If
                Else
                   DocErr = True
                   NDocsConError = NDocsConError + 1
-                  Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+                  Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
                                                          
                End If
             Else
@@ -860,7 +860,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
          For k = 0 To UBound(lOtrosImp)
             lOtrosImp(k).CodSIIDTE = ""
             lOtrosImp(k).Tasa = 0
-            lOtrosImp(k).Valor = 0
+            lOtrosImp(k).valor = 0
          Next k
          
 '         lIVANoRec = False
@@ -876,7 +876,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
       
          lCodDocDTESII = Trim(NextField2(Buf, p, Sep))
          If lCodDocDTESII = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el tipo de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el tipo de documento.")
             DocErr = True
          End If
          
@@ -889,7 +889,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
             ElseIf lCodDocDTESII = "32" Then
                lTipoDoc = FindTipoDoc(lTipoLib, "FCE")
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Tipo de documento inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Tipo de documento inválido.")
                DocErr = True
             End If
          End If
@@ -901,14 +901,14 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
          'RUT Proveedor
          lRUTEntidad = Trim(NextField2(Buf, p, Sep))
          If Not ValidRut(lRUTEntidad) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "RUT inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "RUT inválido.")
             DocErr = True
          End If
             
          'Razón Social
          lRazonSocialEntidad = Trim(NextField2(Buf, p, Sep))
          If lRazonSocialEntidad = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta razón social.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta razón social.")
             DocErr = True
          End If
          
@@ -919,14 +919,14 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
          'Folio
          lNumDoc = Trim(NextField2(Buf, p, Sep))
          If lNumDoc = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el número de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el número de documento.")
             DocErr = True
          End If
    
          'Fecha Docto (Fecha Emision)
          lFechaEmision = Int(GetDate(Trim(NextField2(Buf, p, Sep))))
          If lFechaEmision = 0 Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
             DocErr = True
          End If
          
@@ -952,7 +952,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
             '8 días para el acuse
             FechaAcuse8Dias = DateAdd("d", 8, lFechaRec)
             If month(FechaAcuse8Dias) <> Mes Or Year(FechaAcuse8Dias) <> Ano Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "El documento no puede ser contabilizado en el mes-año seleccionado, ya que la fecha de acuse de recibo debería corresponder a otro mes.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "El documento no puede ser contabilizado en el mes-año seleccionado, ya que la fecha de acuse de recibo debería corresponder a otro mes.")
                DocErr = True
             End If
             
@@ -960,7 +960,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
 
             
          ElseIf month(lFechaAcuse) <> Mes Or Year(lFechaAcuse) <> Ano Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "La fecha del acuse de recibo no corresponde al mes-año seleccionado.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "La fecha del acuse de recibo no corresponde al mes-año seleccionado.")
             DocErr = True
          End If
               
@@ -996,7 +996,7 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
       Else
       
          If lCodDocDTESII <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
             DocErr = True
          End If
          
@@ -1005,25 +1005,25 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
          
          'RUT Proveedor
          If lRUTEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza RUT con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza RUT con datos documento actual.")
             DocErr = True
          End If
             
          'Razón Social
          If lRazonSocialEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
             DocErr = True
          End If
          
          'Folio
          If lNumDoc <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
             DocErr = True
          End If
    
          'Fecha Docto
          If lFechaEmision <> Int(GetDate(Trim(NextField2(Buf, p, Sep)))) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
             DocErr = True
          End If
          
@@ -1034,17 +1034,17 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
       End If
       
       lOtrosImp(r).CodSIIDTE = Trim(NextField2(Buf, p, Sep))
-      lOtrosImp(r).Valor = vFmt(NextField2(Buf, p, Sep))
+      lOtrosImp(r).valor = vFmt(NextField2(Buf, p, Sep))
       lOtrosImp(r).Tasa = vFmt(NextField2(Buf, p, Sep))
       
       If lOtrosImp(r).CodSIIDTE <> "" And lOtrosImp(r).CodSIIDTE <> "0" Then
          IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lOtrosImp(r).CodSIIDTE)
          If IdTipoValLib <= 0 Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código otro impuesto inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código otro impuesto inválido.")
             DocErr = True
          
          ElseIf Not ValidaOtroImp(lOtrosImp(r).CodSIIDTE) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código de impuesto inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código de impuesto inválido.")
             DocErr = True
          End If
       End If
@@ -1064,12 +1064,12 @@ Public Function Import_LibroComprasSIIAuto(Frm As Form, ByVal FName As String, A
             If GenDocumento Then       'puede que no se agregue si ya existe
                NDocsOK = NDocsOK + 1
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Documento ya existe.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Documento ya existe.")
             End If
          Else
             DocErr = True
             NDocsConError = NDocsConError + 1
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
          End If
       Else
          NDocsConError = NDocsConError + 1
@@ -1115,7 +1115,7 @@ End Function
 'Fin 2862611
 '2862611
 ' CON DLL Descomentar interior ademas de agregar la DLL a los componentes
-Public Function Import_LibroComprasSIIAuto1(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer, Rut As String, Clave As String) As Boolean
+Public Function Import_LibroComprasSIIAuto1(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer, Rut As String, Clave As String) As Boolean
 '   Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
 '   Dim p As Long
 '   Dim FNameLogImp As String
@@ -1620,7 +1620,7 @@ End Function
 'Fin 2862611
 '2862611
 'SIN DLL
-Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer, Info() As String) As Boolean
+Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer, Info() As String) As Boolean
    Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
    Dim p As Long
    Dim FNameLogImp As String
@@ -1663,7 +1663,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
    
       '******************** ADO 2678537 Validación RC y RV (Victor Morales) 15-11-2021 *******************
    
-   Lineas = Split(FName, "_")
+   Lineas = Split(fname, "_")
 
 '   If UBound(Lineas) = 3 Then
 '      For i = LBound(Lineas) To UBound(Lineas)
@@ -1777,7 +1777,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
       n = vFmt(NextField2(Buf, p, Sep))         'número correlativo de registro. Viene en blanco si continúa documento anterior
       If n = 0 Then
          If CorrelativoDoc = 0 Then
-            Call AddLogImp(FNameLogImp, FName, l, "Falta número de registro.")
+            Call AddLogImp(FNameLogImp, fname, l, "Falta número de registro.")
             DocErr = True
          Else   'es continuación del documento anterior
             NewDoc = False
@@ -1792,15 +1792,15 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
                   If GenDocumento Then       'puede que no se agregue si ya existe
                      NDocsOK = NDocsOK + 1
                      If MsgTot <> "" Then
-                        Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: " & MsgTot)
+                        Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: " & MsgTot)
                      End If
                   Else
-                     Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Documento ya existe.")
+                     Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Documento ya existe.")
                   End If
                Else
                   DocErr = True
                   NDocsConError = NDocsConError + 1
-                  Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+                  Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
                                                          
                End If
             Else
@@ -1862,7 +1862,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
          For k = 0 To UBound(lOtrosImp)
             lOtrosImp(k).CodSIIDTE = ""
             lOtrosImp(k).Tasa = 0
-            lOtrosImp(k).Valor = 0
+            lOtrosImp(k).valor = 0
          Next k
          
       End If
@@ -1872,7 +1872,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
       
          lCodDocDTESII = Trim(NextField2(Buf, p, Sep))
          If lCodDocDTESII = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el tipo de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el tipo de documento.")
             DocErr = True
          End If
          
@@ -1882,7 +1882,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
             lDTE = False
             lTipoDoc = GetTipoDocFromCodDocSII(lTipoLib, lCodDocDTESII)
             If lTipoDoc = 0 Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Tipo de documento inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Tipo de documento inválido.")
                DocErr = True
             End If
          End If
@@ -1895,7 +1895,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
          lRUTEntidad = Trim(NextField2(Buf, p, Sep))
          If InStr(ES_DOC_EXPORT, "," & lCodDocDTESII & ",") <= 0 Then             'FCA - 12/10/2021
             If Not ValidRut(lRUTEntidad) Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "RUT inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "RUT inválido.")
                DocErr = True
             End If
          End If
@@ -1903,7 +1903,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
          'Razón Social
          lRazonSocialEntidad = Trim(NextField2(Buf, p, Sep))
          If lRazonSocialEntidad = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta razón social.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta razón social.")
             DocErr = True
          End If
          
@@ -1914,14 +1914,14 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
          'Folio
          lNumDoc = Trim(NextField2(Buf, p, Sep))
          If lNumDoc = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el número de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el número de documento.")
             DocErr = True
          End If
    
          'Fecha Docto (Fecha Emision)
          lFechaEmision = Int(GetDate(Trim(NextField2(Buf, p, Sep))))
          If lFechaEmision = 0 Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
             DocErr = True
          End If
          
@@ -2001,12 +2001,12 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
                            vError = 1
                         Else
                            vError = 2
-                           Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
+                           Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
                            DocErr = True
                            
                         End If
                  ElseIf vError = 2 Then
-                   Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
+                   Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
                    DocErr = True
                   End If
             End If
@@ -2057,13 +2057,13 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
          
          'Codigo Otro Impuesto; Valor Otro Impuesto; Tasa Otro Impuesto (r = 0)
          lOtrosImp(r).CodSIIDTE = Trim(NextField2(Buf, p, Sep))
-         lOtrosImp(r).Valor = vFmt(NextField2(Buf, p, Sep))
+         lOtrosImp(r).valor = vFmt(NextField2(Buf, p, Sep))
          lOtrosImp(r).Tasa = vFmt(NextField2(Buf, p, Sep))
          
          If lCodOtroImp <> "" Then
             IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lCodOtroImp)
             If IdTipoValLib <= 0 Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código otro impuesto inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código otro impuesto inválido.")
                DocErr = True
             End If
          End If
@@ -2071,7 +2071,7 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
       Else  'es continuación del registro anterior, nuevo documento
 
          If lCodDocDTESII <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
             DocErr = True
          End If
 
@@ -2080,25 +2080,25 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
 
          'RUT Cliente
          If lRUTEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza RUT con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza RUT con datos documento actual.")
             DocErr = True
          End If
 
          'Razón Social
          If lRazonSocialEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
             DocErr = True
          End If
 
          'Folio
          If lNumDoc <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
             DocErr = True
          End If
 
          'Fecha Docto
          If lFechaEmision <> Int(GetDate(Trim(NextField2(Buf, p, Sep)))) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
             DocErr = True
          End If
 
@@ -2107,12 +2107,12 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
          Next F
            
          lOtrosImp(r).CodSIIDTE = Trim(NextField2(Buf, p, Sep))
-         lOtrosImp(r).Valor = vFmt(NextField2(Buf, p, Sep))
+         lOtrosImp(r).valor = vFmt(NextField2(Buf, p, Sep))
          lOtrosImp(r).Tasa = vFmt(NextField2(Buf, p, Sep))
    
          If lOtrosImp(r).CodSIIDTE <> "" And lOtrosImp(r).CodSIIDTE <> "0" Then
             If Not ValidaOtroImp(lOtrosImp(r).CodSIIDTE) Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código de impuesto inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código de impuesto inválido.")
                DocErr = True
             End If
          End If
@@ -2134,12 +2134,12 @@ Public Function Import_LibroVentasSIIAuto(Frm As Form, ByVal FName As String, An
             If GenDocumento Then       'puede que no se agregue si ya existe
                NDocsOK = NDocsOK + 1
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Documento ya existe.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Documento ya existe.")
             End If
          Else
             DocErr = True
             NDocsConError = NDocsConError + 1
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
          End If
       Else
          NDocsConError = NDocsConError + 1
@@ -2199,7 +2199,7 @@ EndFnc:
 
 End Function
 
-Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer) As Boolean
+Public Function Import_LibroVentasSII(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer) As Boolean
    Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
    Dim p As Long
    Dim FNameLogImp As String
@@ -2243,7 +2243,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
    
       '******************** ADO 2678537 Validación RC y RV (Victor Morales) 15-11-2021 *******************
    
-   Lineas = Split(FName, "_")
+   Lineas = Split(fname, "_")
 
    If UBound(Lineas) = 3 Then
       For i = LBound(Lineas) To UBound(Lineas)
@@ -2279,9 +2279,9 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
    
    '****************************************************************************************************
    
-   Rc = LineCount(FName, MaxRegLibComp)
+   Rc = LineCount(fname, MaxRegLibComp)
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Import_LibroVentasSII = -ERR
       Exit Function
    End If
@@ -2299,22 +2299,22 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
    
    
    'convertimos el archivo de Unix a DOS porque así lo entrega el SII
-   Rc = ConvUnix2DosFile(FName, FName & "_")
+   Rc = ConvUnix2DosFile(fname, fname & "_")
    
    If Rc < 0 Then    'hubo un error al leer el archivo
       Exit Function
    ElseIf Rc = 0 Then   ' no lo convirtió porque ya está en formato DOS, se usa archivo original
       FNameTmp = ""
    ElseIf Rc > 0 Then   'lo convirtió y generó arcgivo temporal con guión bajo al final. Leemos del archivo temporal y luego lo borramos
-      FName = FName & "_"
-      FNameTmp = FName
+      fname = fname & "_"
+      FNameTmp = fname
    End If
       
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Import_LibroVentasSII = -ERR
       If FNameTmp <> "" Then   'generamos uno temporal
          Kill FNameTmp            'lo borramos
@@ -2355,7 +2355,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
       n = vFmt(NextField2(Buf, p, Sep))         'número correlativo de registro. Viene en blanco si continúa documento anterior
       If n = 0 Then
          If CorrelativoDoc = 0 Then
-            Call AddLogImp(FNameLogImp, FName, l, "Falta número de registro.")
+            Call AddLogImp(FNameLogImp, fname, l, "Falta número de registro.")
             DocErr = True
          Else   'es continuación del documento anterior
             NewDoc = False
@@ -2370,15 +2370,15 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
                   If GenDocumento Then       'puede que no se agregue si ya existe
                      NDocsOK = NDocsOK + 1
                      If MsgTot <> "" Then
-                        Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: " & MsgTot)
+                        Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: " & MsgTot)
                      End If
                   Else
-                     Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Documento ya existe.")
+                     Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Documento ya existe.")
                   End If
                Else
                   DocErr = True
                   NDocsConError = NDocsConError + 1
-                  Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+                  Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
                                                          
                End If
             Else
@@ -2440,7 +2440,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
          For k = 0 To UBound(lOtrosImp)
             lOtrosImp(k).CodSIIDTE = ""
             lOtrosImp(k).Tasa = 0
-            lOtrosImp(k).Valor = 0
+            lOtrosImp(k).valor = 0
          Next k
          
       End If
@@ -2450,7 +2450,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
       
          lCodDocDTESII = Trim(NextField2(Buf, p, Sep))
          If lCodDocDTESII = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el tipo de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el tipo de documento.")
             DocErr = True
          End If
          
@@ -2460,7 +2460,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
             lDTE = False
             lTipoDoc = GetTipoDocFromCodDocSII(lTipoLib, lCodDocDTESII)
             If lTipoDoc = 0 Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Tipo de documento inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Tipo de documento inválido.")
                DocErr = True
             End If
          End If
@@ -2473,7 +2473,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
          lRUTEntidad = Trim(NextField2(Buf, p, Sep))
          If InStr(ES_DOC_EXPORT, "," & lCodDocDTESII & ",") <= 0 Then             'FCA - 12/10/2021
             If Not ValidRut(lRUTEntidad) Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "RUT inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "RUT inválido.")
                DocErr = True
             End If
          End If
@@ -2481,7 +2481,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
          'Razón Social
          lRazonSocialEntidad = Trim(NextField2(Buf, p, Sep))
          If lRazonSocialEntidad = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta razón social.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta razón social.")
             DocErr = True
          End If
          
@@ -2492,14 +2492,14 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
          'Folio
          lNumDoc = Trim(NextField2(Buf, p, Sep))
          If lNumDoc = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el número de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el número de documento.")
             DocErr = True
          End If
    
          'Fecha Docto (Fecha Emision)
          lFechaEmision = Int(GetDate(Trim(NextField2(Buf, p, Sep))))
          If lFechaEmision = 0 Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Falta la fecha del Documento.")
             DocErr = True
          End If
          
@@ -2579,12 +2579,12 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
                            vError = 1
                         Else
                            vError = 2
-                           Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
+                           Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
                            DocErr = True
                            
                         End If
                  ElseIf vError = 2 Then
-                   Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
+                   Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "El documento de referencia no ha sido ingresado al sistema.")
                    DocErr = True
                   End If
             End If
@@ -2635,13 +2635,13 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
          
          'Codigo Otro Impuesto; Valor Otro Impuesto; Tasa Otro Impuesto (r = 0)
          lOtrosImp(r).CodSIIDTE = Trim(NextField2(Buf, p, Sep))
-         lOtrosImp(r).Valor = vFmt(NextField2(Buf, p, Sep))
+         lOtrosImp(r).valor = vFmt(NextField2(Buf, p, Sep))
          lOtrosImp(r).Tasa = vFmt(NextField2(Buf, p, Sep))
          
          If lCodOtroImp <> "" Then
             IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lCodOtroImp)
             If IdTipoValLib <= 0 Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código otro impuesto inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código otro impuesto inválido.")
                DocErr = True
             End If
          End If
@@ -2649,7 +2649,7 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
       Else  'es continuación del registro anterior, nuevo documento
 
          If lCodDocDTESII <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza tipo de documento con datos documento actual.")
             DocErr = True
          End If
 
@@ -2658,25 +2658,25 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
 
          'RUT Cliente
          If lRUTEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza RUT con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza RUT con datos documento actual.")
             DocErr = True
          End If
 
          'Razón Social
          If lRazonSocialEntidad <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Razón Social con datos documento actual.")
             DocErr = True
          End If
 
          'Folio
          If lNumDoc <> Trim(NextField2(Buf, p, Sep)) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Nro. Documento con datos documento actual.")
             DocErr = True
          End If
 
          'Fecha Docto
          If lFechaEmision <> Int(GetDate(Trim(NextField2(Buf, p, Sep)))) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "No calza Fecha Documento con datos documento actual.")
             DocErr = True
          End If
 
@@ -2685,12 +2685,12 @@ Public Function Import_LibroVentasSII(Frm As Form, ByVal FName As String, Ano As
          Next F
            
          lOtrosImp(r).CodSIIDTE = Trim(NextField2(Buf, p, Sep))
-         lOtrosImp(r).Valor = vFmt(NextField2(Buf, p, Sep))
+         lOtrosImp(r).valor = vFmt(NextField2(Buf, p, Sep))
          lOtrosImp(r).Tasa = vFmt(NextField2(Buf, p, Sep))
    
          If lOtrosImp(r).CodSIIDTE <> "" And lOtrosImp(r).CodSIIDTE <> "0" Then
             If Not ValidaOtroImp(lOtrosImp(r).CodSIIDTE) Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código de impuesto inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código de impuesto inválido.")
                DocErr = True
             End If
          End If
@@ -2712,12 +2712,12 @@ NextRec:
             If GenDocumento Then       'puede que no se agregue si ya existe
                NDocsOK = NDocsOK + 1
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Documento ya existe.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Documento ya existe.")
             End If
          Else
             DocErr = True
             NDocsConError = NDocsConError + 1
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
          End If
       Else
          NDocsConError = NDocsConError + 1
@@ -2780,7 +2780,7 @@ End Function
 
 '2862611
 'CON DLL Descomentar y agrear DLL a los componentes
-Public Function Import_LibroVentasSIIAuto1(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer, Rut As String, Clave As String) As Boolean
+Public Function Import_LibroVentasSIIAuto1(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer, Rut As String, Clave As String) As Boolean
 '   Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
 '   Dim p As Long
 '   Dim FNameLogImp As String
@@ -3379,7 +3379,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
     Dim p As Long
     Dim CampoInvalido As String
     Dim NumDoc As String
-    Dim FName As String
+    Dim fname As String
     Dim DtRec As Long, DtEmi As Long
     Dim TipoDoc As String
     Dim IdTipoDoc As Integer
@@ -3509,7 +3509,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
       NumDoc = Trim(Trim(NextField2(Buf, p, Sep)))
       If NumDoc = "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "N° de documento inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "N° de documento inválido.")
       End If
 
       'Fecha recepción/emisión
@@ -3518,7 +3518,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
        DtRec = ValFmtDate(Trim(NextField2(Buf, p, Sep)), False)
       If DtRec = 0 Or DtRec < Dt1 Or DtRec > Dt2 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha recepción inválida o fuera del mes en edición.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha recepción inválida o fuera del mes en edición.")
       End If
 
       'Tipo Doc
@@ -3526,7 +3526,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
       IdTipoDoc = FindTipoDoc(LIB_RETEN, TipoDoc)
       If IdTipoDoc = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Tipo de documento inválido o no corresponde al libro en edición. Valores perimtidos ""BOH"", ""BRT"".")
+         Call AddLogImp(lFNameLogImp, fname, l, "Tipo de documento inválido o no corresponde al libro en edición. Valores perimtidos ""BOH"", ""BRT"".")
       End If
 
       'DTE
@@ -3543,7 +3543,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
       DtEmi = DtRec 'ValFmtDate(Aux, False)
       If DtEmi = 0 Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Fecha emisión inválida.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Fecha emisión inválida.")
       End If
 
       'Entidad
@@ -3560,7 +3560,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
          If RutEnt = "0" Or RutEnt = "" Then    'es inválido
             NotValidRut = True
             CampoInvalido = CampoInvalido & "," & p
-            Call AddLogImp(lFNameLogImp, FName, l, "RUT inválido")
+            Call AddLogImp(lFNameLogImp, fname, l, "RUT inválido")
          End If
       End If
 
@@ -3569,7 +3569,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
       NombEnt = Trim(NextField2(Buf, p, Sep))
       If NombEnt = "" And RutEnt <> "" Then
          CampoInvalido = CampoInvalido & "," & p
-         Call AddLogImp(lFNameLogImp, FName, l, "Falta ingresar nombre o razón social entidad.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Falta ingresar nombre o razón social entidad.")
       End If
 
       'Descrpción
@@ -3620,7 +3620,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
 
       If Bruto < 0 Or Neto < 0 Or Impuesto < 0 Then
          CampoInvalido = CampoInvalido & "," & "Bruto, Impuesto, Neto"
-         Call AddLogImp(lFNameLogImp, FName, l, "Valor de Bruto, Impuesto y/o Neto inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "Valor de Bruto, Impuesto y/o Neto inválido.")
       End If
 
 '      If HonSinRet > 0 And Bruto > 0 Then
@@ -3630,7 +3630,7 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
 
       If Bruto > 0 And Neto = 0 Then
          CampoInvalido = CampoInvalido & "," & "Neto"
-         Call AddLogImp(lFNameLogImp, FName, l, "El valor Neto está en cero o es inválido.")
+         Call AddLogImp(lFNameLogImp, fname, l, "El valor Neto está en cero o es inválido.")
       End If
 
 '      Select Case LCase(StrPImp)
@@ -3926,6 +3926,10 @@ Public Function Import_LibroRetencionesSIIAuto(lAno As Integer, lMes As Integer,
          Q1 = Q1 & " WHERE IdDoc = " & IdDoc
          Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
          Call ExecSQL(DbMain, Q1)
+         
+         'Tracking 3227543
+        Call SeguimientoDocumento(IdDoc, gEmpresa.id, gEmpresa.Ano, "ImportLibComprasVentasSII.Import_LibroRetencionesSIIAuto", Q1, 1, "", gUsuario.IdUsuario, 2, 1)
+        ' fin 3227543
 
 
       Else
@@ -4460,7 +4464,7 @@ Private Function Import_LibroRetencionesSIIAuto1() As Boolean
 End Function
 
 
-Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, Ano As Integer, Mes As Integer) As Boolean
+Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal fname As String, Ano As Integer, Mes As Integer) As Boolean
    Dim i As Integer, j As Integer, k As Integer, n As Integer, r As Integer, l As Integer, F As Integer
    Dim p As Long
    Dim FNameLogImp As String
@@ -4495,9 +4499,9 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
    MaxRegLibComp = 3000
    On Error Resume Next
    
-   Rc = LineCount(FName, MaxRegLibComp)
+   Rc = LineCount(fname, MaxRegLibComp)
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Import_LibroVentasSII_OLD = -ERR
       Exit Function
    End If
@@ -4515,22 +4519,22 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
    
    
    'convertimos el archivo de Unix a DOS porque así lo entrega el SII
-   Rc = ConvUnix2DosFile(FName, FName & "_")
+   Rc = ConvUnix2DosFile(fname, fname & "_")
    
    If Rc < 0 Then    'hubo un error al leer el archivo
       Exit Function
    ElseIf Rc = 0 Then   ' no lo convirtió porque ya está en formato DOS, se usa archivo original
       FNameTmp = ""
    ElseIf Rc > 0 Then   'lo convirtió y generó arcgivo temporal con guión bajo al final. Leemos del archivo temporal y luego lo borramos
-      FName = FName & "_"
-      FNameTmp = FName
+      fname = fname & "_"
+      FNameTmp = fname
    End If
       
    'abrimos el archivo
    Fd = FreeFile
-   Open FName For Input As #Fd
+   Open fname For Input As #Fd
    If ERR Then
-      MsgErr FName
+      MsgErr fname
       Import_LibroVentasSII_OLD = -ERR
       If FNameTmp <> "" Then   'generamos uno temporal
          Kill FNameTmp            'lo borramos
@@ -4571,7 +4575,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
       n = vFmt(NextField2(Buf, p, Sep))         'número correlativo de registro. Viene en blanco si continúa documento anterior
       If n = 0 Then
          If CorrelativoDoc = 0 Then
-            Call AddLogImp(FNameLogImp, FName, l, "Falta número de registro.")
+            Call AddLogImp(FNameLogImp, fname, l, "Falta número de registro.")
             DocErr = True
          Else   'es continuación del documento anterior
             NewDoc = False
@@ -4586,15 +4590,15 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
                   If GenDocumento Then       'puede que no se agregue si ya existe
                      NDocsOK = NDocsOK + 1
                      If MsgTot <> "" Then
-                        Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: " & MsgTot)
+                        Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: " & MsgTot)
                      End If
                   Else
-                     Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Advertencia: Documento ya existe.")
+                     Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Advertencia: Documento ya existe.")
                   End If
                Else
                   DocErr = True
                   NDocsConError = NDocsConError + 1
-                  Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+                  Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
                                                          
                End If
             Else
@@ -4650,7 +4654,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
          For k = 0 To UBound(lOtrosImp)
             lOtrosImp(k).CodSIIDTE = ""
             lOtrosImp(k).Tasa = 0
-            lOtrosImp(k).Valor = 0
+            lOtrosImp(k).valor = 0
          Next k
          
       End If
@@ -4660,7 +4664,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
       
          lCodDocDTESII = Trim(NextField2(Buf, p, Sep))
          If lCodDocDTESII = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el tipo de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el tipo de documento.")
             DocErr = True
          End If
          
@@ -4670,7 +4674,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
             lDTE = False
             lTipoDoc = GetTipoDocFromCodDocSII(lTipoLib, lCodDocDTESII)
             If lTipoDoc = 0 Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Tipo de documento inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Tipo de documento inválido.")
                DocErr = True
             End If
          End If
@@ -4682,7 +4686,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
          'RUT Cliente
          lRUTEntidad = Trim(NextField2(Buf, p, Sep))
          If Not ValidRut(lRUTEntidad) Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "RUT inválido.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "RUT inválido.")
             DocErr = True
          End If
          
@@ -4690,7 +4694,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
          'Razón Social
          lRazonSocialEntidad = Trim(NextField2(Buf, p, Sep))
          If lRazonSocialEntidad = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta razón social.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta razón social.")
             DocErr = True
          End If
          
@@ -4701,7 +4705,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
          'Folio
          lNumDoc = Trim(NextField2(Buf, p, Sep))
          If lNumDoc = "" Then
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Falta el número de documento.")
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Falta el número de documento.")
             DocErr = True
          End If
    
@@ -4789,7 +4793,7 @@ Public Function Import_LibroVentasSII_OLD(Frm As Form, ByVal FName As String, An
          If lCodOtroImp <> "" Then
             IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lCodOtroImp)
             If IdTipoValLib <= 0 Then
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Código otro impuesto inválido.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Código otro impuesto inválido.")
                DocErr = True
             End If
          End If
@@ -4860,12 +4864,12 @@ NextRec:
             If GenDocumento Then       'puede que no se agregue si ya existe
                NDocsOK = NDocsOK + 1
             Else
-               Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, "Documento ya existe.")
+               Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, "Documento ya existe.")
             End If
          Else
             DocErr = True
             NDocsConError = NDocsConError + 1
-            Call AddLogImp(FNameLogImp, FName, CorrelativoDoc, MsgTot)
+            Call AddLogImp(FNameLogImp, fname, CorrelativoDoc, MsgTot)
          End If
       Else
          NDocsConError = NDocsConError + 1
@@ -5548,12 +5552,12 @@ Private Function ValidaTotalesCompras(Msg As String) As Boolean
       
          If NotaCredDeb Then
             If InStr(IMP_RESTA_60_61_55_56, "," & lOtrosImp(k).CodSIIDTE & ",") > 0 Then
-               TotOtroImp = TotOtroImp - lOtrosImp(k).Valor
+               TotOtroImp = TotOtroImp - lOtrosImp(k).valor
             Else
-               TotOtroImp = TotOtroImp + lOtrosImp(k).Valor
+               TotOtroImp = TotOtroImp + lOtrosImp(k).valor
             End If
          Else
-            TotOtroImp = TotOtroImp + lOtrosImp(k).Valor
+            TotOtroImp = TotOtroImp + lOtrosImp(k).valor
          End If
          
       Else
@@ -6018,7 +6022,7 @@ Private Sub GenMovDocumento()
          If lOtrosImp(r).CodSIIDTE <> "" And lOtrosImp(r).CodSIIDTE <> "0" Then
          
             IdCuenta = 0
-            ValOtroImp = lOtrosImp(r).Valor
+            ValOtroImp = lOtrosImp(r).valor
             OImpEsIVARetenido = False
             
             IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lOtrosImp(r).CodSIIDTE)
@@ -6397,7 +6401,7 @@ Private Sub GenMovDocumento()
          If lOtrosImp(r).CodSIIDTE <> "" And lOtrosImp(r).CodSIIDTE <> "0" Then
          
             IdCuenta = 0
-            ValOtroImp = lOtrosImp(r).Valor
+            ValOtroImp = lOtrosImp(r).valor
             
             IdTipoValLib = GetTipoTipoValLibFromCodSIIDTE(lTipoLib, lOtrosImp(r).CodSIIDTE)
             If IdTipoValLib > 0 Then
@@ -6585,6 +6589,11 @@ Private Sub GenMovDocumento()
          Call ExecSQL(DbMain, Q1)
       End If
    End If
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "ImportLibComprasVentasSII.GenMovDocumento", "", 1, "", gUsuario.IdUsuario, 2, 1)
+    Call SeguimientoMovDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "ImportLibComprasVentasSII.GenMovDocumento", "", 1, "", 2, 1)
+    ' fin 3227543
    
 End Sub
 

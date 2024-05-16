@@ -581,7 +581,7 @@ Public Function CrearNuevoAnoSQLFromAccess(ByVal IdEmpresa As Long, ByVal Ano As
    Dim i As Integer
    Dim IdCta As Long
    Dim FldArray(11) As AdvTbAddNew_t
-   Dim idcomp As Long, IdCompNew As Long
+   Dim IdComp As Long, IdCompNew As Long
    Dim IdEmpAnoAnt As Long
    Dim IdCtaAportes As Long, IdCtaRetiros As Long
    Dim TblName As String, Where As String, OrderBy As String
@@ -1138,7 +1138,7 @@ Public Function CrearNuevoAnoSQLFromAccess(ByVal IdEmpresa As Long, ByVal Ano As
       
       Do While Not RsDao.EOF
       
-         idcomp = vFldDao(RsDao("IdComp"))
+         IdComp = vFldDao(RsDao("IdComp"))
                      
          FldArray(0).FldName = "IdEmpresa"
          FldArray(0).FldValue = IdEmpresa
@@ -1190,7 +1190,7 @@ Public Function CrearNuevoAnoSQLFromAccess(ByVal IdEmpresa As Long, ByVal Ano As
          Fld2 = " IdEmpresa, Orden, CodCuenta, Debe, Haber, Glosa, IdCCosto, IdAreaNeg, Conciliado, IdCuenta "
          
          Q1 = "SELECT " & Fld & " FROM CT_MovComprobante "    ' WHERE Cuentas.IdEmpresa = " & IdEmpresa  ' dado que el año anterior es Access y empresas separadas
-         Q1 = Q1 & " WHERE IdComp = " & idcomp
+         Q1 = Q1 & " WHERE IdComp = " & IdComp
          Q1 = Q1 & " ORDER BY IdMov "
          Set RsDaoAux = OpenRsDao(DbAnoAnt, Q1)
          
@@ -1490,8 +1490,8 @@ Public Function CopyDocsFromAccessToSQLServer(ByVal DbAnoAnt As Database, ByVal 
    Q1 = "UPDATE Documento SET FExported = -1"
 '   Q1 = Q1 & " WHERE (FExported = 0 OR FExported Is NULL) "    'para que siempre pueda volver a importar por si tiene que volver a hacerlo
    '616437 ffv odf
-   Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
-   'Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ", " & ED_CENTRALIZADO & " ," & ED_PAGADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
+   'Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
+   Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ", " & ED_CENTRALIZADO & " ," & ED_PAGADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
    '616437 ffv odf
    Call ExecSQLDao(DbAnoAnt, Q1)   'IdEmpresa y Año no se requiere, dado que son empresas/Año separados
    'fin 626850
@@ -1939,6 +1939,11 @@ Public Function CopyDocsFromAccessToSQLServer(ByVal DbAnoAnt As Database, ByVal 
    Q1 = Q1 & Where
    Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
    Call ExecSQL(DbMain, Q1)
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(IdDocNew, gEmpresa.id, gEmpresa.Ano, "CrearAnoSQLFromAccess.CopyDocsFromAccessToSQLServer", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    Call SeguimientoMovDocumento(IdDocNew, gEmpresa.id, gEmpresa.Ano, "CrearAnoSQLFromAccess.CopyDocsFromAccessToSQLServer", "", 1, "", 1, 2)
+    ' fin 3227543
   
 
 End Function
@@ -1974,8 +1979,8 @@ Public Function CopyDocsFromAccessToSQLServerNew(ByVal DbAnoAnt As Database, ByV
    Q1 = "UPDATE Documento SET FExported = -1"
 '   Q1 = Q1 & " WHERE (FExported = 0 OR FExported Is NULL) "    'para que siempre pueda volver a importar por si tiene que volver a hacerlo
     '616437 ffv odf
-   Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
-   'Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ", " & ED_CENTRALIZADO & " ," & ED_PAGADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
+   'Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
+   Q1 = Q1 & " WHERE SaldoDoc <> 0 AND Estado IN(" & ED_APROBADO & ", " & ED_CENTRALIZADO & " ," & ED_PAGADO & ") AND TipoLib IN( " & LIB_OTROFULL & ")"
    '616437 ffv odf
    Call ExecSQLDao(DbAnoAnt, Q1)   'IdEmpresa y Año no se requiere, dado que son empresas/Año separados
    'fin 626850 - 627458
@@ -2438,6 +2443,11 @@ Public Function CopyDocsFromAccessToSQLServerNew(ByVal DbAnoAnt As Database, ByV
    Q1 = Q1 & Where
    Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa & " AND Ano = " & Ano
    Call ExecSQL(DbMain, Q1)
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(IdDocNew, gEmpresa.id, gEmpresa.Ano, "CrearAnoSQLFromAccess.CopyDocsFromAccessToSQLServer", "", 1, "", gUsuario.IdUsuario, 1, 1)
+    Call SeguimientoMovDocumento(IdDocNew, gEmpresa.id, gEmpresa.Ano, "CrearAnoSQLFromAccess.CopyDocsFromAccessToSQLServer", "", 1, "", 1, 1)
+    ' fin 3227543
   
 
 End Function
@@ -2456,7 +2466,7 @@ Public Function CopyActFijoFromAccessToSQLServer(ByVal DbAnoAnt As Database, ByV
    Dim CodCuenta As String
    Dim Fld As String, Fld2 As String
    Dim IdActFijoNew As Long, IdActFijo As Long
-   Dim IdGrupo As Long, IdGrupoOld As Long, idcomp As Long
+   Dim IdGrupo As Long, IdGrupoOld As Long, IdComp As Long
    Dim sSet As String, sFrom As String, sWhere As String, Tbl As String
    Dim NImported As Long
   
@@ -2713,17 +2723,17 @@ Public Function CopyActFijoFromAccessToSQLServer(ByVal DbAnoAnt As Database, ByV
                   
             'obtenemos el IdGrupo en SQL Server e insertamos en MovActtivoFijo
             
-            idcomp = 0
+            IdComp = 0
             Q1 = "SELECT IdComp FROM AFComponentes WHERE AFComponentes.NombComp = '" & RsDaoAux2("NombComp") & "'"
             Q1 = Q1 & " AND IdEmpresa = " & IdEmpresa
             Set Rs = OpenRs(DbMain, Q1)
             If Not Rs.EOF Then
-               idcomp = vFld(Rs("IdComp"))
+               IdComp = vFld(Rs("IdComp"))
             End If
             Call CloseRs(Rs)
                                  
             'Ahora el Insert del ActFijoCompsFicha
-            Q1 = "INSERT INTO ActFijoCompsFicha ( IdActFijo, IdGrupo, IdComp, " & Fld2 & ") VALUES(" & IdActFijoNew & "," & IdGrupo & "," & idcomp & ","
+            Q1 = "INSERT INTO ActFijoCompsFicha ( IdActFijo, IdGrupo, IdComp, " & Fld2 & ") VALUES(" & IdActFijoNew & "," & IdGrupo & "," & IdComp & ","
             
             For i = 0 To RsDaoAux2.Fields.Count - 1
                If RsDaoAux2(i).Name = "NombComp" Then

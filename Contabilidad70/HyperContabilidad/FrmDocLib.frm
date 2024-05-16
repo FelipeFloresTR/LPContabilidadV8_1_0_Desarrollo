@@ -2224,6 +2224,14 @@ Private Sub SaveAll()
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
    
+   'Tracking 3227543
+    If lOper = O_NEW Then
+        Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDocLib.SaveAll", Q1, 1, "", gUsuario.IdUsuario, 1, 1)
+    Else
+        Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDocLib.SaveAll", Q1, 1, "", gUsuario.IdUsuario, 1, 2)
+    End If
+    ' fin 3227543
+   
    Call SaveDocAsoc
       
    Call SaveGrMov
@@ -2236,12 +2244,20 @@ Private Sub SaveDocAsoc()
    Q1 = Q1 & ", SaldoDoc = NULL WHERE IdDoc =" & lIdDoc
    Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id & " AND Ano = " & gEmpresa.Ano
    Call ExecSQL(DbMain, Q1)
+   
+   'Tracking 3227543
+    Call SeguimientoDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDocLib.SaveDocAsoc", "", 1, "", gUsuario.IdUsuario, 1, 2)
+    ' fin 3227543
       
    If lIdDocAsoc <> 0 Then          'para que se recalcule el saldo en el documento asociado (se deja con SaldoDoc=0 en RecalcSaldos)
       Q1 = "UPDATE Documento SET SaldoDoc = NULL"
       Q1 = Q1 & "  WHERE IdDoc =" & lIdDocAsoc
       Q1 = Q1 & " AND IdEmpresa = " & gEmpresa.id    'no le ponemos el año porque podría ser del año anterior
       Call ExecSQL(DbMain, Q1)
+      
+      'Tracking 3227543
+      Call SeguimientoDocumento(lIdDocAsoc, gEmpresa.id, gEmpresa.Ano, "FrmDocLib.SaveDocAsoc", "", 1, "", gUsuario.IdUsuario, 1, 2)
+      ' fin 3227543
    End If
    
 End Sub
@@ -2670,6 +2686,10 @@ Private Sub SaveGrMov()
       End If
       
    End If
+   
+   'Tracking 3227543
+        Call SeguimientoMovDocumento(lIdDoc, gEmpresa.id, gEmpresa.Ano, "FrmDocLib.SaveGrMov", "", 1, "", 1, 1)
+    ' fin 3227543
    
 End Sub
 Private Sub FrmEnable()
